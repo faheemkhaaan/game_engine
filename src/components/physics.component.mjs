@@ -30,6 +30,7 @@ export class PhysicsComponent {
         this.mass = mass || Math.random() * 2 + 2
         this.restitution = 0.4
         this.forces = [];
+
     }
 
 

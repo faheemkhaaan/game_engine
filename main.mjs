@@ -19,17 +19,19 @@ const player = engine.world.createEntity('player');
 const box = engine.world.createEntity('box');
 const box2 = engine.world.createEntity('box2');
 
-player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 50 }));
+player.addComponent(new RenderComponent({ color: "blue", type: "rect", width: 50, height: 50 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 500 }));
-player.transform = new Transform({ pos: new Vector(800, 200) });
+player.transform = new Transform({ pos: new Vector(800, 200), size: new Vector(1, 1) });
 
-box.transform = new Transform({ pos: new Vector(400, 400) })
+box.transform = new Transform({ pos: new Vector(400, 400), size: new Vector(2, 2) })
 box.addComponent(new RenderComponent({ color: "red", type: 'circle', radius: 80 }))
 box.addComponent(new PhysicsComponent())
 
 
-box2.transform = new Transform({ pos: new Vector(300, 500) })
+box2.transform = new Transform({ pos: new Vector(300, 500), size: new Vector(2, 2) })
 box2.addComponent(new RenderComponent({ color: 'green', type: 'rect', width: 100, height: 200 }))
+box2.addComponent(new PhysicsComponent());
+
 
 engine.inputs.mapActions('move_up', 'KeyW')
 engine.inputs.mapActions('move_right', 'KeyD')

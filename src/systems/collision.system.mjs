@@ -1,5 +1,6 @@
 
 import { World } from "../core/world.mjs";
+import { SAT } from "../utils/sat.mjs";
 import { Vector } from "../utils/vector.mjs";
 
 
@@ -34,21 +35,11 @@ export class CollisionSystem {
         const p2 = e2.getComponent("PhysicsComponent");
         const r1 = e1.getComponent("RenderComponent");
         const r2 = e2.getComponent("RenderComponent");
+        if (!p1 || !p2 || !r1 || !r2) return;
 
-
-        const dispatch = {
-            'circlecircle': () => this.circleCircleCollision(p1, p2, r1, r2),
-            'circleRect': () => this.circleRectCollision(p1, p2),
-
-        }
-
-        if (r1.type === "circle" && r2.type === 'circle') {
-            const contact = this.circleCircleCollision(e1.transform.pos, e2.transform.pos, r1, r2);
-
-            if (contact && contact.depth > 0) {
-                this.resolveCollision(e1, p1, e2, p2, contact);
-            }
-            console.log(contact);
+        const contact = SAT.checkCollision(e1, r1, e2, r2);
+        if (contact && contact.depth > 0) {
+            this.resolveCollision(e1, p1, e2, p2, contact);
         }
 
     }
@@ -74,7 +65,6 @@ export class CollisionSystem {
             normal: normal,
             depth: minDist - dist
         }
-
     }
     resolveCollision(e1, p1, e2, p2, contact) {
         const invMass1 = p1.mass === 0 ? 0 : 1 / p1.mass; // Handle static objects (mass 0)
@@ -105,6 +95,5 @@ export class CollisionSystem {
 
         p1.velocity.add(impules.clone().scale(invMass1));
         p2.velocity.sub(impules.clone().scale(invMass2))
-
     }
 }
