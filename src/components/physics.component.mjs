@@ -20,15 +20,15 @@ export class PhysicsComponent {
      * @type {Entity}
      */
     entity
-    constructor(options = defaultOptions) {
-        this.velociy = options.velociy
-        this.aceleration = options.aceleration
-        this.gravity = options.gravity
-        this.drag = options.drag
-        this.maxSpeed = options.maxSpeed
-        this.static = options.static;
-        this.mass = options.mass || 5
-
+    constructor({ velocity = new Vector(0, 0), aceleration = new Vector(0, 0), gravity = new Vector(0, 0), drag = 0.98, maxSpeed = 200, isStatic = false, mass = 2 } = {}) {
+        this.velocity = velocity
+        this.aceleration = aceleration
+        this.gravity = gravity
+        this.drag = drag
+        this.maxSpeed = maxSpeed
+        this.static = isStatic;
+        this.mass = mass || Math.random() * 2 + 2
+        this.restitution = Math.random() * 5;
         this.forces = [];
     }
 

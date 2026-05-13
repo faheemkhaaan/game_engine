@@ -165,6 +165,9 @@ export class Vector {
         return new Vector(this.x, this.y);
     }
 
+    dist() {
+        return Math.hypot(this.x, this.y);
+    }
 
 
     /**
@@ -204,5 +207,16 @@ export class Vector {
             v1.x + (v2.x - v1.x) * t,
             v1.y + (v2.y - v1.y) * t
         )
+    }
+
+
+    /**
+     * 
+     * @param {Vector} v1 
+     * @param {Vector} v2 
+     * @returns {Vector}
+     */
+    static dot(v1, v2) {
+        return v1.x * v2.x + v1.y * v2.y;
     }
 }

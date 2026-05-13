@@ -46,18 +46,18 @@ export class PhysicsSystem {
         });
         physics.forces.length = 0;
 
-        physics.velociy.add(physics.gravity);
+        physics.velocity.add(physics.gravity);
 
-        physics.velociy.add(physics.aceleration.scale(deltaTime));
+        physics.velocity.add(physics.aceleration.clone().scale(deltaTime));
 
-        physics.velociy.scale(physics.drag);
+        physics.velocity.scale(physics.drag);
 
 
-        if (physics.velociy.mag() > physics.maxSpeed) {
-            physics.velociy.normalize().scale(physics.maxSpeed);
+        if (physics.velocity.mag() > physics.maxSpeed) {
+            physics.velocity.normalize().scale(physics.maxSpeed);
         }
 
-        physics.entity.transform.translate(physics.velociy.scale(deltaTime));
+        physics.entity.transform.translate(physics.velocity.clone().scale(deltaTime));
 
         physics.aceleration.set(0, 0);
     }
@@ -82,7 +82,7 @@ export class PhysicsSystem {
     applyImpulse(entity, impulse) {
         const physics = entity.getComponent("PhysicsComponent");
         if (physics) {
-            physics.velociy.add(impulse);
+            physics.velocity.add(impulse);
         }
     }
 }   
