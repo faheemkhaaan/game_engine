@@ -82,27 +82,24 @@ export class CollisionSystem {
 
         const totalInMass = invMass1 + invMass2;
 
-        const percent = 0.98;
+        const percent = 0.4;
         const slop = 0.01
         const correctionAmount = (Math.max(contact.depth - slop, 0) / totalInMass) * percent;
         const correction = contact.normal.clone().scale(correctionAmount / 2);
 
-        e1.transform.pos.add(correction.clone().scale(invMass1));
-        e2.transform.pos.sub(correction.clone().scale(invMass2));
+        e1.transform.pos.add(correction.clone().scale(invMass1 * correctionAmount));
+        e2.transform.pos.sub(correction.clone().scale(invMass2 * correctionAmount));
 
         const relativeVelocity = Vector.sub(p1.velocity, p2.velocity);
         const velocityAlongNormal = Vector.dot(relativeVelocity, contact.normal);
 
         if (velocityAlongNormal > 0) return;
 
-        const restitution = 0.5;
-        const velocityThreshold = 0.2;
+        const restitution = Math.min(p1.restitution, p2.restitution);
+        const velocityThreshold = 0.5;
         const effectiveRestitution =
             Math.abs(velocityAlongNormal) < velocityThreshold ? 0 : restitution;
-        let j = -(1 + effectiveRestitution) * velocityAlongNormal
-
-
-        j /= (invMass1 + invMass2);
+        const j = -(1 + effectiveRestitution) * velocityAlongNormal / totalInMass
 
         const impules = contact.normal.clone().scale(j);
 

@@ -28,7 +28,7 @@ export class PhysicsComponent {
         this.maxSpeed = maxSpeed
         this.static = isStatic;
         this.mass = mass || Math.random() * 2 + 2
-        this.restitution = Math.random() * 5;
+        this.restitution = 0.4
         this.forces = [];
     }
 
