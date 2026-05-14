@@ -119,6 +119,8 @@ export class CollisionSystem {
 
         const totalInMass = invMass1 + invMass2;
 
+        if (totalInMass <= 0) return;
+
         const percent = 0.4;
         const slop = 0.01
         const correctionAmount = (Math.max(contact.depth - slop, 0) / totalInMass) * percent;

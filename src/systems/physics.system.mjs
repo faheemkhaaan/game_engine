@@ -40,13 +40,13 @@ export class PhysicsSystem {
      * @param {number} deltaTime
      */
     updatePhysics(physics, deltaTime) {
-
+        if (physics.static) return;
         physics.forces.forEach(force => {
             physics.aceleration.add(force.divByNumber(physics.mass));
         });
         physics.forces.length = 0;
 
-        physics.velocity.add(physics.gravity);
+        physics.velocity.add(physics.gravity.clone().scale(20));
 
         physics.velocity.add(physics.aceleration.clone().scale(deltaTime));
 

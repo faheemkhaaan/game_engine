@@ -31,7 +31,7 @@ export class PhysicsComponent {
         this.drag = drag
         this.maxSpeed = maxSpeed
         this.static = isStatic;
-        this.mass = mass || Math.random() * 2 + 2
+        this.mass = this.static ? 0 : mass || Math.random() * 2 + 2
         this.restitution = 0.4
         this.forces = [];
 

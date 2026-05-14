@@ -23,14 +23,14 @@ player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius:
 player.addComponent(new PhysicsComponent({ maxSpeed: 500 }));
 player.transform = new Transform({ pos: new Vector(800, 200), size: new Vector(1, 1) });
 // console.log(player)
-box.transform = new Transform({ pos: new Vector(400, 300), size: new Vector(2, 2) })
+box.transform = new Transform({ pos: new Vector(400, -300), size: new Vector(2, 2) })
 box.addComponent(new RenderComponent({ color: "red", type: 'rect', width: 60, height: 100 }))
-box.addComponent(new PhysicsComponent())
+box.addComponent(new PhysicsComponent({ gravity: new Vector(0, 9.8) }))
 
 
 box2.transform = new Transform({ pos: new Vector(400, 500), size: new Vector(2, 2) })
 box2.addComponent(new RenderComponent({ color: 'green', type: 'rect', width: 100, height: 200 }))
-box2.addComponent(new PhysicsComponent());
+box2.addComponent(new PhysicsComponent({ gravity: new Vector(0, 9.8), isStatic: true }));
 
 
 engine.inputs.mapActions('move_up', 'KeyW')
