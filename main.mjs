@@ -19,16 +19,16 @@ const player = engine.world.createEntity('player');
 const box = engine.world.createEntity('box');
 const box2 = engine.world.createEntity('box2');
 
-player.addComponent(new RenderComponent({ color: "blue", type: "rect", width: 50, height: 50 }));
+player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 500 }));
 player.transform = new Transform({ pos: new Vector(800, 200), size: new Vector(1, 1) });
-
-box.transform = new Transform({ pos: new Vector(400, 400), size: new Vector(2, 2) })
-box.addComponent(new RenderComponent({ color: "red", type: 'circle', radius: 80 }))
+// console.log(player)
+box.transform = new Transform({ pos: new Vector(400, 300), size: new Vector(2, 2) })
+box.addComponent(new RenderComponent({ color: "red", type: 'rect', width: 60, height: 100 }))
 box.addComponent(new PhysicsComponent())
 
 
-box2.transform = new Transform({ pos: new Vector(300, 500), size: new Vector(2, 2) })
+box2.transform = new Transform({ pos: new Vector(400, 500), size: new Vector(2, 2) })
 box2.addComponent(new RenderComponent({ color: 'green', type: 'rect', width: 100, height: 200 }))
 box2.addComponent(new PhysicsComponent());
 
@@ -42,7 +42,7 @@ engine.inputs.mapActions('move_down', 'KeyS')
 RenderStratagies.register('circle', (ctx, component) => {
     const pos = component.entity.transform.pos;
     ctx.beginPath();
-    ctx.fillStyle = component.color;
+    ctx.fillStyle = component.color ?? 'blue';
     ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
     ctx.fill();
 })
@@ -58,7 +58,14 @@ engine.addSystem({
     update: () => {
         const force = engine.inputs.getAxis('move_up', "move_down", "move_left", "move_right");
 
-        physicsSystem.applyForce(player, force.scale(1000));
+        physicsSystem.applyForce(player, force.scale(500));
+    }
+})
+
+
+engine.addSystem({
+    update: (dt) => {
+        physicsSystem.applyForce(box, new Vector(0, dt * 5000))
     }
 })
 

@@ -18,7 +18,6 @@ export class Camera {
 
 
     update(deltaTime) {
-        // console.log(this.target, this.transform)
         if (this.target) {
             const halfWidth = this.transform.size.x / 2;
             const halfHeight = this.transform.size.y / 2;

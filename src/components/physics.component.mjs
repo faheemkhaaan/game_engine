@@ -21,6 +21,10 @@ export class PhysicsComponent {
      */
     entity
     constructor({ velocity = new Vector(0, 0), aceleration = new Vector(0, 0), gravity = new Vector(0, 0), drag = 0.98, maxSpeed = 200, isStatic = false, mass = 2 } = {}) {
+        /**
+         * @type {Entity | null}
+         */
+        this.entity = null;
         this.velocity = velocity
         this.aceleration = aceleration
         this.gravity = gravity

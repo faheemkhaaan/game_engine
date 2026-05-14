@@ -2,7 +2,7 @@ import { Vector } from "../utils/vector.mjs";
 /**
  * @typedef TransformOptions
  * @property {Vector} [pos] - Position vector
- * @property {Vector} [size] - Size Vector
+ * @property {Vector} [size] - size Vector
  * @property {number} [rotation] - Rotation number
  */
 
@@ -32,7 +32,7 @@ export class Transform {
      * @param {Vector} size 
      * @returns 
      */
-    setSize(size) {
+    setsize(size) {
         this.size = size
         return this;
     }

@@ -35,24 +35,24 @@ export class SAT {
      */
     static rectToVertices(entity, render) {
         const pos = entity.transform.pos;
-
-        const x = pos.x;
-        const y = pos.y;
-        const x2 = pos.x + render.width;
-        const y2 = pos.y + render.height;
+        const hw = render.width / 2;
+        const hh = render.height / 2;
         const rot = entity.transform.rotation || 0;
 
-        const corners = [
-            new Vector(x, y),
-            new Vector(x2, y),
-            new Vector(x2, y2),
-            new Vector(x, y2),
+        // Define corners relative to center
+        const localCorners = [
+            new Vector(-hw, -hh),
+            new Vector(hw, -hh),
+            new Vector(hw, hh),
+            new Vector(-hw, hh),
         ];
 
-        return corners.map(c => new Vector(
-            pos.x + c.x * Math.cos(rot) - c.y * Math.sin(rot),
-            pos.y + c.x * Math.sin(rot) + c.y * Math.cos(rot)
-        ));
+        // Rotate and translate to world space
+        return localCorners.map(c => {
+            const rotatedX = c.x * Math.cos(rot) - c.y * Math.sin(rot);
+            const rotatedY = c.x * Math.sin(rot) + c.y * Math.cos(rot);
+            return new Vector(pos.x + rotatedX, pos.y + rotatedY);
+        });
     }
 
     // ─── Projection ────────────────────────────────────────────────
@@ -98,10 +98,10 @@ export class SAT {
             const v2 = vertices[(i + 1) % vertices.length]; // wrap around
 
             // Edge vector
-            const edge = new Vector(v2.x - v1.x, v2.y - v1.y);
+            const edge = Vector.sub(v2, v1);
 
             // Perpendicular (normal) — rotate edge 90°
-            const normal = new Vector(-edge.y, edge.x);
+            const normal = edge.normal();
 
             // Normalize it
             const len = Math.sqrt(normal.x ** 2 + normal.y ** 2);
