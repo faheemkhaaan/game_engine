@@ -20,7 +20,7 @@ export class PhysicsComponent {
      * @type {Entity}
      */
     entity
-    constructor({ velocity = new Vector(0, 0), aceleration = new Vector(0, 0), gravity = new Vector(0, 0), drag = 0.98, maxSpeed = 200, isStatic = false, mass = 2 } = {}) {
+    constructor({ velocity = new Vector(0, 0), aceleration = new Vector(0, 0), gravity = new Vector(0, 0), drag = 0.98, maxSpeed = 200, isStatic = false, mass = 2, restitution = 0.4 } = {}) {
         /**
          * @type {Entity | null}
          */
@@ -32,7 +32,7 @@ export class PhysicsComponent {
         this.maxSpeed = maxSpeed
         this.static = isStatic;
         this.mass = this.static ? 0 : mass || Math.random() * 2 + 2
-        this.restitution = 0.4
+        this.restitution = restitution || 0.4
         this.forces = [];
 
     }

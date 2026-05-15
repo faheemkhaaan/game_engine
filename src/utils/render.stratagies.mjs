@@ -15,9 +15,11 @@ export class RenderStratagies {
         render(ctx, renderComponent) {
             const pos = renderComponent.entity.transform.pos;
             const size = renderComponent.entity.transform.size;
+            const w = renderComponent.width * size.x;
+            const h = renderComponent.height * size.y;
             ctx.beginPath();
             ctx.fillStyle = renderComponent.color;
-            ctx.fillRect(pos.x, pos.y, renderComponent.width * size.x, renderComponent.height * size.y)
+            ctx.fillRect(pos.x - w / 2, pos.y - h / 2, w, h);
         }
     }
 

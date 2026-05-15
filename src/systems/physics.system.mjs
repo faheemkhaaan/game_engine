@@ -46,7 +46,7 @@ export class PhysicsSystem {
         });
         physics.forces.length = 0;
 
-        physics.velocity.add(physics.gravity.clone().scale(20));
+        physics.velocity.add(physics.gravity.clone().scale(deltaTime));
 
         physics.velocity.add(physics.aceleration.clone().scale(deltaTime));
 

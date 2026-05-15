@@ -135,8 +135,8 @@ export class Vector {
     limit(value) {
         const mag = this.mag();
         if (mag > value) {
-            this.x /= value;
-            this.y /= value;
+            this.x = (this.x / mag) * value;
+            this.y = (this.y / mag) * value;
         }
         return this;
     }
@@ -169,6 +169,9 @@ export class Vector {
         return Math.hypot(this.x, this.y);
     }
 
+    static add(v1, v2) {
+        return new Vector(v1.x + v2.x, v1.y + v2.y)
+    }
 
     /**
      * 
@@ -189,8 +192,8 @@ export class Vector {
      */
     static sub(v1, v2) {
         return new Vector(
-            v2.x - v1.x,
-            v2.y - v1.y
+            v1.x - v2.x,
+            v1.y - v2.y
         )
     }
 

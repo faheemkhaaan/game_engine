@@ -80,7 +80,7 @@ export class SAT {
      * Circle projects as [center_dot - radius, center_dot + radius]
      */
     static projectCircle(center, radius, axis) {
-        const dot = center.x * axis.x + center.y * axis.y;
+        const dot = Vector.dot(center, axis);
         return { min: dot - radius, max: dot + radius };
     }
 
@@ -104,8 +104,8 @@ export class SAT {
             const normal = edge.normal();
 
             // Normalize it
-            const len = Math.sqrt(normal.x ** 2 + normal.y ** 2);
-            axes.push(new Vector(normal.x / len, normal.y / len));
+
+            axes.push(normal.clone().normalize());
         }
 
         return axes;
@@ -120,9 +120,7 @@ export class SAT {
         let closest = null;
 
         for (const v of vertices) {
-            const dx = circleCenter.x - v.x;
-            const dy = circleCenter.y - v.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            const dist = Vector.dist(circleCenter, v);
             if (dist < minDist) {
                 minDist = dist;
                 closest = v;
