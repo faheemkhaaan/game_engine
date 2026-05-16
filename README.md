@@ -47,3 +47,35 @@ If we checked *all* axes and they *all* had overlaps, the shapes are colliding.
 ## Troubleshooting
 - **Flipped Normals**: If objects are being sucked into each other instead of pushed apart, your normal is likely backwards. SAT ensures the normal always points from Shape B toward Shape A.
 - **Deep Penetration**: If objects move very fast, they might pass through each other in one frame. This is called "tunneling" and usually requires smaller time steps or "Continuous Collision Detection" (CCD).
+
+---
+
+## Rotational Physics (Torque & Angular Momentum)
+
+Recently updated to include full **Rotational Dynamics**, allowing objects to spin when hit at an angle.
+
+### 1. Angular State
+Each physics object now tracks:
+- **Angular Velocity**: How fast it is spinning (radians per second).
+- **Torque**: The rotational force applied (resets every frame).
+- **Moment of Inertia (I)**: The object's resistance to rotation (higher for larger/heavier objects).
+- **Angular Drag**: Slowly reduces rotation over time (simulating friction).
+
+### 2. Torque calculation
+When a force is applied at a point away from the center of mass, it generates torque:
+```javascript
+Torque = (ImpactPoint - CenterOfMass) x Force
+```
+(Using the 2D cross product: `rx * Fy - ry * Fx`)
+
+### 3. Rotational Impulse Resolution
+When two objects collide, the engine calculates a **Rotational Impulse**. This ensures that:
+- If you hit a box in the corner, it spins.
+- The impulse accounts for both linear mass and rotational inertia.
+- Energy is conserved based on the **Restitution** (bounciness) of the materials.
+
+The formula used for the impulse scalar `j` is:
+```javascript
+j = -(1 + e) * (v_rel · n) / (1/m1 + 1/m2 + (r1 x n)²/I1 + (r2 x n)²/I2)
+```
+Where `r` is the vector from the center of mass to the contact point, and `n` is the collision normal.

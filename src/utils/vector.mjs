@@ -222,4 +222,35 @@ export class Vector {
     static dot(v1, v2) {
         return v1.x * v2.x + v1.y * v2.y;
     }
+
+
+    static getIntersection(a, b, c, d) {
+        const AB = Vector.sub(b, a);
+        const CD = Vector.sub(d, c);
+
+        const AC = Vector.sub(c, a);
+
+        const bottom = Vector.cross(AB, CD);
+
+        if (b !== 0) {
+
+            const tTop = Vector.sub(AC, AB);
+            const uTop = Vector.sub(AC, CD);
+
+            const t = tTop / bottom;
+            const u = uTop / bottom;
+
+            if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+
+                return {
+                    p: Vector.lerp(a, b, t),
+                    offset: t
+                }
+            }
+        }
+    }
+
+    static cross(v1, v2) {
+        return v1.x * v2.y - v1.y * v2.x;
+    }
 }

@@ -39,6 +39,14 @@ export class RendererSystem {
         this.clearCanvas();
         // console.log(deltaTime);
         const renderableEntities = this.world.query('RenderComponent');
+        
+        // Sort entities by their zIndex (lowest to highest)
+        renderableEntities.sort((a, b) => {
+            const renderA = a.getComponent('RenderComponent');
+            const renderB = b.getComponent('RenderComponent');
+            return (renderA?.zIndex || 0) - (renderB?.zIndex || 0);
+        });
+
         this.camera.apply(this.ctx);
         renderableEntities.forEach(entity => {
             const renderComponent = entity.getComponent('RenderComponent');

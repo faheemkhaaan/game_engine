@@ -1,3 +1,5 @@
+import { CellComponent } from "../components/cell.component.mjs";
+import { DungeonComponent } from "../components/dungeon.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
 
 
@@ -23,6 +25,37 @@ export class RenderStratagies {
         }
     }
 
+    static cell = {
+        // /**
+        //  * 
+        //  * @param {CanvasRenderingContext2D} ctx 
+        //  * @param {DungeonComponent} renderComponent 
+        //  */
+        render(ctx, dungenComponent) {
+
+
+            const root = dungenComponent.root;
+
+            RenderStratagies.drawCell(ctx, root);
+
+        }
+    }
+
+    /**
+     * 
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {CellComponent} cell 
+     */
+    static drawCell(ctx, cell) {
+        if (cell.left && cell.right) {
+            RenderStratagies.drawCell(ctx, cell.left);
+            RenderStratagies.drawCell(ctx, cell.right);
+        } else {
+            ctx.beginPath();
+            ctx.fillStyle = 'brown'
+            ctx.strokeRect(cell.topLeft.x, cell.topLeft.y, cell.width, cell.height);
+        }
+    }
 
     /**
      * 

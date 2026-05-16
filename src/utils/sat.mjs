@@ -189,8 +189,9 @@ export class SAT {
         // Ensure normal points from B to A
         const centerA = SAT.polygonCenter(vertsA);
         const centerB = SAT.polygonCenter(vertsB);
-        const dir = new Vector(centerA.x - centerB.x, centerA.y - centerB.y);
-        const dot = dir.x * minAxis.x + dir.y * minAxis.y;
+        const dir = Vector.sub(centerA, centerB);
+
+        const dot = Vector.dot(dir, minAxis);
         if (dot < 0) {
             minAxis = new Vector(-minAxis.x, -minAxis.y);
         }

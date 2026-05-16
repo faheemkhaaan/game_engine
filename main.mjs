@@ -8,6 +8,9 @@ import { RendererSystem } from "./src/systems/renderer.system.mjs";
 import { RenderStratagies } from "./src/utils/render.stratagies.mjs";
 import { Vector } from "./src/utils/vector.mjs";
 import { CollisionDebugSystem } from "./src/systems/debug.system.mjs";
+import { DungeonComponent } from "./src/components/dungeon.component.mjs";
+import { CellComponent } from "./src/components/cell.component.mjs";
+import { DungeonSystem } from "./src/systems/dungeon.system.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -16,23 +19,27 @@ const physicsSystem = new PhysicsSystem(engine.world)
 
 engine.inputs.mapActions('attack', 'Space');
 
+const dungen = engine.world.createEntity('dungen');
 const player = engine.world.createEntity('player');
 const box = engine.world.createEntity('box');
-const box2 = engine.world.createEntity('box2');
 const circle = engine.world.createEntity('circle');
+
+
+
+dungen.addComponent(new DungeonComponent({ root: new CellComponent(new Vector(0, 0), new Vector(engine.canvas.width * DungeonComponent.scaler, engine.canvas.height * DungeonComponent.scaler)) }));
+dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1), rotation: 0 })
+dungen.addComponent(new PhysicsComponent({ isStatic: true }));
+dungen.addComponent(new RenderComponent())
 
 player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 1000 }));
-player.transform = new Transform({ pos: new Vector(800, 200), size: new Vector(1, 1) });
-// console.log(player)
+player.transform = new Transform({ pos: new Vector(200, 800), size: new Vector(1, 1) });
+
+
 box.transform = new Transform({ pos: new Vector(400, -300), size: new Vector(1, 1) })
 box.addComponent(new RenderComponent({ color: "red", type: 'rect', width: 60, height: 100 }))
 box.addComponent(new PhysicsComponent({ gravity: gravityVector }))
 
-
-box2.transform = new Transform({ pos: new Vector(450, 600), size: new Vector(1, 1) })
-box2.addComponent(new RenderComponent({ color: 'green', type: 'rect', width: 900, height: 50 }))
-box2.addComponent(new PhysicsComponent({ isStatic: true }));
 
 
 circle.transform = new Transform({ pos: new Vector(150, 450), size: new Vector(1, 1) })
@@ -59,7 +66,19 @@ engine.camera.follow(player);
 
 engine.addSystem(physicsSystem);
 engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
+engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera))
+// engine.addSystem({
+//     update: () => {
+//         engine.camera.apply(engine.ctx);
+//         const dungenComponent = dungen.getComponent('DungeonComponent');
+//         if (dungenComponent) {
+
+//             RenderStratagies.cell.render(engine.ctx, dungenComponent)
+//         }
+//         engine.camera.restore(engine.ctx);
+//     }
+// });
 // engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock));
 
 
@@ -69,7 +88,7 @@ engine.addSystem({
 
         physicsSystem.applyForce(player, force.normalize().scale(2000));
     }
-})
+});
 
 
 engine.start();
