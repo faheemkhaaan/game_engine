@@ -39,7 +39,7 @@ export class RendererSystem {
         this.clearCanvas();
         // console.log(deltaTime);
         const renderableEntities = this.world.query('RenderComponent');
-        
+
         // Sort entities by their zIndex (lowest to highest)
         renderableEntities.sort((a, b) => {
             const renderA = a.getComponent('RenderComponent');
@@ -58,7 +58,7 @@ export class RendererSystem {
     }
 
     clearCanvas() {
-        this.ctx.fillStyle = 'lightblue'
+        this.ctx.fillStyle = 'black'
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 

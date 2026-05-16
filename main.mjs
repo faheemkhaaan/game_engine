@@ -11,6 +11,7 @@ import { CollisionDebugSystem } from "./src/systems/debug.system.mjs";
 import { DungeonComponent } from "./src/components/dungeon.component.mjs";
 import { CellComponent } from "./src/components/cell.component.mjs";
 import { DungeonSystem } from "./src/systems/dungeon.system.mjs";
+import { COMPONENTS } from "./src/utils/constants.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -33,7 +34,6 @@ dungen.addComponent(new RenderComponent())
 
 player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 1000 }));
-player.transform = new Transform({ pos: new Vector(200, 800), size: new Vector(1, 1) });
 
 
 box.transform = new Transform({ pos: new Vector(400, -300), size: new Vector(1, 1) })
@@ -66,8 +66,12 @@ engine.camera.follow(player);
 
 engine.addSystem(physicsSystem);
 engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
+
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
-engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera))
+engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
+player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
+
+let spawned = false;
 // engine.addSystem({
 //     update: () => {
 //         engine.camera.apply(engine.ctx);
@@ -86,10 +90,22 @@ engine.addSystem({
     update: () => {
         const force = engine.inputs.getAxis('move_up', "move_down", "move_left", "move_right");
 
-        physicsSystem.applyForce(player, force.normalize().scale(2000));
+        physicsSystem.applyForce(player, force.normalize().scale(1500));
+        if (!spawned) {
+
+            const dungeonComponent = dungen.getComponent('DungeonComponent')
+
+
+            const firstCell = dungeonComponent.cells[0];
+            const firstRoom = engine.world.getEntity('room_floor_' + firstCell.id);
+            const pos = firstRoom.transform.pos;
+            console.log(pos)
+            player.transform = new Transform({ pos: new Vector(pos.x, pos.y), size: new Vector(1, 1) });
+            spawned = true;
+        }
     }
 });
 
 
-engine.start();
 // console.log(engine)
+engine.start();

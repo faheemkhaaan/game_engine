@@ -37,7 +37,7 @@ export class World {
         if (this.entities.has(name)) {
             return this.entities.get(name);
         }
-        throw new Error(`Entity with Id ${name} not found`);
+        return null;
     }
 
     destory(name) {

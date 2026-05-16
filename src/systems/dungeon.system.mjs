@@ -96,19 +96,19 @@ export class DungeonSystem {
 
                     // Spawn Hallway Floor
                     const hallFloor = this.world.createEntity(`hall_floor_${c1.id}_to_${c2.id}`);
-                    hallFloor.transform = new Transform({ pos: new Vector(centerX, centerY), size: new Vector(1, 1) });
-                    hallFloor.addComponent(new RenderComponent({ width: hallWidth, height: hallHeight, type: 'rect', color: '#2f2341', zIndex: -1 }));
+                    hallFloor.transform = new Transform({ pos: new Vector(centerX, centerY - wallThickness), size: new Vector(1, 1) });
+                    hallFloor.addComponent(new RenderComponent({ width: hallWidth, height: hallHeight + wallThickness * 4, type: 'rect', color: '#2f2341', zIndex: -1 }));
 
                     // Spawn Left Wall
                     const leftWall = this.world.createEntity(`hall_wall_l_${c1.id}_to_${c2.id}`);
                     leftWall.transform = new Transform({ pos: new Vector(hallX + (wallThickness / 2), centerY), size: new Vector(1, 1) });
-                    leftWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight, type: 'rect', color: '#5a5a5a' }));
+                    leftWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
                     leftWall.addComponent(new PhysicsComponent({ isStatic: true }));
 
                     // Spawn Right Wall
                     const rightWall = this.world.createEntity(`hall_wall_r_${c1.id}_to_${c2.id}`);
                     rightWall.transform = new Transform({ pos: new Vector(hallX + hallWidth - (wallThickness / 2), centerY), size: new Vector(1, 1) });
-                    rightWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight, type: 'rect', color: '#5a5a5a' }));
+                    rightWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
                     rightWall.addComponent(new PhysicsComponent({ isStatic: true }));
 
                     // Split C1's Bottom Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
@@ -152,18 +152,18 @@ export class DungeonSystem {
                     // Spawn Hallway Floor
                     const hallFloor = this.world.createEntity(`hall_floor_${c1.id}_to_${c2.id}`);
                     hallFloor.transform = new Transform({ pos: new Vector(centerX, centerY), size: new Vector(1, 1) });
-                    hallFloor.addComponent(new RenderComponent({ width: hallWidthSegment, height: hallWidth, type: 'rect', color: '#2f2341', zIndex: -1 }));
+                    hallFloor.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 4, height: hallWidth, type: 'rect', color: '#2f2341', zIndex: -1 }));
 
                     // Spawn Top Wall
                     const topWall = this.world.createEntity(`hall_wall_t_${c1.id}_to_${c2.id}`);
                     topWall.transform = new Transform({ pos: new Vector(centerX, hallY + (wallThickness / 2)), size: new Vector(1, 1) });
-                    topWall.addComponent(new RenderComponent({ width: hallWidthSegment, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
+                    topWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
                     topWall.addComponent(new PhysicsComponent({ isStatic: true }));
 
                     // Spawn Bottom Wall
                     const bottomWall = this.world.createEntity(`hall_wall_b_${c1.id}_to_${c2.id}`);
                     bottomWall.transform = new Transform({ pos: new Vector(centerX, hallY + hallWidth - (wallThickness / 2)), size: new Vector(1, 1) });
-                    bottomWall.addComponent(new RenderComponent({ width: hallWidthSegment, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
+                    bottomWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
                     bottomWall.addComponent(new PhysicsComponent({ isStatic: true }));
 
                     this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);
