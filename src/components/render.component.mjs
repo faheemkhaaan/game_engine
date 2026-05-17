@@ -23,5 +23,11 @@ export class RenderComponent {
         this.image = options.image;
         this.radius = options.radius;
         this.zIndex = options.zIndex !== undefined ? options.zIndex : defaultOptions.zIndex;
+
+        // CACHING: Store cached vertices for static entities
+        /** @type {Vector[]|null} */
+        this.cachedVertices = null;
+        /** @type {boolean} */
+        this.dirty = true; // Flag to force recalculation when transform changes
     }
 }

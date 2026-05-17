@@ -14,6 +14,7 @@ export class InputSystem {
         this.actions = new Map();
         this.events = events;
 
+
         this.#addEventListeners();
     }
 

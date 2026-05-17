@@ -3,17 +3,18 @@ export class SAT {
 
     // ─── Entry point ───────────────────────────────────────────────
 
+
     static checkCollision(e1, r1, e2, r2) {
         const typeKey = r1.type + r2.type;
 
         if (typeKey === 'circlecircle') return SAT.circleCircle(e1, r1, e2, r2);
 
         if (typeKey === 'circlerect') {
-            return SAT.circlePolygon(e1, r1, SAT.rectToVertices(e2, r2));
+            return SAT.circlePolygon(e1, r1, SAT.getCachedVerticies(e2, r2));
         }
 
         if (typeKey === 'rectcircle') {
-            const verts = SAT.rectToVertices(e1, r1);
+            const verts = SAT.getCachedVerticies(e1, r1);
             const contact = SAT.circlePolygon(e2, r2, verts);
             // ✅ Flip by creating new Vector, not mutating with .scale()
             if (contact) contact.normal = new Vector(-contact.normal.x, -contact.normal.y);
@@ -21,11 +22,31 @@ export class SAT {
         }
 
         if (typeKey === 'rectrect') return SAT.polygonPolygon(
-            SAT.rectToVertices(e1, r1),
-            SAT.rectToVertices(e2, r2)
+            SAT.getCachedVerticies(e1, r1),
+            SAT.getCachedVerticies(e2, r2)
         );
 
         return null;
+    }
+
+    static getCachedVerticies(entity, render) {
+        const physics = entity.getComponent('PhysicsComponent');
+        const isStatic = physics.static;
+
+        if (isStatic) {
+            const cachedKey = entity.id;
+
+            if (render.cachedVertices && !render.dirty) {
+                return render.cachedVertices;
+            }
+
+            const vertices = SAT.rectToVertices(entity, render);
+            render.cachedVertices = vertices;
+            render.dirty = false;
+
+            return vertices;
+        }
+        return SAT.rectToVertices(entity, render);
     }
     // ─── Shape helpers ─────────────────────────────────────────────
 

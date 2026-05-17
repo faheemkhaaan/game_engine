@@ -1,0 +1,41 @@
+# Game Engine Optimization Analysis
+
+Based on a review of your current engine architecture, here are the top 4 areas where you can significantly improve performance, ordered from highest to lowest impact.
+
+## 1. Collision Broadphase (The O(N²) Problem)
+> [!CAUTION]
+> In `CollisionSystem.mjs`, your `update` method compares every physics entity against every other physics entity using nested loops. As you generate larger dungeons with hundreds of walls and enemies, the number of collision checks grows exponentially and will stall your game loop.
+
+**How to optimize:**
+*   **Implement a Broadphase:** Before doing the expensive SAT checks, use a broadphase algorithm to find out which objects are actually close to each other.
+*   **Use your Spatial Grid:** You already have a `SpatialGrid` implemented in `dungeon.system.mjs`. You can adapt this to dynamically hash physics bodies each frame. Only check collisions between entities that are in the same or adjacent grid cells.
+*   **Static vs Dynamic:** Walls (`isStatic: true`) never move. You can place them in a static grid or quadtree and never update them, significantly reducing the work done every frame.
+
+## 2. Memory Allocations & Garbage Collection (GC)
+> [!WARNING]
+> Your hot path (the code running 60 times a second) is allocating hundreds of new `Vector` objects per frame. This forces the JavaScript engine's Garbage Collector to run constantly, causing micro-stutters and frame drops.
+
+**Examples of problematic allocations:**
+*   `physics.system.mjs`: `physics.velocity.add(physics.gravity.clone().scale(deltaTime));`
+*   `SAT.mjs`: `rectToVertices` creates 4 `new Vector()` instances *every time* it's called.
+*   `CollisionSystem.mjs`: Vector cloning during collision resolution.
+
+**How to optimize:**
+*   **Stop using `.clone()` in loops:** Create mutable vector operations. For example, instead of `velocity.add(gravity.clone().scale(dt))`, write a method like `Vector.addScaled(velocity, gravity, dt)` that modifies `velocity` in-place without creating a new vector.
+*   **Object Pooling:** If you must create temporary vectors (e.g., for contact normals), pre-allocate a pool of vectors and reuse them instead of calling `new Vector()`.
+
+## 3. Expensive SAT Computations
+> [!TIP]
+> The Separating Axis Theorem (SAT) is powerful but mathematically heavy (using `Math.sin`, `Math.cos`, and `Math.sqrt`).
+
+**How to optimize:**
+*   **Cache Vertices:** `SAT.rectToVertices` recalculates the 4 corners of every rectangle every single frame, even if the rectangle never moves (like walls). You should cache `vertices` on the `RenderComponent` or `PhysicsComponent`. Only recalculate them if a "dirty flag" is set (i.e., when `entity.transform` changes).
+*   **AABB Fast Path:** For basic non-rotated rectangles (which seems to be most of your dungeon), Axis-Aligned Bounding Box (AABB) collision checks are significantly faster than full SAT. Do an AABB overlap check first; if they don't overlap, skip SAT entirely.
+
+## 4. Entity Bloat in Dungeon Generation
+> [!NOTE]
+> In `dungeon.system.mjs`, when adding halls and shrinking rooms, you spawn many tiny wall segments (top, bottom, left, right, and split parts). Every segment becomes a full Entity with `PhysicsComponent` and `RenderComponent`.
+
+**How to optimize:**
+*   **Merge Collinear Walls:** After generation, run a pass to find adjacent wall segments that form a single straight line and merge them into one long wall entity. Fewer entities mean less overhead in both the rendering and physics systems.
+*   **Batched Rendering:** Instead of rendering hundreds of floor and wall tiles individually via the `RendererSystem`, consider drawing the static dungeon layout to an offscreen `<canvas>` once (baking), and then simply drawing that single image in your main render loop.

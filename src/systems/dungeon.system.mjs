@@ -43,6 +43,7 @@ export class DungeonSystem {
                 }
             }
             this.dungenGenerated = true;
+            this.events.emit('dungeonGenerated', this.dungenGenerated);
         }
 
     }
@@ -50,7 +51,7 @@ export class DungeonSystem {
    * @param {DungeonComponent} dungenComponent
    */
     addHalls(dungenComponent) {
-        const hallWidth = 90 * DungeonComponent.scaler / 2;
+        const hallWidth = 60 * Math.floor(DungeonComponent.scaler * 0.5);
         const wallThickness = 20;
 
         for (const c1 of dungenComponent.cells) {
@@ -388,7 +389,6 @@ export class DungeonSystem {
             cell.left = new CellComponent(new Vector(cell.topLeft.x, cell.topLeft.y), new Vector(cell.bottomRight.x, midY));
             cell.right = new CellComponent(new Vector(cell.topLeft.x, midY), new Vector(cell.bottomRight.x, cell.bottomRight.y));
         }
-
 
         return true;
     }

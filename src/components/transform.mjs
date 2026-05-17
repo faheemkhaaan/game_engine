@@ -48,10 +48,21 @@ export class Transform {
     /**
      * 
      * @param {Vector} vec 
-     * @returns {Vector}
+     * @returns {Transform}
      */
     translate(vec) {
         this.pos.add(vec);
+        return this;
+    }
+
+    /**
+     * 
+     * @param {Vector} vec 
+     * @param {number} factor 
+     * @returns {Transform}
+     */
+    scaledTranslate(vec, factor) {
+        this.pos.addScaled(vec, factor);
         return this;
     }
 
