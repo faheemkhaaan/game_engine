@@ -169,6 +169,48 @@ export class Vector {
         return Math.hypot(this.x, this.y);
     }
 
+
+    /**
+     * 
+     * @param {Vector} other 
+     * @returns {Vector}
+     */
+    copy(other) {
+        this.x = other.x;
+        this.y = other.y;
+        return this;
+    }
+
+    /**
+     * 
+     * @param {Vector} other 
+     * @param {number} factor 
+     * @returns {Vector}
+     */
+    addScaled(other, factor) {
+
+        this.x += other.x * factor;
+        this.y += other.y * factor;
+        return this;
+    }
+
+    /**
+     * 
+     * @param {Vector} other 
+     * @param {null} factor 
+     * @return {Vector} 
+     */
+    subScaled(other, factor) {
+        this.x -= other.x * factor;
+        this.y -= other.y * factor;
+        return this;
+    }
+    /**
+     * 
+     * @param {Vector} v1 
+     * @param {Vector} v2 
+     * @returns {Vector}
+     */
     static add(v1, v2) {
         return new Vector(v1.x + v2.x, v1.y + v2.y)
     }

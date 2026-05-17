@@ -3,6 +3,7 @@ import { PhysicsComponent } from "../components/physics.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
+import { CollisionGrid } from "../utils/collision-grid.mjs";
 import { SAT } from "../utils/sat.mjs";
 import { Vector } from "../utils/vector.mjs";
 
@@ -18,21 +19,69 @@ export class CollisionSystem {
      */
     constructor(world, events) {
         this.world = world;
+        this.grid = new CollisionGrid(200);
+        this.gridInitialized = false;
         this.events = events;
 
+    }
+    /**
+ * Initialize static entities in the grid (called after dungeon generation)
+ */
+    initializeStaticGrid() {
+        const entities = this.world.query('PhysicsComponent', 'RenderComponent');
+
+        for (const entity of entities) {
+            const physics = entity.getComponent('PhysicsComponent');
+            if (physics && physics.static) {
+                this.grid.addStaticEntity(entity);
+            }
+        }
+
+        this.gridInitialized = true;
     }
 
 
     update(deltaTime) {
         // console.log(deltaTime);
-        const entities = this.world.query('PhysicsComponent');
-        // console.log(entities[0])
-        for (let i = 0; i < entities.length; i++) {
-            for (let j = i + 1; j < entities.length; j++) {
-                this.checkCollision(entities[i], entities[j]);
 
+        this.events.on("dungeonGenerated", () => {
+            if (!this.gridInitialized) {
+                this.initializeStaticGrid();
+            }
+        })
+        const entities = this.world.query('PhysicsComponent');
+
+        const dynamicEntities = entities.filter(e => {
+            const physics = e.getComponent('PhysicsComponent');
+
+            return physics && !physics.static;
+        });
+
+        for (const entity of dynamicEntities) {
+            this.grid.updateDynamicEntity(entity);
+        }
+        const checked = new Set()
+        for (const entityA of dynamicEntities) {
+            const candidates = this.grid.getPotentialCollisions(entityA);
+
+            for (const entityB of candidates) {
+                const pairKey = entityA.id < entityB.id ?
+                    `${entityA.id}-${entityB.id}` :
+                    `${entityB.id}-${entityA.id}`;
+
+                if (checked.has(pairKey)) continue;
+                checked.add(pairKey)
+
+                this.checkCollision(entityA, entityB);
             }
         }
+        // console.log(entities[0])
+        // for (let i = 0; i < entities.length; i++) {
+        //     for (let j = i + 1; j < entities.length; j++) {
+        //         this.checkCollision(entities[i], entities[j]);
+
+        //     }
+        // }
     }
 
     checkCollision(e1, e2) {
@@ -63,8 +112,11 @@ export class CollisionSystem {
         const correctionAmount = (Math.max(contact.depth - slop, 0) / totalInMass) * percent;
         const correction = contact.normal.clone().scale(correctionAmount / 2);
 
-        e1.transform.pos.add(correction.clone().scale(invMass1 / totalInMass));
-        e2.transform.pos.sub(correction.clone().scale(invMass2 / totalInMass));
+        // e1.transform.pos.add(correction.clone().scale(invMass1 / totalInMass));
+        // e2.transform.pos.sub(correction.clone().scale(invMass2 / totalInMass));
+
+        e1.transform.pos.addScaled(correction, invMass1 / totalInMass);
+        e2.transform.pos.subScaled(correction, invMass2 / totalInMass);
 
         const relativeVelocity = Vector.sub(p1.velocity, p2.velocity);
         const velocityAlongNormal = Vector.dot(relativeVelocity, contact.normal);
@@ -79,7 +131,7 @@ export class CollisionSystem {
 
         const impules = contact.normal.clone().scale(j);
 
-        p1.velocity.add(impules.clone().scale(invMass1));
-        p2.velocity.sub(impules.clone().scale(invMass2))
+        p1.velocity.addScaled(impules, invMass1);
+        p2.velocity.subScaled(impules, invMass2)
     }
 }
