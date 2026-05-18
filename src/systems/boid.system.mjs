@@ -44,15 +44,17 @@ export class BoidSystem {
             const seperation = this.seperation(entity);
             const cohision = this.cohision(entity);
             const alignment = this.alignment(entity);
+            const escape = this.escape(entity);
 
             seperation.scale(boidComponent.seperationWeight);
             cohision.scale(boidComponent.cohesionWeight);
             alignment.scale(boidComponent.alignmentWeight);
+            escape.scale(5500);
 
             // console.log(seperation, cohision, alignment)
             // physicsComponent.forces.push(seperation, cohision, alignment);
 
-            physicsComponent.forces.push(seperation, cohision, alignment)
+            physicsComponent.forces.push(seperation, cohision, alignment, escape)
 
         });
     }
@@ -193,5 +195,31 @@ export class BoidSystem {
 
         }
         return steering
+    }
+
+
+
+    /**
+     * 
+     * @param {Entity} entity 
+     */
+    escape(entity) {
+        const player = this.world.getEntity('player');
+        const physicsComponent = entity.getComponent('PhysicsComponent')
+        const distVect = Vector.sub(entity.transform.pos, player.transform.pos);
+
+
+        const distance = distVect.dist();
+
+
+        if (distance < 100) {
+
+            distVect.normalize();
+            distVect.scale(physicsComponent.maxSpeed);
+            distVect.sub(physicsComponent.velocity);
+            return distVect;
+        }
+
+        return new Vector(0, 0)
     }
 }
