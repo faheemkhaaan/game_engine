@@ -45,7 +45,7 @@ export class BoidSpawnSystem {
 
         for (const cell of dungeonComponent.cells) {
 
-            if (Math.random() > 0.4) continue;
+            // if (Math.random() > 0.4) continue;
 
             const floor = this.world.getEntity('room_floor_' + cell.id);
 
@@ -53,9 +53,9 @@ export class BoidSpawnSystem {
 
 
             const render = floor.getComponent('RenderComponent');
-            const physics = floor.getComponent("PhysicsComponent");
 
-            const count = Math.floor(Math.random() * 20) + 3;
+            // const count = Math.floor(Math.random() * 20) + 10;
+            const count = 40
 
             for (let i = 0; i < count; i++) {
                 this.spawnSingleBoid(floor, render)

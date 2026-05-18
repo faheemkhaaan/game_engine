@@ -5,13 +5,13 @@
 export class BoidComponent {
 
     constructor({
-        maxForce = 0.2,
-        separationRadius = 25,
-        alignmentRadius = 50,
-        cohesionRadius = 50,
-        seperationWeight = 1.5,
-        alignmentWeight = 1,
-        cohesionWeight = 1
+        maxForce = 0.4,
+        separationRadius = 100,
+        alignmentRadius = 100,
+        cohesionRadius = 100,
+        seperationWeight = 1400,
+        alignmentWeight = 1000,
+        cohesionWeight = 1000
     } = {}) {
         this.maxForce = maxForce;
         this.separationRadius = separationRadius;

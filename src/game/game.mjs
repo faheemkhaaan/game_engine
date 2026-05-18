@@ -34,6 +34,43 @@ export class GameEngine {
         this.gameLoop();
     }
 
+
+    startSingleSteps() {
+
+        const simulation = this.startGenerator();
+
+        window.addEventListener("keydown", (e) => {
+            if (e.code === 'KeyP') {
+                simulation.next();
+            }
+        })
+    }
+
+    *startGenerator() {
+        while (true) {
+
+            this.clock.start();
+            this.gameLoopSteps();
+
+            yield "Next Step";
+        }
+    }
+
+    gameLoopSteps() {
+        const delta = this.clock.getDelta();
+
+        // console.log(this.inputs.isKeyPressed('Space'));
+        // console.log(this.inputs.keys);
+        this.camera.update(delta)
+        // this.camera.apply(this.ctx);
+        this.systems.forEach(system => {
+            if (system && system.update) {
+                system.update(delta);
+            }
+        });
+        // this.camera.restore(this.ctx);
+        // requestAnimationFrame(() => this.gameLoop())
+    }
     gameLoop() {
         const delta = this.clock.getDelta();
 
@@ -55,5 +92,13 @@ export class GameEngine {
         this.systems.add(system);
     }
 
+    getSystem(systemName) {
+        for (const system of this.systems) {
+            if (system.construtor.name === systemName) {
+                return system
+            }
+        }
+        return null;
+    }
 
 }

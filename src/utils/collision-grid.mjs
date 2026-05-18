@@ -68,7 +68,7 @@ export class CollisionGrid {
         if (!render) return;
 
         const pos = entity.transform.pos;
-        
+
         const hw = (render.width || render.radius * 2 || 0) / 2;
         const hh = (render.height || render.radius * 2 || 0) / 2;
 
@@ -140,6 +140,48 @@ export class CollisionGrid {
         return Array.from(candidates);
     }
 
+    getPotentialBoids(dynamicEntity) {
+        const pos = dynamicEntity.transform.pos;
+        const render = dynamicEntity.getComponent('RenderComponent');
+        const physics = dynamicEntity.getComponent('PhysicsComponent');
+
+        if (!render || !physics) return [];
+
+        // Get radius for broadphase check
+        const radius = Math.max(render.width, render.height) / 2;
+
+        const candidates = new Set();
+        const centerKey = this.getKey(pos.x, pos.y);
+
+        // Check surrounding cells (3x3 grid)
+        for (let dx = -3; dx <= 3; dx++) {
+            for (let dy = -3; dy <= 3; dy++) {
+                const cellX = Math.floor(pos.x / this.cellSize) + dx;
+                const cellY = Math.floor(pos.y / this.cellSize) + dy;
+                const key = `${cellX},${cellY}`;
+
+                // Check static entities
+                const staticEntities = this.staticEntities.get(key);
+                if (staticEntities) {
+                    for (const entity of staticEntities) {
+                        candidates.add(entity);
+                    }
+                }
+
+                // Check dynamic entities
+                const dynamicEntities = this.dynamicEntities.get(key);
+                if (dynamicEntities) {
+                    for (const entity of dynamicEntities) {
+                        if (entity !== dynamicEntity) {
+                            candidates.add(entity);
+                        }
+                    }
+                }
+            }
+        }
+
+        return Array.from(candidates);
+    }
     /**
      * Perform AABB (Axis-Aligned Bounding Box) fast check
      * Returns true if bounding boxes overlap

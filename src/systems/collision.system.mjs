@@ -22,6 +22,11 @@ export class CollisionSystem {
         this.grid = new CollisionGrid(200);
         this.gridInitialized = false;
         this.events = events;
+        this.events.on("dungeonGenerated", () => {
+            if (!this.gridInitialized) {
+                this.initializeStaticGrid();
+            }
+        })
 
     }
     /**
@@ -44,11 +49,6 @@ export class CollisionSystem {
     update(deltaTime) {
         // console.log(deltaTime);
 
-        this.events.on("dungeonGenerated", () => {
-            if (!this.gridInitialized) {
-                this.initializeStaticGrid();
-            }
-        })
         const entities = this.world.query('PhysicsComponent');
 
         const dynamicEntities = entities.filter(e => {

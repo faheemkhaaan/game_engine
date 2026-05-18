@@ -56,9 +56,6 @@ export class PhysicsSystem {
         if (physics.velocity.mag() > physics.maxSpeed) {
             physics.velocity.normalize().scale(physics.maxSpeed);
         }
-
-        // physics.entity.transform.translate(physics.velocity.clone().scale(deltaTime));
-
         physics.entity.transform.scaledTranslate(physics.velocity, deltaTime);
         physics.aceleration.set(0, 0);
     }

@@ -7,6 +7,9 @@ import { Transform } from "../components/transform.mjs";
  * @property {number} [rotation] - Rotation number
  */
 
+/**
+ * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent"} ComponentsTypes
+ */
 export class Entity {
     /**
      * 
@@ -27,7 +30,7 @@ export class Entity {
 
     /**
      * 
-     * @param {string} type 
+     * @param {ComponentsTypes} type 
      * @returns 
      */
     getComponent(type) {

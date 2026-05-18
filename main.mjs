@@ -14,6 +14,7 @@ import { DungeonSystem } from "./src/systems/dungeon.system.mjs";
 import { COMPONENTS } from "./src/utils/constants.mjs";
 import { BoidSpawnSystem } from "./src/systems/boid.spawn.system.mjs";
 import { MinimapSystem } from "./src/systems/minimap.system.mjs";
+import { BoidSystem } from "./src/systems/boid.system.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -54,11 +55,12 @@ RenderStratagies.register('circle', (ctx, component) => {
 
 engine.camera.follow(player);
 
-engine.addSystem(physicsSystem);
 
-engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
+engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSpawnSystem(engine.world, engine.eventBus))
+engine.addSystem(new BoidSystem(engine.world, engine.eventBus))
+engine.addSystem(physicsSystem);
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
 let spawned = false;
@@ -68,14 +70,19 @@ engine.inputs.mapActions('jump', "Space");
 engine.eventBus.on('jump', () => {
     const force = new Vector(0, -35000);
     physicsSystem.applyForce(player, force);
-})
-// engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
+});
+
+
+engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 
 engine.addSystem({
     update: () => {
         const force = engine.inputs.getAxis('move_up', "move_down", "move_left", "move_right");
 
         physicsSystem.applyForce(player, force.normalize().scale(1500));
+
+
+
         if (!spawned) {
 
             const dungeonComponent = dungen.getComponent('DungeonComponent')
@@ -93,4 +100,4 @@ engine.addSystem({
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
 engine.start();
-console.log(engine.world.entities.size)
+console.log(engine.world.query('BoidComponent'))
