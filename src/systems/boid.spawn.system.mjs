@@ -55,7 +55,7 @@ export class BoidSpawnSystem {
             const render = floor.getComponent('RenderComponent');
             const physics = floor.getComponent("PhysicsComponent");
 
-            const count = Math.floor(Math.random() * 5) + 3;
+            const count = Math.floor(Math.random() * 20) + 3;
 
             for (let i = 0; i < count; i++) {
                 this.spawnSingleBoid(floor, render)
@@ -88,8 +88,8 @@ export class BoidSpawnSystem {
 
         boid.addComponent(new PhysicsComponent({
             velocity: new Vector(
-                (Math.random() - 0.5) * 800,
-                (Math.random() - 0.5) * 800
+                (Math.random() - 0.5) * 1300,
+                (Math.random() - 0.5) * 1300
             ),
             aceleration: new Vector(1, 1),
             mass: 1,

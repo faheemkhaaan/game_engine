@@ -13,6 +13,7 @@ import { CellComponent } from "./src/components/cell.component.mjs";
 import { DungeonSystem } from "./src/systems/dungeon.system.mjs";
 import { COMPONENTS } from "./src/utils/constants.mjs";
 import { BoidSpawnSystem } from "./src/systems/boid.spawn.system.mjs";
+import { MinimapSystem } from "./src/systems/minimap.system.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -90,7 +91,6 @@ engine.addSystem({
 });
 
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
-
-// console.log(engine)
+engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
 engine.start();
 console.log(engine.world.entities.size)

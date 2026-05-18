@@ -14,6 +14,10 @@ export class CollisionGrid {
         this.dynamicEntities = new Map();
     }
 
+    clearDynamicEntities() {
+        this.dynamicEntities.clear();
+    }
+
 
     getKey(x, y) {
         const cellX = Math.floor(x / this.cellSize);
@@ -63,20 +67,30 @@ export class CollisionGrid {
         const render = entity.getComponent('RenderComponent');
         if (!render) return;
 
-        // Remove from previous cells (if tracked)
-        const collision = entity.getComponent?.('CollisionComponent');
-        if (collision?.gridCell) {
-            // We could implement removal logic here if needed
-            // For simplicity, we'll just query nearby cells each time
-        }
-
-        // Store current grid cell for this entity
         const pos = entity.transform.pos;
-        const cellX = Math.floor(pos.x / this.cellSize);
-        const cellY = Math.floor(pos.y / this.cellSize);
+        
+        const hw = (render.width || render.radius * 2 || 0) / 2;
+        const hh = (render.height || render.radius * 2 || 0) / 2;
 
-        if (collision) {
-            collision.gridCell = { x: cellX, y: cellY };
+        const minX = pos.x - hw;
+        const maxX = pos.x + hw;
+        const minY = pos.y - hh;
+        const maxY = pos.y + hh;
+
+        // Make sure we check boundaries rounded to cellSize to avoid missing edge cases
+        const startX = Math.floor(minX / this.cellSize) * this.cellSize;
+        const endX = Math.floor(maxX / this.cellSize) * this.cellSize;
+        const startY = Math.floor(minY / this.cellSize) * this.cellSize;
+        const endY = Math.floor(maxY / this.cellSize) * this.cellSize;
+
+        for (let x = startX; x <= endX; x += this.cellSize) {
+            for (let y = startY; y <= endY; y += this.cellSize) {
+                const key = this.getKey(x, y);
+                if (!this.dynamicEntities.has(key)) {
+                    this.dynamicEntities.set(key, new Set());
+                }
+                this.dynamicEntities.get(key).add(entity);
+            }
         }
     }
 

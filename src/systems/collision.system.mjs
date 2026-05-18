@@ -57,6 +57,8 @@ export class CollisionSystem {
             return physics && !physics.static;
         });
 
+        this.grid.clearDynamicEntities();
+
         for (const entity of dynamicEntities) {
             this.grid.updateDynamicEntity(entity);
         }
