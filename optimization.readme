@@ -2,7 +2,7 @@
 
 Based on a review of your current engine architecture, here are the top 4 areas where you can significantly improve performance, ordered from highest to lowest impact.
 
-## 1. Collision Broadphase (The O(N²) Problem)
+## 1. Collision Broadphase (The O(N²) Problem) 
 > [!CAUTION]
 > In `CollisionSystem.mjs`, your `update` method compares every physics entity against every other physics entity using nested loops. As you generate larger dungeons with hundreds of walls and enemies, the number of collision checks grows exponentially and will stall your game loop.
 
@@ -33,6 +33,7 @@ Based on a review of your current engine architecture, here are the top 4 areas 
 *   **AABB Fast Path:** For basic non-rotated rectangles (which seems to be most of your dungeon), Axis-Aligned Bounding Box (AABB) collision checks are significantly faster than full SAT. Do an AABB overlap check first; if they don't overlap, skip SAT entirely.
 
 ## 4. Entity Bloat in Dungeon Generation
+
 > [!NOTE]
 > In `dungeon.system.mjs`, when adding halls and shrinking rooms, you spawn many tiny wall segments (top, bottom, left, right, and split parts). Every segment becomes a full Entity with `PhysicsComponent` and `RenderComponent`.
 

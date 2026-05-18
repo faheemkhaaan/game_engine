@@ -14,7 +14,7 @@ export class Entity {
      * @param {TransformOptions} options
      */
     constructor(id, options = {}) {
-        this.id = id || Math.random().toString(36);
+        this.id = id || crypto.randomUUID();
         this.transform = new Transform({ pos: options?.pos, size: options?.size, rotation: options?.rotation });
         this.components = new Map();
     }

@@ -12,6 +12,7 @@ import { DungeonComponent } from "./src/components/dungeon.component.mjs";
 import { CellComponent } from "./src/components/cell.component.mjs";
 import { DungeonSystem } from "./src/systems/dungeon.system.mjs";
 import { COMPONENTS } from "./src/utils/constants.mjs";
+import { BoidSpawnSystem } from "./src/systems/boid.spawn.system.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -56,7 +57,7 @@ engine.addSystem(physicsSystem);
 
 engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
-engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
+engine.addSystem(new BoidSpawnSystem(engine.world, engine.eventBus))
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
 let spawned = false;
@@ -88,6 +89,7 @@ engine.addSystem({
     }
 });
 
+engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 
 // console.log(engine)
 engine.start();

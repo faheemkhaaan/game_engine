@@ -4,7 +4,7 @@
 export class CellComponent {
     constructor(topLeft, bottomRight) {
 
-        this.id = Math.random().toString(36).substring(2);
+        this.id = crypto.randomUUID()
 
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
