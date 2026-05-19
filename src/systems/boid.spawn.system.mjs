@@ -5,6 +5,7 @@ import { RenderComponent } from "../components/render.component.mjs";
 import { Transform } from "../components/transform.mjs";
 import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
+import { EventBus } from "../game/eventBus.mjs";
 import { Vector } from "../utils/vector.mjs";
 
 
@@ -14,10 +15,18 @@ export class BoidSpawnSystem {
     /**
      * 
      * @param {World} world 
+     * @param {EventBus} events
      */
-    constructor(world) {
+    constructor(world, events) {
         this.world = world;
+        this.events = events;
         this.spawned = false;
+        this.shouldSpawnBoids = false;
+
+        this.events.on('dungeonGenerated', () => {
+            this.shouldSpawnBoids = true;
+        })
+
 
     }
 
@@ -27,7 +36,7 @@ export class BoidSpawnSystem {
 
         const dungeon = this.world.query('DungeonComponent');
 
-        if (!this.spawned && dungeon.length > 0) {
+        if (this.shouldSpawnBoids && !this.spawned && dungeon.length > 0) {
             console.log(dungeon[0])
             this.spawnBoidsInRooms(dungeon[0]);
             this.spawned = true;

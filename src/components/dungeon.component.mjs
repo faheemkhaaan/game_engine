@@ -3,7 +3,7 @@
 
 export class DungeonComponent {
 
-    static scaler = 20;
+    static scaler = 7;
 
     constructor({ root } = {}) {
         this.minRooms = 30;
