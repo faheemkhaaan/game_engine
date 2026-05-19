@@ -47,8 +47,12 @@ export class RendererSystem {
             return (renderA?.zIndex || 0) - (renderB?.zIndex || 0);
         });
 
+        const filteredDeadEntities = renderableEntities.filter(entity => {
+            const renderComponent = entity.getComponent('RenderComponent');
+            return !renderComponent.dead;
+        })
         this.camera.apply(this.ctx);
-        renderableEntities.forEach(entity => {
+        filteredDeadEntities.forEach(entity => {
             const renderComponent = entity.getComponent('RenderComponent');
             if (renderComponent) {
                 this.renderEntity(renderComponent);

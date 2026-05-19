@@ -18,6 +18,7 @@ export class BoidSpawnSystem {
     constructor(world) {
         this.world = world;
         this.spawned = false;
+
     }
 
 
@@ -30,7 +31,7 @@ export class BoidSpawnSystem {
             console.log(dungeon[0])
             this.spawnBoidsInRooms(dungeon[0]);
             this.spawned = true;
-        }
+        };
     }
 
 
@@ -45,7 +46,7 @@ export class BoidSpawnSystem {
 
         for (const cell of dungeonComponent.cells) {
 
-            if (Math.random() > 0.4) continue;
+            // if (Math.random() > 0.4) continue;
 
             const floor = this.world.getEntity('room_floor_' + cell.id);
 

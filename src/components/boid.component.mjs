@@ -25,5 +25,6 @@ export class BoidComponent {
         this.alignmentWeight = alignmentWeight;
         this.cohesionWeight = cohesionWeight;
         this.playerAvoidWeight = playerAvoidWeight;
+
     }
 }

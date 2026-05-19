@@ -4,6 +4,7 @@ import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
 import { CollisionGrid } from "../utils/collision-grid.mjs";
+import { SAT } from "../utils/sat.mjs";
 import { Vector } from "../utils/vector.mjs";
 
 
@@ -19,6 +20,24 @@ export class BoidSystem {
         this.world = world;
         this.grid = new CollisionGrid(200)
         this.events = events;
+        this.events.on("dungeonGenerated", () => {
+            if (!this.gridInitialized) {
+                this.initializeStaticGrid();
+            }
+        })
+    }
+
+    initializeStaticGrid() {
+        const entities = this.world.query('PhysicsComponent', 'RenderComponent');
+
+        for (const entity of entities) {
+            const physics = entity.getComponent('PhysicsComponent');
+            if (physics && physics.static) {
+                this.grid.addStaticEntity(entity);
+            }
+        }
+
+        this.gridInitialized = true;
     }
 
 
@@ -45,16 +64,18 @@ export class BoidSystem {
             const cohision = this.cohision(entity);
             const alignment = this.alignment(entity);
             const escape = this.fleeing(entity);
+            // const avoidWall = this.wallAvoidance(entity);
 
             seperation.scale(boidComponent.seperationWeight);
             cohision.scale(boidComponent.cohesionWeight);
             alignment.scale(boidComponent.alignmentWeight);
             // escape.scale(boidComponent.playerAvoidWeight);
 
-            // console.log(seperation, cohision, alignment)
+
+            // avoidWall.scale(boidComponent.playerAvoidWeight);
             // physicsComponent.forces.push(seperation, cohision, alignment);
 
-            physicsComponent.forces.push(escape, seperation, cohision, alignment)
+            physicsComponent.forces.push(escape, seperation, cohision, alignment);
 
         });
     }
@@ -209,6 +230,13 @@ export class BoidSystem {
 
         const physicsComponent = entity.getComponent('PhysicsComponent');
         const boidComponent = entity.getComponent('BoidComponent');
+        const renderComponent = entity.getComponent("RenderComponent");
+        const playerRenderComponent = player.getComponent('RenderComponent');
+        const collision = SAT.checkCollision(entity, renderComponent, player, playerRenderComponent);
+
+        if (collision) {
+            renderComponent.dead = true;
+        }
 
         // Vector from player to boid (escape direction)
         const fromPlayer = Vector.sub(entity.transform.pos, player.transform.pos);
@@ -230,5 +258,66 @@ export class BoidSystem {
         }
 
         return new Vector(0, 0)
+    }
+
+    /**
+     * @param {Entity} entity 
+     */
+    wallAvoidance(entity) {
+        const physicsComponent = entity.getComponent("PhysicsComponent");
+        const boidComponent = entity.getComponent('BoidComponent');
+
+        if (physicsComponent.velocity.mag() === 0) return new Vector(0, 0);
+
+        const lookAhead = 80;
+        const heading = physicsComponent.velocity.clone().normalize();
+        const antena = heading.clone().scale(lookAhead);
+        const directionToEntity = Vector.sub(entity.transform.pos, antena);
+
+        const nearByEntities = this.grid.getPotentialCollisions(entity);
+
+
+
+        let closestWall = null;
+        let minDistance = Infinity;
+
+        nearByEntities.forEach(other => {
+            const otherPhysics = other.getComponent('PhysicsComponent');
+            if (!otherPhysics.static) return;
+
+            const wallPos = other.transform.pos;
+
+            const distToWall = Vector.dist(directionToEntity, wallPos);
+
+            const wallAvoidance = 50;
+
+            if (distToWall < wallAvoidance && distToWall < minDistance) {
+                closestWall = other;
+                minDistance = distToWall
+            }
+        })
+
+
+        if (closestWall) {
+            const toWall = Vector.sub(closestWall.transform.pos, entity.transform.pos);
+
+            const sideIndicator = Vector.cross(heading, toWall);
+            const dodgeDirection = heading.normal();
+
+            if (sideIndicator > 0) {
+                dodgeDirection.scale(-1);
+            } else {
+
+            }
+
+            const desired = dodgeDirection.normalize().scale(physicsComponent.maxSpeed);
+            const steering = Vector.sub(desired, physicsComponent.velocity);
+
+            steering.limit(boidComponent.maxForce * 3.0);
+            return steering;
+
+        }
+
+        return new Vector(0, 0);
     }
 }

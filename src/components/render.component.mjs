@@ -29,5 +29,7 @@ export class RenderComponent {
         this.cachedVertices = null;
         /** @type {boolean} */
         this.dirty = true; // Flag to force recalculation when transform changes
+
+        this.dead = false;
     }
 }
