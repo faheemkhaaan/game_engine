@@ -35,7 +35,12 @@ export class CollisionSystem {
     initializeStaticGrid() {
         const entities = this.world.query('PhysicsComponent', 'RenderComponent');
 
-        for (const entity of entities) {
+        const filterEntities = entities.filter(entity => {
+            const renderComponent = entity.getComponent('RenderComponent');
+
+            return !renderComponent || !renderComponent.dead;
+        })
+        for (const entity of filterEntities) {
             const physics = entity.getComponent('PhysicsComponent');
             if (physics && physics.static) {
                 this.grid.addStaticEntity(entity);
