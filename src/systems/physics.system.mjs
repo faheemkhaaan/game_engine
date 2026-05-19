@@ -46,12 +46,11 @@ export class PhysicsSystem {
         });
         physics.forces.length = 0;
 
-        physics.velocity.addScaled(physics.gravity, deltaTime);
 
         physics.velocity.addScaled(physics.aceleration, deltaTime);
-
         physics.velocity.scale(physics.drag);
 
+        physics.velocity.addScaled(physics.gravity, deltaTime);
 
         if (physics.velocity.mag() > physics.maxSpeed) {
             physics.velocity.normalize().scale(physics.maxSpeed);

@@ -32,7 +32,7 @@ dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1)
 dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
 player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
-player.addComponent(new PhysicsComponent({ maxSpeed: 1000, gravity: gravityVector }));
+player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector }));
 
 
 
@@ -73,14 +73,20 @@ engine.eventBus.on('jump', () => {
 });
 
 
-engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 
 engine.addSystem({
+
     update: () => {
         const force = engine.inputs.getAxis('move_up', "move_down", "move_left", "move_right");
 
-        physicsSystem.applyForce(player, force.normalize().scale(1500));
+        if (force.mag() > 0) {
 
+
+            physicsSystem.applyForce(player, force.normalize().scale(1500));
+
+        }
+        const physicsComponent = player.getComponent('PhysicsComponent');
+        console.log(physicsComponent.velocity, player.transform.pos);
 
 
         if (!spawned) {
@@ -99,5 +105,6 @@ engine.addSystem({
 
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
+engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 engine.start();
 console.log(engine.world.query('BoidComponent'))

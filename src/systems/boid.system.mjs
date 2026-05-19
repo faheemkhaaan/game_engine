@@ -44,17 +44,17 @@ export class BoidSystem {
             const seperation = this.seperation(entity);
             const cohision = this.cohision(entity);
             const alignment = this.alignment(entity);
-            const escape = this.escape(entity);
+            const escape = this.fleeing(entity);
 
             seperation.scale(boidComponent.seperationWeight);
             cohision.scale(boidComponent.cohesionWeight);
             alignment.scale(boidComponent.alignmentWeight);
-            escape.scale(5500);
+            // escape.scale(boidComponent.playerAvoidWeight);
 
             // console.log(seperation, cohision, alignment)
             // physicsComponent.forces.push(seperation, cohision, alignment);
 
-            physicsComponent.forces.push(seperation, cohision, alignment, escape)
+            physicsComponent.forces.push(escape, seperation, cohision, alignment)
 
         });
     }
@@ -203,21 +203,30 @@ export class BoidSystem {
      * 
      * @param {Entity} entity 
      */
-    escape(entity) {
+    fleeing(entity) {
         const player = this.world.getEntity('player');
-        const physicsComponent = entity.getComponent('PhysicsComponent')
-        const distVect = Vector.sub(entity.transform.pos, player.transform.pos);
+        if (!player || !player.transform) return new Vector(0, 0);
 
+        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const boidComponent = entity.getComponent('BoidComponent');
 
-        const distance = distVect.dist();
+        // Vector from player to boid (escape direction)
+        const fromPlayer = Vector.sub(entity.transform.pos, player.transform.pos);
+        const distance = fromPlayer.mag(); // Get magnitude, not dist()
 
+        // Only flee if within detection radius
+        if (distance < boidComponent.playerAvoidRadius && distance > 0) {
+            // Calculate desired velocity (away from player, at max speed)
+            const desired = fromPlayer.clone();
+            desired.normalize();
+            // desired.divByNumber(distance);
+            desired.scale(physicsComponent.maxSpeed);
 
-        if (distance < 100) {
+            // Steering = desired - current velocity
+            const steering = Vector.sub(desired, physicsComponent.velocity);
+            steering.limit(boidComponent.maxForce * boidComponent.playerAvoidWeight);
 
-            distVect.normalize();
-            distVect.scale(physicsComponent.maxSpeed);
-            distVect.sub(physicsComponent.velocity);
-            return distVect;
+            return steering;
         }
 
         return new Vector(0, 0)

@@ -189,8 +189,8 @@ export class Vector {
      */
     addScaled(other, factor) {
 
-        this.x += other.x * factor;
-        this.y += other.y * factor;
+        this.x += Math.round(other.x * factor);
+        this.y += Math.round(other.y * factor);
         return this;
     }
 
@@ -276,8 +276,8 @@ export class Vector {
 
         if (b !== 0) {
 
-            const tTop = Vector.sub(AC, AB);
-            const uTop = Vector.sub(AC, CD);
+            const tTop = Vector.cross(AC, AB);
+            const uTop = Vector.cross(AC, CD);
 
             const t = tTop / bottom;
             const u = uTop / bottom;
