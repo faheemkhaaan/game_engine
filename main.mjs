@@ -32,7 +32,7 @@ dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1)
 dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
 player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
-player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector }));
+player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector, isStatic: false, mass: 1 }));
 
 
 
@@ -85,9 +85,6 @@ engine.addSystem({
             physicsSystem.applyForce(player, force.normalize().scale(1500));
 
         }
-        const physicsComponent = player.getComponent('PhysicsComponent');
-        console.log(physicsComponent.velocity, player.transform.pos);
-
 
         if (!spawned) {
 

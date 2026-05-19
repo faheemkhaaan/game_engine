@@ -1,6 +1,16 @@
 
+import { Entity } from "../core/entity.mjs";
+import { World } from "../core/world.mjs";
 import { SAT } from "../utils/sat.mjs";
 export class CollisionDebugSystem {
+    /**
+     * 
+     * @param {World} world 
+     * @param {*} eventBus 
+     * @param {*} ctx 
+     * @param {*} camera 
+     * @param {*} clock 
+     */
     constructor(world, eventBus, ctx, camera, clock) {
         this.world = world;
         this.ctx = ctx;
@@ -10,10 +20,14 @@ export class CollisionDebugSystem {
         eventBus.on('collisionDetected', (e1, p1, e2, p2, contact) => {
             this.contacts.push({ e1, p1, e2, p2, contact });
         });
+
+        this.interval = 0;
+        this.frameInterval = 20;
     }
 
     update() {
         const ctx = this.ctx;
+        const player = this.world.getEntity('player');
 
         // Draw FPS in top-left (static UI, no camera apply yet)
         ctx.save();
@@ -22,6 +36,7 @@ export class CollisionDebugSystem {
         ctx.fillStyle = '#0F0';
         ctx.font = 'bold 14px monospace';
         ctx.fillText(`FPS: ${Math.round(this.clock.fps)}`, 15, 27);
+        this.drawPlayerInfo(player);
         ctx.restore();
 
         ctx.save();
@@ -37,6 +52,8 @@ export class CollisionDebugSystem {
         this.contacts.forEach(({ e1, p1, e2, p2, contact }) => {
             this.drawCollision(ctx, e1, e2, contact);
         });
+
+
 
         ctx.restore();
 
@@ -200,5 +217,35 @@ export class CollisionDebugSystem {
             ctx.stroke();
             ctx.lineWidth = 2;
         });
+    }
+
+
+
+    /**
+     * 
+     * @param {Entity} entity 
+     */
+    drawPlayerInfo(entity) {
+
+        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const vel = {
+            x: Math.round(physicsComponent.velocity.x),
+            y: Math.round(physicsComponent.velocity.y),
+        };
+        const pos = {
+            x: Math.round(entity.transform.pos.x),
+            y: Math.round(entity.transform.pos.y)
+        }
+
+        this.ctx.beginPath();
+        this.ctx.fillStyle = 'rgba(0,0,0,0.5)'
+
+
+        this.ctx.fillRect(90, 10, 480, 25);
+
+        this.ctx.fillStyle = '#0F0'
+        this.ctx.fillText(`Player-velocity x:${vel.x} y:${vel.y}`, 90, 27)
+        this.ctx.fillText(`Player-pos x:${pos.x} y:${pos.y}`, 340, 27);
+
     }
 }

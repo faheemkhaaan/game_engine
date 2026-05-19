@@ -25,7 +25,8 @@ export class Camera {
             // console.log(halfHeight, halfWidth);
             const center = new Vector(halfWidth, halfHeight);
             const desired = Vector.sub(center, this.target.transform.pos);
-            this.transform.pos = Vector.lerp(this.transform.pos, desired, this.smoothing);
+            const adjustedSmoothing = 1 - Math.pow(1 - this.smoothing, deltaTime * 60);
+            this.transform.pos = Vector.lerp(this.transform.pos, desired, adjustedSmoothing);
         }
     }
 
@@ -45,7 +46,9 @@ export class Camera {
      */
     apply(ctx) {
         ctx.save();
-        ctx.translate(this.transform.pos.x, this.transform.pos.y)
+        const drawX = Math.round(this.transform.pos.x);
+        const drawY = Math.round(this.transform.pos.y);
+        ctx.translate(drawX, drawY)
     }
 
     /**
