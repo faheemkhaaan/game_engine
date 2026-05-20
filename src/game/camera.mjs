@@ -25,6 +25,7 @@ export class Camera {
             // console.log(halfHeight, halfWidth);
             const center = new Vector(halfWidth, halfHeight);
             const desired = Vector.sub(center, this.target.transform.pos);
+            // 1 - (1 - 0.1)^dt*60
             const adjustedSmoothing = 1 - Math.pow(1 - this.smoothing, deltaTime * 60);
             this.transform.pos = Vector.lerp(this.transform.pos, desired, adjustedSmoothing);
         }

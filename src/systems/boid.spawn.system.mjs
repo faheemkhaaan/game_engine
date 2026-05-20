@@ -55,7 +55,7 @@ export class BoidSpawnSystem {
 
         for (const cell of dungeonComponent.cells) {
 
-            // if (Math.random() > 0.4) continue;
+            if (Math.random() > 0.6) continue;
 
             const floor = this.world.getEntity('room_floor_' + cell.id);
 

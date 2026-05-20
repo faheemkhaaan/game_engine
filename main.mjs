@@ -43,7 +43,7 @@ engine.inputs.mapActions('move_up', 'KeyW')
 engine.inputs.mapActions('move_right', 'KeyD')
 engine.inputs.mapActions('move_left', 'KeyA')
 engine.inputs.mapActions('move_down', 'KeyS');
-
+engine.inputs.mapActions('enableDebug', 'KeyP');
 
 RenderStratagies.register('circle', (ctx, component) => {
     const pos = component.entity.transform.pos;
@@ -102,6 +102,6 @@ engine.addSystem({
 
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
-// engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
+engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 engine.start();
 console.log(engine.world.query('BoidComponent'));

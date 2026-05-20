@@ -2,6 +2,7 @@
 import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
 import { SAT } from "../utils/sat.mjs";
+import { Vector } from "../utils/vector.mjs";
 export class CollisionDebugSystem {
     /**
      * 
@@ -23,9 +24,15 @@ export class CollisionDebugSystem {
 
         this.interval = 0;
         this.frameInterval = 20;
+        this.debugEnabled = true;
+
+        eventBus.on("enableDebug", () => {
+            this.debugEnabled = !this.debugEnabled;
+        })
     }
 
     update() {
+        if (this.debugEnabled) return;
         const ctx = this.ctx;
         const player = this.world.getEntity('player');
 
@@ -41,7 +48,7 @@ export class CollisionDebugSystem {
 
         ctx.save();
         this.camera.apply(ctx);
-
+        this.drawPlayPhysicsComponentInfo(player)
         // 1. Draw all collision shapes (vertices/radii)
         const entities = this.world.query('PhysicsComponent');
         entities.forEach(entity => {
@@ -247,5 +254,60 @@ export class CollisionDebugSystem {
         this.ctx.fillText(`Player-velocity x:${vel.x} y:${vel.y}`, 90, 27)
         this.ctx.fillText(`Player-pos x:${pos.x} y:${pos.y}`, 340, 27);
 
+
+
+    }
+
+    drawPlayPhysicsComponentInfo(entity) {
+
+        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const vel = {
+            x: Math.round(physicsComponent.velocity.x),
+            y: Math.round(physicsComponent.velocity.y),
+        };
+        const pos = {
+            x: Math.round(entity.transform.pos.x),
+            y: Math.round(entity.transform.pos.y)
+        }
+        const ctx = this.ctx;
+        const scale = 0.4;
+
+        const endX = pos.x + vel.x * scale;
+        const endY = pos.y + vel.y * scale;
+
+        // Only draw if there's meaningful velocity
+        if (Math.abs(vel.x) < 0.01 && Math.abs(vel.y) < 0.01) return;
+
+        // Draw velocity line
+        ctx.strokeStyle = '#FF0000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        // Draw arrowhead
+        const angle = Math.atan2(vel.y, vel.x);
+        const headLength = 10;
+
+        ctx.fillStyle = '#FF0000';
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+            endX - headLength * Math.cos(angle - Math.PI / 6),
+            endY - headLength * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+            endX - headLength * Math.cos(angle + Math.PI / 6),
+            endY - headLength * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fill();
+
+        // Optional: Draw a small circle at the tip
+        // ctx.fillStyle = '#FF0000';
+        // ctx.beginPath();
+        // ctx.arc(endX, endY, 3, 0, Math.PI * 2);
+        // ctx.fill()
     }
 }
