@@ -27,7 +27,12 @@ export class PhysicsSystem {
 
 
         const entities = this.world.query('PhysicsComponent');
-        entities.forEach(entity => {
+        const filteredDeadEntities = entities.filter(entity => {
+            const renderComponent = entity.getComponent('RenderComponent');
+
+            return renderComponent && !renderComponent.dead;
+        })
+        filteredDeadEntities.forEach(entity => {
             const physicsComponent = entity.getComponent("PhysicsComponent")
             this.updatePhysics(physicsComponent, deltaTime);
         })

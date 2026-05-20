@@ -14,15 +14,15 @@ export class RenderComponent {
     entity
 
 
-    constructor(options = defaultOptions) {
+    constructor({ color = '#2f2341', type = 'rect', height = 50, width = 50, image = null, radius = null, zIndex = 0 } = {}) {
         this.entity = null;
-        this.color = options.color || defaultOptions.color;
-        this.type = options.type || defaultOptions.type;
-        this.width = options.width;
-        this.height = options.height;
-        this.image = options.image;
-        this.radius = options.radius;
-        this.zIndex = options.zIndex !== undefined ? options.zIndex : defaultOptions.zIndex;
+        this.color = color || defaultOptions.color;
+        this.type = type || defaultOptions.type;
+        this.width = width;
+        this.height = height;
+        this.image = image;
+        this.radius = radius;
+        this.zIndex = zIndex || defaultOptions.zIndex;
 
         // CACHING: Store cached vertices for static entities
         /** @type {Vector[]|null} */

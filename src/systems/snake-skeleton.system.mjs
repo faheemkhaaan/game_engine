@@ -10,7 +10,7 @@ import { Vector } from "../utils/vector.mjs";
 
 
 
-export class SnakeSkeleton {
+export class SnakeSkeletonSystem {
     /**
      * 
      * @param {World} world 
@@ -44,7 +44,6 @@ export class SnakeSkeleton {
         const entity = snakeComponent.entity;
         const headPos = entity.transform.pos;
 
-        console.log(entity);
 
 
         for (let i = 0; i < snakeComponent.totalSegments; i++) {
@@ -58,13 +57,15 @@ export class SnakeSkeleton {
             });
 
             snakeBody.addComponent(new RenderComponent({
+
                 type: 'circle',
-                radius: 20,
-                color: 'green',
-                zIndex: 200,
+                radius: 30,
+                zIndex: 3000,
+                color: 'blue'
+
             }));
 
-            snakeBody.addComponent(new PhysicsComponent({ isStatic: true }))
+            snakeBody.addComponent(new PhysicsComponent({ isStatic: false, mass: 1 }))
 
         }
 

@@ -16,7 +16,7 @@ import { BoidSpawnSystem } from "./src/systems/boid.spawn.system.mjs";
 import { MinimapSystem } from "./src/systems/minimap.system.mjs";
 import { BoidSystem } from "./src/systems/boid.system.mjs";
 import { SnakeComponent } from "./src/components/snake.component.mjs";
-import { SnakeSkeleton } from "./src/systems/snake-skeleton.system.mjs";
+import { SnakeSkeletonSystem } from "./src/systems/snake-skeleton.system.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -35,9 +35,9 @@ dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
 player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector, isStatic: false, mass: 1 }));
-
-
 player.addComponent(new SnakeComponent());
+
+
 
 
 
@@ -62,7 +62,6 @@ engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
 engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSpawnSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSystem(engine.world, engine.eventBus))
-engine.addSystem(new SnakeSkeleton(engine.world, engine.eventBus))
 engine.addSystem(physicsSystem);
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
@@ -102,6 +101,7 @@ engine.addSystem({
         }
     }
 });
+engine.addSystem(new SnakeSkeletonSystem(engine.world, engine.eventBus))
 
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
