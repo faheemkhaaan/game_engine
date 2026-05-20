@@ -8,7 +8,7 @@ import { Transform } from "../components/transform.mjs";
  */
 
 /**
- * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent"} ComponentsTypes
+ * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent"} ComponentsTypes
  */
 export class Entity {
     /**

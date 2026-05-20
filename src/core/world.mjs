@@ -1,6 +1,9 @@
 
 import { Entity } from './entity.mjs'
 
+/**
+ * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent"} ComponentsTypes
+ */
 export class World {
 
     constructor() {
@@ -50,7 +53,7 @@ export class World {
 
     /**
      * 
-     * @param  {...string} componentsType 
+     * @param  {...ComponentsTypes} componentsType 
      * @returns {Entity[]}
      */
     query(...componentsType) {
