@@ -239,6 +239,26 @@ export class Vector {
         )
     }
 
+    /**
+   * 
+   * @param {Vector} v1 
+   * @param {Vector} v2 
+   * @returns {Vector}
+   */
+    static mult(v1, v2) {
+        return new Vector(v1.x * v2.x, v1.y * v2.y);
+    }
+
+
+    /**
+     * 
+     * @param {Vector} v1 
+     * @param {number} factor 
+     * @returns {Vector}
+     */
+    static scale(v1, factor) {
+        return new Vector(v1.x * factor, v1.y * factor);
+    }
 
     /**
      * 

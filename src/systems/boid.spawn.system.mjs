@@ -37,7 +37,6 @@ export class BoidSpawnSystem {
         const dungeon = this.world.query('DungeonComponent');
 
         if (this.shouldSpawnBoids && !this.spawned && dungeon.length > 0) {
-            console.log(dungeon[0])
             this.spawnBoidsInRooms(dungeon[0]);
             this.spawned = true;
         };

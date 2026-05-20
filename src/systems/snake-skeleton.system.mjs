@@ -20,6 +20,7 @@ export class SnakeSkeletonSystem {
         this.world = world;
         this.events = events;
 
+
     }
 
 
@@ -29,6 +30,7 @@ export class SnakeSkeletonSystem {
         for (const entity of entities) {
             const snakeComponent = entity.getComponent('SnakeComponent');
             if (!snakeComponent.segmentsGenerated) this.generateSegments(snakeComponent);
+            this.applyDistanceConstraint(snakeComponent);
         }
 
 
@@ -65,13 +67,50 @@ export class SnakeSkeletonSystem {
 
             }));
 
-            snakeBody.addComponent(new PhysicsComponent({ isStatic: false, mass: 1 }))
+            snakeBody.addComponent(new PhysicsComponent({
+                isStatic: false,
+                mass: 1,
+                velocity: new Vector(
+                    (Math.random() - 0.5) * 1000,
+                    (Math.random() - 0.5) * 1000)
+            }));
+            snakeComponent.segments.push(snakeBody);
 
         }
-
 
         snakeComponent.segmentsGenerated = true;
     }
 
+    /**
+     * 
+     * @param {SnakeComponent} snakeComponent 
+     */
+    applyDistanceConstraint(snakeComponent) {
+
+        const entity = snakeComponent.entity;
+        const headPos = entity.transform.pos;
+
+        for (let i = 1; i < snakeComponent.totalSegments; i++) {
+
+            const first = snakeComponent.segments[i - 1];
+            const second = snakeComponent.segments[i];
+
+            const firstPos = first.transform.pos;
+            const secondPos = second.transform.pos;
+
+            // if (!firstPos || !secondPos) continue;
+
+            const currentVector = Vector.sub(secondPos, firstPos);
+            const currentLength = currentVector.mag();
+            if (currentLength === 0) continue;
+
+            const difference = (currentLength - snakeComponent.segmentLength) / currentLength;
+
+            const correction = Vector.scale(currentVector, difference);
+            secondPos.sub(correction);
+
+        }
+
+    }
 
 }

@@ -38,7 +38,11 @@ player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector
 player.addComponent(new SnakeComponent());
 
 
+const snake2 = engine.world.createEntity('snake2');
 
+snake2.addComponent(new RenderComponent({ color: 'green', type: 'circle', radius: 20 }));
+snake2.addComponent(new PhysicsComponent({ maxSpeed: 20, mass: 1 }));
+snake2.addComponent(new SnakeComponent());
 
 
 engine.inputs.mapActions('move_up', 'KeyW')
@@ -75,6 +79,17 @@ engine.eventBus.on('jump', () => {
 });
 
 
+engine.eventBus.on('dungeonGenerated', () => {
+    const dungeonComponent = dungen.getComponent('DungeonComponent')
+
+    const firstCell = dungeonComponent.cells[0];
+
+    const firstRoom = engine.world.getEntity('room_floor_' + firstCell.id);
+    const pos = firstRoom.transform.pos;
+    console.log(pos)
+    player.transform = new Transform({ pos: new Vector(pos.x, pos.y), size: new Vector(1, 1) });
+    snake2.transform = new Transform({ pos: new Vector(pos.x + 30, pos.y + 30), size: new Vector(1, 1) });
+})
 
 engine.addSystem({
 
@@ -87,22 +102,10 @@ engine.addSystem({
             physicsSystem.applyForce(player, force.normalize().scale(1500));
 
         }
-
-        if (!spawned) {
-
-            const dungeonComponent = dungen.getComponent('DungeonComponent')
-
-            const firstCell = dungeonComponent.cells[0];
-            const firstRoom = engine.world.getEntity('room_floor_' + firstCell.id);
-            const pos = firstRoom.transform.pos;
-            console.log(pos)
-            player.transform = new Transform({ pos: new Vector(pos.x, pos.y), size: new Vector(1, 1) });
-            spawned = true;
-        }
     }
 });
-engine.addSystem(new SnakeSkeletonSystem(engine.world, engine.eventBus))
 
+engine.addSystem(new SnakeSkeletonSystem(engine.world, engine.eventBus))
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
 engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))

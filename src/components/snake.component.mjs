@@ -9,10 +9,11 @@ export class SnakeComponent {
         this.entity = null;
         this.leftEye = 0;
         this.rightEye = 0;
+        /**@type {Entity[]} */
         this.segments = [];
         this.snakeSkinVerticies = [];
         this.segmentsGenerated = false;
         this.segmentLength = 20;
-        this.totalSegments = 10;
+        this.totalSegments = 30;
     }
 }
