@@ -33,7 +33,7 @@ dungen.addComponent(new DungeonComponent({ root: new CellComponent(new Vector(0,
 dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1), rotation: 0 })
 dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
-player.addComponent(new RenderComponent({ color: "blue", type: "circle", radius: 40 }));
+player.addComponent(new RenderComponent({ color: "lightblue", type: "circle", radius: 40 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector, isStatic: false, mass: 1 }));
 player.addComponent(new SnakeComponent());
 
@@ -69,7 +69,6 @@ engine.addSystem(new BoidSystem(engine.world, engine.eventBus))
 engine.addSystem(physicsSystem);
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
-let spawned = false;
 
 engine.inputs.mapActions('jump', "Space");
 
