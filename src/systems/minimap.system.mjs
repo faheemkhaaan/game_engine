@@ -1,19 +1,29 @@
 import { DungeonComponent } from "../components/dungeon.component.mjs";
 import { World } from "../core/world.mjs";
+import { EventBus } from "../game/eventBus.mjs";
 
 export class MinimapSystem {
     /**
      * @param {World} world 
+     * @param {EventBus} events
      * @param {CanvasRenderingContext2D} ctx 
      */
-    constructor(world, ctx) {
+    constructor(world, events, ctx) {
         this.world = world;
         this.ctx = ctx;
         this.size = 200; // Fixed size
         this.margin = 20; // Margin from bottom right
+        this.enableMinMap = true;
+
+        events.on('enableMinMap', () => {
+            this.enableMinMap = !this.enableMinMap;
+        })
+
+
     }
 
     update(dt) {
+        if (!this.enableMinMap) return;
         const dungeons = this.world.query('DungeonComponent');
         if (dungeons.length === 0) return;
 

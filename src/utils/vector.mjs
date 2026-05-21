@@ -274,7 +274,6 @@ export class Vector {
         )
     }
 
-
     /**
      * 
      * @param {Vector} v1 
@@ -314,5 +313,13 @@ export class Vector {
 
     static cross(v1, v2) {
         return v1.x * v2.y - v1.y * v2.x;
+    }
+
+    static normalize(v) {
+        const mag = v.mag();
+        if (mag > 0) {
+            return new Vector(v.x / mag, v.y / mag);
+        }
+        return new Vector(0, 0)
     }
 }

@@ -13,7 +13,7 @@ export class SnakeComponent {
         this.segments = [];
         this.snakeSkinVerticies = [];
         this.segmentsGenerated = false;
-        this.segmentLength = 20;
+        this.segmentLength = 25;
         this.totalSegments = 30;
     }
 }

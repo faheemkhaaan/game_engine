@@ -1,6 +1,6 @@
 import { CellComponent } from "../components/cell.component.mjs";
-import { DungeonComponent } from "../components/dungeon.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
+import { Vector } from "./vector.mjs";
 
 
 
@@ -41,6 +41,87 @@ export class RenderStratagies {
         }
     }
 
+    static circle = {
+        /**
+         * @param {CanvasRenderingContext2D} ctx
+         */
+        render(ctx, component) {
+            const pos = component.entity.transform.pos;
+            const snakeComponent = component.entity.getComponent('SnakeComponent');
+            // ctx.beginPath();
+            // ctx.fillStyle = component.color ?? 'blue';
+            // ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
+            // ctx.fill();
+
+            if (snakeComponent) {
+                const skin = snakeComponent.snakeSkinVerticies
+
+                ctx.beginPath();
+                ctx.fillStyle = 'indigo'
+                ctx.strokeStyle = 'yellow'
+                const first = skin[0];
+                const last = skin[skin.length - 1];
+
+                const mid = Vector.add(first, last).divByNumber(2);
+
+                ctx.moveTo(mid.x, mid.y);
+                for (let i = 0; i < skin.length; i++) {
+
+                    const first = skin[i];
+                    const next = skin[(i + 1) % skin.length]
+
+                    const mid = Vector.add(first, next).divByNumber(2);
+                    // console.log(mid);
+                    // ctx.lineTo(skin[i].x, skin[i].y);
+                    ctx.quadraticCurveTo(first.x, first.y, mid.x, mid.y);
+                }
+                ctx.closePath()
+                ctx.stroke();
+                ctx.fill();
+                // console.log("Has Snake Component");
+            }
+
+            if (!snakeComponent) {
+
+                ctx.beginPath();
+                ctx.fillStyle = component.color ?? 'blue';
+                ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+        }
+    }
+
+    static snake = {
+        render(ctx, component) {
+            const snakeComponent = component.entity.getComponent('SnakeComponent');
+            if (!snakeComponent) return;
+            const skin = snakeComponent.snakeSkinVerticies
+
+            ctx.beginPath();
+            ctx.fillStyle = 'indigo'
+            ctx.strokeStyle = 'yellow'
+            const first = skin[0];
+            const last = skin[skin.length - 1];
+
+            const mid = Vector.add(first, last).divByNumber(2);
+
+            ctx.moveTo(mid.x, mid.y);
+            for (let i = 0; i < skin.length; i++) {
+
+                const first = skin[i];
+                const next = skin[(i + 1) % skin.length]
+
+                const mid = Vector.add(first, next).divByNumber(2);
+                // console.log(mid);
+                // ctx.lineTo(skin[i].x, skin[i].y);
+                ctx.quadraticCurveTo(first.x, first.y, mid.x, mid.y);
+            }
+            ctx.closePath()
+            ctx.stroke();
+            ctx.fill();
+        }
+    }
     /**
      * 
      * @param {CanvasRenderingContext2D} ctx 
@@ -56,6 +137,8 @@ export class RenderStratagies {
             ctx.strokeRect(cell.topLeft.x, cell.topLeft.y, cell.width, cell.height);
         }
     }
+
+
 
     /**
      * 

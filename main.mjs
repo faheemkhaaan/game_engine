@@ -17,6 +17,8 @@ import { MinimapSystem } from "./src/systems/minimap.system.mjs";
 import { BoidSystem } from "./src/systems/boid.system.mjs";
 import { SnakeComponent } from "./src/components/snake.component.mjs";
 import { SnakeSkeletonSystem } from "./src/systems/snake-skeleton.system.mjs";
+import { BoidComponent } from "./src/components/boid.component.mjs";
+import { SnakeSkinSystem } from "./src/systems/snake-skin.system.mjs";
 const gravityVector = new Vector(0, 0)
 
 
@@ -33,7 +35,7 @@ dungen.addComponent(new DungeonComponent({ root: new CellComponent(new Vector(0,
 dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1), rotation: 0 })
 dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
-player.addComponent(new RenderComponent({ color: "lightblue", type: "circle", radius: 40 }));
+player.addComponent(new RenderComponent({ color: "lightblue", type: "circle", radius: 14 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector, isStatic: false, mass: 1 }));
 player.addComponent(new SnakeComponent());
 
@@ -41,8 +43,19 @@ player.addComponent(new SnakeComponent());
 const snake2 = engine.world.createEntity('snake2');
 
 snake2.addComponent(new RenderComponent({ color: 'green', type: 'circle', radius: 20 }));
-snake2.addComponent(new PhysicsComponent({ maxSpeed: 20, mass: 1 }));
+snake2.addComponent(new PhysicsComponent({
+    maxSpeed: 800,
+    mass: 1,
+    velocity: new Vector(
+        (Math.random() - 0.5) * 1300,
+        (Math.random() - 0.5) * 1300
+    ),
+    aceleration: new Vector(1, 1),
+    drag: 1,
+
+}));
 snake2.addComponent(new SnakeComponent());
+snake2.addComponent(new BoidComponent());
 
 
 engine.inputs.mapActions('move_up', 'KeyW')
@@ -50,22 +63,15 @@ engine.inputs.mapActions('move_right', 'KeyD')
 engine.inputs.mapActions('move_left', 'KeyA')
 engine.inputs.mapActions('move_down', 'KeyS');
 engine.inputs.mapActions('enableDebug', 'KeyP');
-
-RenderStratagies.register('circle', (ctx, component) => {
-    const pos = component.entity.transform.pos;
-    ctx.beginPath();
-    ctx.fillStyle = component.color ?? 'blue';
-    ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
-    ctx.fill();
-})
+engine.inputs.mapActions('enableMinMap', 'KeyM');
 
 engine.camera.follow(player);
 
 
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
-engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSpawnSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSystem(engine.world, engine.eventBus))
+engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(physicsSystem);
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
@@ -105,8 +111,9 @@ engine.addSystem({
 });
 
 engine.addSystem(new SnakeSkeletonSystem(engine.world, engine.eventBus))
+engine.addSystem(new SnakeSkinSystem(engine.world, engine.eventBus))
 engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
-engine.addSystem(new MinimapSystem(engine.world, engine.ctx));
+engine.addSystem(new MinimapSystem(engine.world, engine.eventBus, engine.ctx));
 engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 engine.start();
-console.log(engine.world.entities.get('snake_body_part_2_player'));
+console.log(engine.world.getEntity('snake2'));
