@@ -48,10 +48,6 @@ export class RenderStratagies {
         render(ctx, component) {
             const pos = component.entity.transform.pos;
             const snakeComponent = component.entity.getComponent('SnakeComponent');
-            // ctx.beginPath();
-            // ctx.fillStyle = component.color ?? 'blue';
-            // ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
-            // ctx.fill();
 
             if (snakeComponent) {
                 const skin = snakeComponent.snakeSkinVerticies
@@ -78,16 +74,15 @@ export class RenderStratagies {
                 ctx.closePath()
                 ctx.stroke();
                 ctx.fill();
-                // console.log("Has Snake Component");
+                return;
             }
 
-            if (!snakeComponent) {
 
-                ctx.beginPath();
-                ctx.fillStyle = component.color ?? 'blue';
-                ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
-                ctx.fill();
-            }
+
+            ctx.beginPath();
+            ctx.fillStyle = component.color ?? 'blue';
+            ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
+            ctx.fill();
 
         }
     }
@@ -96,28 +91,36 @@ export class RenderStratagies {
         render(ctx, component) {
             const snakeComponent = component.entity.getComponent('SnakeComponent');
             if (!snakeComponent) return;
-            const skin = snakeComponent.snakeSkinVerticies
+
+            const skin = snakeComponent.snakeSkinVerticies;
+            if (!skin || skin.length < 3) return; // Guard against empty or incomplete meshes
 
             ctx.beginPath();
-            ctx.fillStyle = 'indigo'
-            ctx.strokeStyle = 'yellow'
-            const first = skin[0];
-            const last = skin[skin.length - 1];
+            ctx.fillStyle = 'indigo';
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth = 2; // Make that outline clean
 
-            const mid = Vector.add(first, last).divByNumber(2);
+            const firstVert = skin[0];
+            const lastVert = skin[skin.length - 1];
 
-            ctx.moveTo(mid.x, mid.y);
+            // Safe midpoint calculation without modifying engine references
+            const startX = (firstVert.x + lastVert.x) / 2;
+            const startY = (firstVert.y + lastVert.y) / 2;
+            ctx.moveTo(startX, startY);
+
             for (let i = 0; i < skin.length; i++) {
+                const current = skin[i];
+                const next = skin[(i + 1) % skin.length];
 
-                const first = skin[i];
-                const next = skin[(i + 1) % skin.length]
+                // Calculate the target midpoint for the end of this curve segment
+                const midX = (current.x + next.x) / 2;
+                const midY = (current.y + next.y) / 2;
 
-                const mid = Vector.add(first, next).divByNumber(2);
-                // console.log(mid);
-                // ctx.lineTo(skin[i].x, skin[i].y);
-                ctx.quadraticCurveTo(first.x, first.y, mid.x, mid.y);
+                // current.x/y acts perfectly as the control anchor pulling the hull outward
+                ctx.quadraticCurveTo(current.x, current.y, midX, midY);
             }
-            ctx.closePath()
+
+            ctx.closePath();
             ctx.stroke();
             ctx.fill();
         }

@@ -34,8 +34,8 @@ export class SnakeSkeletonSystem {
             if (!snakeComponent.segmentsGenerated) this.generateSegments(snakeComponent);
             // this.applySnakeMovement(snakeComponent, dt)
             this.applyDistanceConstraint(snakeComponent);
+            this.applyAngleConstraint(snakeComponent)
         }
-
 
     }
     /**
@@ -90,6 +90,24 @@ export class SnakeSkeletonSystem {
             segment.transform.pos.add(longitudinalMovement);
         }
     }
+    getSegmentThickness(index, totalSegments) {
+        // Head (first 5 segments)
+        if (index === 0) return 14;  // Snout
+        if (index === 1) return 18;  // Head widest
+        if (index === 2) return 17;  // Head-narrowing
+        if (index === 3) return 15;  // Neck
+        if (index === 4) return 13;  // Neck
+
+        // Tail (last 8 segments)
+        const segmentsFromEnd = totalSegments - 1 - index;
+        const tailSizes = [0.2, 0.3, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 13.5];
+        if (segmentsFromEnd < tailSizes.length) {
+            return tailSizes[Math.min(segmentsFromEnd, tailSizes.length - 1)] || 0.3;
+        }
+
+        // Main body
+        return 14;
+    }
     /**
      * 
      * @param {SnakeComponent} snakeComponent 
@@ -99,23 +117,17 @@ export class SnakeSkeletonSystem {
 
         const entity = snakeComponent.entity;
         const headPos = entity.transform.pos;
+        const entityRenderComponent = entity.getComponent('RenderComponent');
 
+        entityRenderComponent.radius = 12
 
-        const segmentsRadius = [
-            15, 16, 13, 14,
-            14, 14, 14, 14,
-            14, 14, 14, 14,
-            14, 14, 14, 14,
-            14, 14, 14, 14,
-            10, 9, 8, 7,
-            6, 5, 4, 3,
-            2, 1,
-        ]
+        snakeComponent.segments.push(entity);
+
 
         for (let i = 0; i < snakeComponent.totalSegments; i++) {
 
             const snakeBody = this.world.createEntity(`snake_body_part_${i}_` + entity.id);
-
+            const radius = this.getSegmentThickness(i, snakeComponent.totalSegments);
             snakeBody.transform = new Transform({
                 pos: new Vector(headPos.x + (snakeComponent.segmentLength * i), headPos.y),
                 size: new Vector(1, 1),
@@ -125,7 +137,7 @@ export class SnakeSkeletonSystem {
             snakeBody.addComponent(new RenderComponent({
 
                 type: 'snake',
-                radius: segmentsRadius[i],
+                radius: radius * 1.3,
                 zIndex: 3000,
                 color: 'blue'
 
@@ -190,4 +202,65 @@ export class SnakeSkeletonSystem {
 
     }
 
+
+    /**
+     * 
+     * @param {SnakeComponent} snakeComponent 
+     */
+    applyAngleConstraint(snakeComponent) {
+
+        const entity = snakeComponent.entity;
+        const segments = snakeComponent.segments;
+        const maxBend = (45 * Math.PI) / 180;
+
+
+        for (let i = 1; i < segments.length - 1; i++) {
+
+            const previous = segments[i - 1];
+            const joint = segments[i];
+            const next = segments[i + 1];
+            if (!previous || !joint || !next) continue;
+
+            const v1 = Vector.sub(joint.transform.pos, previous.transform.pos);
+            const v2 = Vector.sub(next.transform.pos, joint.transform.pos);
+
+
+            const angle = Vector.angle(v1, v2);
+
+            if (Math.abs(angle) > maxBend) {
+                // console.log(Math.abs(angle), maxBend)
+                // console.log("Should Apply angle constraint")
+
+                // const clampedAngle = Math.sign(angle) * maxBend;
+
+                // // Get the current distance between the joint and the next segment
+                // const segmentLength = v2.mag(); // Assuming your Vector has a magnitude method
+
+                // // Rotate v1 by the clamped angle to find the new allowed direction for v2
+                // const v1Heading = Math.atan2(v1.y, v1.x);
+                // const targetHeading = v1Heading + clampedAngle;
+
+                // // Reconstruct the corrected position for the next segment
+                // next.transform.pos.x = joint.transform.pos.x + Math.cos(targetHeading) * segmentLength;
+                // next.transform.pos.y = joint.transform.pos.y + Math.sin(targetHeading) * segmentLength;
+
+
+
+                const correction = (Math.abs(angle) - maxBend) * Math.sign(angle);
+
+                // Get the structural length of the segment to avoid shrinking the snake
+                const segmentLength = v2.mag();
+                if (segmentLength === 0) continue;
+
+                // Rotate v2 backward towards the valid constraint arc
+                v2.rotate(-correction);
+
+                // Set the new constraint position by projecting outwards from the joint
+                next.transform.pos.x = joint.transform.pos.x + (v2.x / segmentLength) * snakeComponent.segmentLength;
+                next.transform.pos.y = joint.transform.pos.y + (v2.y / segmentLength) * snakeComponent.segmentLength;
+            }
+        }
+    }
+
 }
+

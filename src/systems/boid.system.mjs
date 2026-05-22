@@ -49,9 +49,12 @@ export class BoidSystem {
         this.grid.clearDynamicEntities();
 
         for (const entity of entites) {
+
+            if (entity.getComponent('RenderComponent').dead) continue;
             this.grid.updateDynamicEntity(entity);
         }
         entites.forEach(entity => {
+            if (entity.getComponent('RenderComponent').dead) return;
             /**
              * @type {BoidComponent}
              */
@@ -69,7 +72,7 @@ export class BoidSystem {
             seperation.scale(boidComponent.seperationWeight);
             cohision.scale(boidComponent.cohesionWeight);
             alignment.scale(boidComponent.alignmentWeight);
-            // escape.scale(boidComponent.playerAvoidWeight);
+            escape.scale(boidComponent.playerAvoidWeight)
 
 
             // avoidWall.scale(boidComponent.playerAvoidWeight);
@@ -252,7 +255,7 @@ export class BoidSystem {
 
             // Steering = desired - current velocity
             const steering = Vector.sub(desired, physicsComponent.velocity);
-            steering.limit(boidComponent.maxForce * boidComponent.playerAvoidWeight);
+            steering.limit(boidComponent.maxForce);
 
             return steering;
         }
@@ -269,10 +272,10 @@ export class BoidSystem {
 
         if (physicsComponent.velocity.mag() === 0) return new Vector(0, 0);
 
-        const lookAhead = 80;
+        const lookAhead = 100;
         const heading = physicsComponent.velocity.clone().normalize();
         const antena = heading.clone().scale(lookAhead);
-        const directionToEntity = Vector.sub(entity.transform.pos, antena);
+        const directionToEntity = Vector.add(entity.transform.pos, antena);
 
         const nearByEntities = this.grid.getPotentialCollisions(entity);
 
@@ -304,10 +307,8 @@ export class BoidSystem {
             const sideIndicator = Vector.cross(heading, toWall);
             const dodgeDirection = heading.normal();
 
-            if (sideIndicator > 0) {
+            if (sideIndicator < 0) {
                 dodgeDirection.scale(-1);
-            } else {
-
             }
 
             const desired = dodgeDirection.normalize().scale(physicsComponent.maxSpeed);

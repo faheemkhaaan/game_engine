@@ -189,8 +189,8 @@ export class Vector {
      */
     addScaled(other, factor) {
 
-        this.x += Math.round(other.x * factor);
-        this.y += Math.round(other.y * factor);
+        this.x += other.x * factor;
+        this.y += other.y * factor;
         return this;
     }
 
@@ -321,5 +321,10 @@ export class Vector {
             return new Vector(v.x / mag, v.y / mag);
         }
         return new Vector(0, 0)
+    }
+
+
+    static angle(v1, v2) {
+        return Math.atan2(Vector.cross(v1, v2), Vector.dot(v1, v2));
     }
 }

@@ -18,21 +18,21 @@ export class CollisionDebugSystem {
         this.camera = camera
         this.clock = clock
         this.contacts = [];
-        eventBus.on('collisionDetected', (e1, p1, e2, p2, contact) => {
-            this.contacts.push({ e1, p1, e2, p2, contact });
-        });
 
         this.interval = 0;
         this.frameInterval = 20;
-        this.debugEnabled = true;
+        this.debugEnabled = false;
 
+        eventBus.on('collisionDetected', (e1, p1, e2, p2, contact) => {
+            this.contacts.push({ e1, p1, e2, p2, contact });
+        });
         eventBus.on("enableDebug", () => {
             this.debugEnabled = !this.debugEnabled;
         })
     }
 
     update() {
-        if (this.debugEnabled) return;
+        if (!this.debugEnabled) return;
         const ctx = this.ctx;
         const player = this.world.getEntity('player');
 
