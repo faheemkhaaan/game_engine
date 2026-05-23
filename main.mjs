@@ -35,7 +35,7 @@ dungen.addComponent(new DungeonComponent({ root: new CellComponent(new Vector(0,
 dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1), rotation: 0 })
 dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
-player.addComponent(new RenderComponent({ color: "lightblue", type: "circle", radius: 14 }));
+player.addComponent(new RenderComponent({ color: "lightblue", type: "snake", radius: 14 }));
 player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector, isStatic: false, mass: 1 }));
 player.addComponent(new SnakeComponent());
 
@@ -65,7 +65,6 @@ engine.inputs.mapActions('move_down', 'KeyS');
 engine.inputs.mapActions('enableDebug', 'KeyP');
 engine.inputs.mapActions('enableMinMap', 'KeyM');
 
-engine.camera.follow(player);
 
 
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
@@ -94,6 +93,7 @@ engine.eventBus.on('dungeonGenerated', () => {
     console.log(pos)
     player.transform = new Transform({ pos: new Vector(pos.x, pos.y), size: new Vector(1, 1) });
     snake2.transform = new Transform({ pos: new Vector(pos.x + 30, pos.y + 30), size: new Vector(1, 1) });
+    engine.camera.follow(snake2);
 })
 
 engine.addSystem({

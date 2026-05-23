@@ -48,23 +48,29 @@ export class SnakeSkinSystem {
             const firstBodyPart = segments[i - 1];
             const secondBodyPart = segments[i];
 
+
             const firstRadius = firstBodyPart.getComponent('RenderComponent').radius;
             const firstPos = firstBodyPart.transform.pos;
 
             const secondRadius = secondBodyPart.getComponent('RenderComponent').radius;
             const secondPos = secondBodyPart.transform.pos;
 
-            if (!firstPos || !secondPos || !firstRadius || !secondRadius) continue;
+
+            // if (!firstPos || !secondPos || !firstRadius || !secondRadius) continue;
 
             const direction = Vector.sub(secondPos, firstPos);
 
+            if (i === 1) {
+                const { lVert: fLVert, rVert: fRVert } = this.getSkinPoints(secondPos, secondRadius * 0.8, direction);
+                snakeComponent.leftEye = fLVert;
+                snakeComponent.rightEye = fRVert;
+
+            }
             const { lVert: fLVert, rVert: fRVert } = this.getSkinPoints(firstPos, firstRadius, direction);
             // const { lVert: sLVert, rVert: sRVert } = this.getSkinPoints(secondPos, secondRadius,direction);
 
             left.push(fLVert);
             right.push(fRVert);
-
-
         }
         snakeComponent.snakeSkinVerticies.length = 0;
 

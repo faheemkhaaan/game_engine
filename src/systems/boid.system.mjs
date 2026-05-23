@@ -238,7 +238,8 @@ export class BoidSystem {
         const collision = SAT.checkCollision(entity, renderComponent, player, playerRenderComponent);
 
         if (collision) {
-            renderComponent.dead = true;
+            // renderComponent.dead = true;
+            this.world.destory(entity.id);
         }
 
         // Vector from player to boid (escape direction)

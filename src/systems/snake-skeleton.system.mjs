@@ -140,11 +140,10 @@ export class SnakeSkeletonSystem {
                 radius: radius * 1.3,
                 zIndex: 3000,
                 color: 'blue'
-
             }));
 
             snakeBody.addComponent(new PhysicsComponent({
-                isStatic: false,
+                isStatic: true,
                 mass: 1,
                 velocity: new Vector(
                     (Math.random() - 0.5) * 1000,

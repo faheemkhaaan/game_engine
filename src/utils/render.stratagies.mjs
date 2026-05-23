@@ -1,5 +1,6 @@
 import { CellComponent } from "../components/cell.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
+import { SnakeComponent } from "../components/snake.component.mjs";
 import { Vector } from "./vector.mjs";
 
 
@@ -74,6 +75,17 @@ export class RenderStratagies {
                 ctx.closePath()
                 ctx.stroke();
                 ctx.fill();
+                if (snakeComponent.leftEye) {
+                    const left = snakeComponent.leftEye;
+                    const right = snakeComponent.rightEye;
+                    // console.log(left);
+                    ctx.beginPath();
+                    ctx.fillStyle = 'green'
+
+                    ctx.arc(left.x, left.y, 3, 0, Math.PI * 2);
+                    ctx.arc(right.x, right.y, 3, 0, Math.PI * 2);
+                    ctx.fill()
+                }
                 return;
             }
 
@@ -84,11 +96,13 @@ export class RenderStratagies {
             ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
             ctx.fill();
 
+
         }
     }
 
     static snake = {
         render(ctx, component) {
+            /** @type {SnakeComponent} */
             const snakeComponent = component.entity.getComponent('SnakeComponent');
             if (!snakeComponent) return;
 
@@ -123,6 +137,18 @@ export class RenderStratagies {
             ctx.closePath();
             ctx.stroke();
             ctx.fill();
+
+            // console.log(snakeComponent.leftEye)
+            if (snakeComponent.leftEye) {
+                const left = snakeComponent.leftEye;
+                const right = snakeComponent.rightEye;
+                // console.log(left);
+                ctx.beginPath();
+                ctx.fillStyle = 'green'
+                ctx.arc(left.x, left.y, 3, 0, Math.PI * 2);
+                ctx.arc(right.x, right.y, 3, 0, Math.PI * 2);
+                ctx.fill()
+            }
         }
     }
     /**

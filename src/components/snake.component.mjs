@@ -1,4 +1,5 @@
 import { Entity } from "../core/entity.mjs";
+import { Vector } from "../utils/vector.mjs";
 
 
 
@@ -7,8 +8,10 @@ export class SnakeComponent {
     constructor() {
         /**@type {Entity} */
         this.entity = null;
-        this.leftEye = 0;
-        this.rightEye = 0;
+        /**@type {Vector|null} */
+        this.leftEye = null;
+        /**@type {Vector|null} */
+        this.rightEye = null;
         /**@type {Entity[]} */
         this.segments = [];
         this.snakeSkinVerticies = [];

@@ -101,7 +101,7 @@ export class BoidSpawnSystem {
                 (Math.random() - 0.5) * 1300
             ),
             aceleration: new Vector(1, 1),
-            mass: 1,
+            mass: 2,
             maxSpeed: 800,
             drag: 1,
             isStatic: false

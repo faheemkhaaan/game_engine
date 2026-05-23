@@ -40,7 +40,7 @@ export class CollisionSystem {
 
             return !renderComponent || !renderComponent.dead;
         })
-        for (const entity of filterEntities) {
+        for (const entity of entities) {
             const physics = entity.getComponent('PhysicsComponent');
             if (physics && physics.static) {
                 this.grid.addStaticEntity(entity);
