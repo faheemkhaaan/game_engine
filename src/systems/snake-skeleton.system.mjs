@@ -4,6 +4,7 @@ import { SnakeComponent } from "../components/snake.component.mjs";
 import { Transform } from "../components/transform.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
+import { Prefabs } from "../utils/prefabs.mjs";
 import { Vector } from "../utils/vector.mjs";
 
 
@@ -126,30 +127,14 @@ export class SnakeSkeletonSystem {
 
         for (let i = 0; i < snakeComponent.totalSegments; i++) {
 
-            const snakeBody = this.world.createEntity(`snake_body_part_${i}_` + entity.id);
             const radius = this.getSegmentThickness(i, snakeComponent.totalSegments);
-            snakeBody.transform = new Transform({
-                pos: new Vector(headPos.x + (snakeComponent.segmentLength * i), headPos.y),
-                size: new Vector(1, 1),
-                rotation: 0
-            });
-
-            snakeBody.addComponent(new RenderComponent({
-
-                type: 'snake',
-                radius: radius * 1.3,
-                zIndex: 3000,
-                color: 'blue'
-            }));
-
-            snakeBody.addComponent(new PhysicsComponent({
-                isStatic: true,
-                mass: 1,
-                velocity: new Vector(
-                    (Math.random() - 0.5) * 1000,
-                    (Math.random() - 0.5) * 1000)
-            }));
-            snakeComponent.segments.push(snakeBody);
+            const segment = Prefabs.snakeSegment(
+                this.world,
+                `snake_body_part_${i}_` + entity.id,
+                headPos,
+                radius,
+            );
+            snakeComponent.segments.push(segment);
 
         }
 

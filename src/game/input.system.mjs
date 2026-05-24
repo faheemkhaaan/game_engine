@@ -36,6 +36,10 @@ export class InputSystem {
             this.keys.set(e.code, false);
             this.events.emit('keydown', e.code, false);
         });
+
+        window.addEventListener('mousedown', (e) => {
+
+        })
     }
 
     /**

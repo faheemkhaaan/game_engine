@@ -2,7 +2,7 @@
 import { Entity } from './entity.mjs'
 
 /**
- * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent"} ComponentsTypes
+ * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent"|'ShapeComponent'} ComponentsTypes
  */
 export class World {
 

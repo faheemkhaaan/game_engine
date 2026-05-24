@@ -47,17 +47,24 @@ export class RendererSystem {
             return (renderA?.zIndex || 0) - (renderB?.zIndex || 0);
         });
 
-        const filteredDeadEntities = renderableEntities.filter(entity => {
-            const renderComponent = entity.getComponent('RenderComponent');
-            return !renderComponent.dead;
-        })
+
         this.camera.apply(this.ctx);
-        filteredDeadEntities.forEach(entity => {
-            const renderComponent = entity.getComponent('RenderComponent');
-            if (renderComponent) {
-                this.renderEntity(renderComponent);
-            }
-        });
+
+
+        for (const entity of renderableEntities) {
+            const render = entity.getComponent('RenderComponent');
+            if (render.dead) continue;
+            const shape = entity.getComponent('ShapeComponent')
+
+            if (!shape || !shape.type) continue;
+
+            render.type = shape.type;
+            if (shape.width) render.width = shape.width;
+            if (shape.height) render.height = shape.height;
+            if (shape.radius) render.radius = shape.radius;
+
+            this.renderEntity(render);
+        }
         this.camera.restore(this.ctx)
     }
 
@@ -72,8 +79,11 @@ export class RendererSystem {
      */
     renderEntity(render) {
 
-        const renderType = RenderStratagies[render.type];
-        renderType.render(this.ctx, render);
+        const strategy = RenderStratagies[render.type];
+        if (!strategy) {
+            console.error(`[RendererSystem] no render strategy for ${render.type}`);
+        }
+        strategy.render(this.ctx, render);
 
     }
 

@@ -14,14 +14,11 @@ export class RenderComponent {
     entity
 
 
-    constructor({ color = '#2f2341', type = 'rect', height = 50, width = 50, image = null, radius = null, zIndex = 0 } = {}) {
+    constructor({ color = '#2f2341', image = null, zIndex = 0 } = {}) {
         this.entity = null;
         this.color = color || defaultOptions.color;
-        this.type = type || defaultOptions.type;
-        this.width = width;
-        this.height = height;
+
         this.image = image;
-        this.radius = radius;
         this.zIndex = zIndex || defaultOptions.zIndex;
 
         // CACHING: Store cached vertices for static entities

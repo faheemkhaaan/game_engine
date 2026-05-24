@@ -1,3 +1,11 @@
+import { BoidComponent } from "../components/boid.component.mjs";
+import { CellComponent } from "../components/cell.component.mjs";
+import { CollisionComponent } from "../components/collision.component.mjs";
+import { DungeonComponent } from "../components/dungeon.component.mjs";
+import { PhysicsComponent } from "../components/physics.component.mjs";
+import { RenderComponent } from "../components/render.component.mjs";
+import { ShapeComponent } from "../components/shape.component.mjs";
+import { SnakeComponent } from "../components/snake.component.mjs";
 import { Transform } from "../components/transform.mjs";
 
 /**
@@ -8,7 +16,7 @@ import { Transform } from "../components/transform.mjs";
  */
 
 /**
- * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent"} ComponentsTypes
+ * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent" |"ShapeComponent"} ComponentsTypes
  */
 export class Entity {
     /**
@@ -29,9 +37,17 @@ export class Entity {
     }
 
     /**
-     * 
-     * @param {ComponentsTypes} type 
-     * @returns 
+     * @template {ComponentsTypes} T
+     * @param {T} type 
+     * @returns {T extends 'BoidComponent' ? BoidComponent :
+     * T extends 'CellComponent' ? CellComponent :
+     * T extends 'CollisionComponent' ? CollisionComponent :
+     * T extends 'DungeonComponent' ? DungeonComponent :
+     * T extends 'PhysicsComponent' ? PhysicsComponent :
+     * T extends 'RenderComponent' ? RenderComponent :
+     * T extends 'SnakeComponent' ? SnakeComponent
+     * T extends 'ShapeComponent' ? ShapeComponent
+      * }
      */
     getComponent(type) {
         if (this.components.has(type)) {

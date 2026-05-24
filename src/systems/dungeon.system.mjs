@@ -2,10 +2,12 @@ import { CellComponent } from "../components/cell.component.mjs";
 import { DungeonComponent } from "../components/dungeon.component.mjs";
 import { PhysicsComponent } from "../components/physics.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
+import { ShapeComponent } from "../components/shape.component.mjs";
 import { Transform } from "../components/transform.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
 import { GameEngine } from "../game/game.mjs";
+import { Prefabs } from "../utils/prefabs.mjs";
 import { SpatialGrid } from "../utils/spatial-grid.mjs";
 import { Vector } from "../utils/vector.mjs";
 
@@ -57,7 +59,7 @@ export class DungeonSystem {
         for (const c1 of dungenComponent.cells) {
             const floor1 = this.world.getEntity('room_floor_' + c1.id);
             if (!floor1) continue;
-            const r1 = floor1.getComponent("RenderComponent");
+            const r1 = floor1.getComponent('ShapeComponent');
 
             // Visual bounds of Room 1
             const r1MinX = floor1.transform.pos.x - r1.width / 2;
@@ -71,8 +73,10 @@ export class DungeonSystem {
 
                 const floor2 = this.world.getEntity('room_floor_' + c2.id);
                 if (!floor2) continue;
-                const r2 = floor2.getComponent("RenderComponent");
+                const r2 = floor2.getComponent('ShapeComponent');
 
+
+                console.log(r2);
                 // Visual bounds of Room 2
                 const r2MinX = floor2.transform.pos.x - r2.width / 2;
                 const r2MaxX = floor2.transform.pos.x + r2.width / 2;
@@ -82,6 +86,7 @@ export class DungeonSystem {
                 const overlapMinX = Math.max(r1MinX, r2MinX);
                 const overlapMaxX = Math.min(r1MaxX, r2MaxX);
                 const overlapWidth = overlapMaxX - overlapMinX;
+                console.log(overlapMinX, overlapMaxX, overlapWidth)
 
                 // Only spawn if the actual rooms visually line up enough to fit the hallway
                 if (overlapWidth > hallWidth) {
@@ -92,26 +97,31 @@ export class DungeonSystem {
                     const endY = r2MinY;
                     const hallHeight = endY - startY;
                     const centerY = startY + (hallHeight / 2);
-
                     if (hallHeight <= 0) continue; // Skip if rooms visually overlap/touch
 
                     // Spawn Hallway Floor
-                    const hallFloor = this.world.createEntity(`hall_floor_${c1.id}_to_${c2.id}`);
-                    hallFloor.transform = new Transform({ pos: new Vector(centerX, centerY - wallThickness), size: new Vector(1, 1) });
-                    hallFloor.addComponent(new RenderComponent({ width: hallWidth, height: hallHeight + wallThickness * 4, type: 'rect', color: '#2f2341', zIndex: -1 }));
+                    const hallFloor = Prefabs.floor(this.world, `hall_floor_${c1.id}_to_c2.id`, centerX, centerY, hallWidth, hallHeight);
 
                     // Spawn Left Wall
-                    const leftWall = this.world.createEntity(`hall_wall_l_${c1.id}_to_${c2.id}`);
-                    leftWall.transform = new Transform({ pos: new Vector(hallX + (wallThickness / 2), centerY), size: new Vector(1, 1) });
-                    leftWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
-                    leftWall.addComponent(new PhysicsComponent({ isStatic: true }));
+                    // const leftWall = this.world.createEntity(`hall_wall_l_${c1.id}_to_${c2.id}`);
+                    // leftWall.transform = new Transform({ pos: new Vector(hallX + (wallThickness / 2), centerY), size: new Vector(1, 1) });
+                    // leftWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
+                    // leftWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
 
-                    // Spawn Right Wall
-                    const rightWall = this.world.createEntity(`hall_wall_r_${c1.id}_to_${c2.id}`);
-                    rightWall.transform = new Transform({ pos: new Vector(hallX + hallWidth - (wallThickness / 2), centerY), size: new Vector(1, 1) });
-                    rightWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
-                    rightWall.addComponent(new PhysicsComponent({ isStatic: true }));
+                    // // Spawn Right Wall
+                    // const rightWall = this.world.createEntity(`hall_wall_r_${c1.id}_to_${c2.id}`);
+                    // rightWall.transform = new Transform({ pos: new Vector(hallX + hallWidth - (wallThickness / 2), centerY), size: new Vector(1, 1) });
+                    // rightWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
+                    // rightWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
+                    // // Floor
 
+
+                    // Side walls
+                    const hallLeft = Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + hallWidth / 2, centerY, hallWidth, hallHeight + wallThickness * 2);
+                    const hallRight = Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - wallThickness / 2, centerY, wallThickness, hallHeight + wallThickness * 2);
+
+
+                    console.log(hallLeft)
                     // Split C1's Bottom Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
                     this.splitWall('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false, wallThickness);
 
@@ -127,7 +137,7 @@ export class DungeonSystem {
 
                 const floor2 = this.world.getEntity('room_floor_' + c2.id);
                 if (!floor2) continue;
-                const r2 = floor2.getComponent("RenderComponent");
+                const r2 = floor2.getComponent('ShapeComponent');
 
                 // Visual bounds of Room 2
                 const r2MinY = floor2.transform.pos.y - r2.height / 2;
@@ -150,23 +160,31 @@ export class DungeonSystem {
 
                     if (hallWidthSegment <= 0) continue; // Skip if rooms visually overlap/touch
 
-                    // Spawn Hallway Floor
-                    const hallFloor = this.world.createEntity(`hall_floor_${c1.id}_to_${c2.id}`);
-                    hallFloor.transform = new Transform({ pos: new Vector(centerX, centerY), size: new Vector(1, 1) });
-                    hallFloor.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 4, height: hallWidth, type: 'rect', color: '#2f2341', zIndex: -1 }));
 
                     // Spawn Top Wall
-                    const topWall = this.world.createEntity(`hall_wall_t_${c1.id}_to_${c2.id}`);
-                    topWall.transform = new Transform({ pos: new Vector(centerX, hallY + (wallThickness / 2)), size: new Vector(1, 1) });
-                    topWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-                    topWall.addComponent(new PhysicsComponent({ isStatic: true }));
+                    // const topWall = this.world.createEntity(`hall_wall_t_${c1.id}_to_${c2.id}`);
+                    // topWall.transform = new Transform({ pos: new Vector(centerX, hallY + (wallThickness / 2)), size: new Vector(1, 1) });
+                    // topWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
+                    // topWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
 
-                    // Spawn Bottom Wall
-                    const bottomWall = this.world.createEntity(`hall_wall_b_${c1.id}_to_${c2.id}`);
-                    bottomWall.transform = new Transform({ pos: new Vector(centerX, hallY + hallWidth - (wallThickness / 2)), size: new Vector(1, 1) });
-                    bottomWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-                    bottomWall.addComponent(new PhysicsComponent({ isStatic: true }));
+                    // // Spawn Bottom Wall
+                    // const bottomWall = this.world.createEntity(`hall_wall_b_${c1.id}_to_${c2.id}`);
+                    // bottomWall.transform = new Transform({ pos: new Vector(centerX, hallY + hallWidth - (wallThickness / 2)), size: new Vector(1, 1) });
+                    // bottomWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
+                    // bottomWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
 
+                    // Spawn Hallway Floor
+                    const hallFloor = Prefabs.floor(this.world,
+                        `hall_floor_${c1.id}_to_${c2.id}`,
+                        centerX, centerY,
+                        hallWidth + wallThickness * 4, hallWidth,
+                    );
+
+                    // Side walls
+                    const hallTopWall = Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + wallThickness / 2, hallWidth + wallThickness * 2, wallThickness);
+                    const hallBottomWall = Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - wallThickness / 2, hallWidth + wallThickness * 2, wallThickness);
+
+                    // Carve openings
                     this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);
 
                     // Split C2's Left Wall (Vertical cut along Y: between hallY and hallY + hallWidth)
@@ -187,7 +205,7 @@ export class DungeonSystem {
         const oldWall = this.world.getEntity(oldWallId);
         if (!oldWall) return;
 
-        const render = oldWall.getComponent("RenderComponent");
+        const render = oldWall.getComponent('ShapeComponent');
         const pos = oldWall.transform.pos;
 
 
@@ -205,6 +223,7 @@ export class DungeonSystem {
                 partA.transform = new Transform({ pos: new Vector(centerXA, pos.y), size: new Vector(1, 1) });
                 partA.addComponent(new RenderComponent({ width: widthA, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
                 partA.addComponent(new PhysicsComponent({ isStatic: true }));
+                partA.addComponent(new ShapeComponent({ type: 'rect', width: widthA, height: wallThickness }))
             }
 
             // Segment B: Right side of the doorway
@@ -213,8 +232,9 @@ export class DungeonSystem {
                 const centerXB = hallEnd + widthB / 2;
                 const partB = this.world.createEntity(`${oldWallId}_split_right`);
                 partB.transform = new Transform({ pos: new Vector(centerXB, pos.y), size: new Vector(1, 1) });
-                partB.addComponent(new RenderComponent({ width: widthB, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
+                partB.addComponent(new RenderComponent({ color: '#5a5a5a' }));
                 partB.addComponent(new PhysicsComponent({ isStatic: true }));
+                partB.addComponent(new ShapeComponent({ type: "rect", width: widthB, height: wallThickness }))
             }
         } else {
             // --- SPLITTING A VERTICAL WALL (Left/Right Walls running along Y-axis) ---
@@ -267,33 +287,13 @@ export class DungeonSystem {
             const wallThickness = 20;
 
             // Floor (visual only, no physics, so player can walk on it)
-            const floor = this.world.createEntity('room_floor_' + cell.id);
-            floor.transform = new Transform({ pos: center, size: new Vector(1, 1) });
-            floor.addComponent(new RenderComponent({ width, height, type: 'rect', color: '#2f2341', zIndex: -1 }));
 
-            // Top Wall
-            const topWall = this.world.createEntity('wall_top_' + cell.id);
-            topWall.transform = new Transform({ pos: new Vector(center.x, topLeft.y + wallThickness / 2), size: new Vector(1, 1) });
-            topWall.addComponent(new RenderComponent({ width: width, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-            topWall.addComponent(new PhysicsComponent({ isStatic: true }));
+            const floor = Prefabs.floor(this.world, 'room_floor_' + cell.id, center.x, center.y, width, height)
+            const topWall = Prefabs.wall(this.world, 'wall_top_' + cell.id, center.x, topLeft.y + wallThickness / 2, width, wallThickness);
+            const bottomWall = Prefabs.wall(this.world, 'wall_bottom_' + cell.id, center.x, bottomRight.y - wallThickness / 2, width, wallThickness)
+            const leftWall = Prefabs.wall(this.world, 'wall_left_' + cell.id, topLeft.x + wallThickness / 2, center.y, wallThickness, height);
+            const rightWall = Prefabs.wall(this.world, 'wall_right_' + cell.id, bottomRight.x - wallThickness / 2, center.y, wallThickness, height);
 
-            // Bottom Wall
-            const bottomWall = this.world.createEntity('wall_bottom_' + cell.id);
-            bottomWall.transform = new Transform({ pos: new Vector(center.x, bottomRight.y - wallThickness / 2), size: new Vector(1, 1) });
-            bottomWall.addComponent(new RenderComponent({ width: width, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-            bottomWall.addComponent(new PhysicsComponent({ isStatic: true }));
-
-            // Left Wall
-            const leftWall = this.world.createEntity('wall_left_' + cell.id);
-            leftWall.transform = new Transform({ pos: new Vector(topLeft.x + wallThickness / 2, center.y), size: new Vector(1, 1) });
-            leftWall.addComponent(new RenderComponent({ width: wallThickness, height: height, type: 'rect', color: '#5a5a5a' }));
-            leftWall.addComponent(new PhysicsComponent({ isStatic: true }));
-
-            // Right Wall
-            const rightWall = this.world.createEntity('wall_right_' + cell.id);
-            rightWall.transform = new Transform({ pos: new Vector(bottomRight.x - wallThickness / 2, center.y), size: new Vector(1, 1) });
-            rightWall.addComponent(new RenderComponent({ width: wallThickness, height: height, type: 'rect', color: '#5a5a5a' }));
-            rightWall.addComponent(new PhysicsComponent({ isStatic: true }));
         }
     }
     /**

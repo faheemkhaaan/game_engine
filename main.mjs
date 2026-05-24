@@ -8,8 +8,6 @@ import { RendererSystem } from "./src/systems/renderer.system.mjs";
 import { RenderStratagies } from "./src/utils/render.stratagies.mjs";
 import { Vector } from "./src/utils/vector.mjs";
 import { CollisionDebugSystem } from "./src/systems/debug.system.mjs";
-import { DungeonComponent } from "./src/components/dungeon.component.mjs";
-import { CellComponent } from "./src/components/cell.component.mjs";
 import { DungeonSystem } from "./src/systems/dungeon.system.mjs";
 import { COMPONENTS } from "./src/utils/constants.mjs";
 import { BoidSpawnSystem } from "./src/systems/boid.spawn.system.mjs";
@@ -19,7 +17,8 @@ import { SnakeComponent } from "./src/components/snake.component.mjs";
 import { SnakeSkeletonSystem } from "./src/systems/snake-skeleton.system.mjs";
 import { BoidComponent } from "./src/components/boid.component.mjs";
 import { SnakeSkinSystem } from "./src/systems/snake-skin.system.mjs";
-const gravityVector = new Vector(0, 0)
+import { Prefabs } from "./src/utils/prefabs.mjs";
+import { EntityBuilder } from "./src/core/entity-builder.mjs";
 
 
 const engine = new GameEngine()
@@ -27,19 +26,12 @@ const physicsSystem = new PhysicsSystem(engine.world)
 
 engine.inputs.mapActions('attack', 'Space');
 
-const dungen = engine.world.createEntity('dungen');
-const player = engine.world.createEntity('player');
+const dungen = Prefabs.dungeon(engine.world, engine.canvas.width, engine.canvas.height);
+const player = Prefabs.player(engine.world)
 
 
-dungen.addComponent(new DungeonComponent({ root: new CellComponent(new Vector(0, 0), new Vector(engine.canvas.width * DungeonComponent.scaler, engine.canvas.height * DungeonComponent.scaler)) }));
-dungen.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(1, 1), rotation: 0 })
-dungen.addComponent(new PhysicsComponent({ isStatic: true }));
 
-player.addComponent(new RenderComponent({ color: "lightblue", type: "snake", radius: 14 }));
-player.addComponent(new PhysicsComponent({ maxSpeed: 700, gravity: gravityVector, isStatic: false, mass: 1 }));
-player.addComponent(new SnakeComponent());
-
-
+console.log(dungen)
 const snake2 = engine.world.createEntity('snake2');
 
 snake2.addComponent(new RenderComponent({ color: 'green', type: 'circle', radius: 20 }));
@@ -64,7 +56,7 @@ engine.inputs.mapActions('move_left', 'KeyA')
 engine.inputs.mapActions('move_down', 'KeyS');
 engine.inputs.mapActions('enableDebug', 'KeyP');
 engine.inputs.mapActions('enableMinMap', 'KeyM');
-
+// engine.inputs.mapActions('selectedTarget',)
 
 
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus))
@@ -82,6 +74,11 @@ engine.eventBus.on('jump', () => {
     physicsSystem.applyForce(player, force);
 });
 
+engine.eventBus.on('selectedTarget', (code, e) => {
+    console.log(e);
+    // engine.camera.follow(target);
+});
+
 
 engine.eventBus.on('dungeonGenerated', () => {
     const dungeonComponent = dungen.getComponent('DungeonComponent')
@@ -93,7 +90,7 @@ engine.eventBus.on('dungeonGenerated', () => {
     console.log(pos)
     player.transform = new Transform({ pos: new Vector(pos.x, pos.y), size: new Vector(1, 1) });
     snake2.transform = new Transform({ pos: new Vector(pos.x + 30, pos.y + 30), size: new Vector(1, 1) });
-    engine.camera.follow(snake2);
+    engine.camera.follow(player);
 })
 
 engine.addSystem({
@@ -116,4 +113,4 @@ engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.eventBus, engine.ctx));
 engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 engine.start();
-console.log(engine.world.getEntity('snake2'));
+// console.log(engine.world.entities);

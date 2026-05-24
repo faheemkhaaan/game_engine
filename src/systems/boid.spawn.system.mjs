@@ -104,7 +104,8 @@ export class BoidSpawnSystem {
             mass: 2,
             maxSpeed: 800,
             drag: 1,
-            isStatic: false
+            isStatic: false,
+            restitution: 1
         }));
 
 

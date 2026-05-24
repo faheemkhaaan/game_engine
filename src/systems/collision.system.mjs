@@ -1,6 +1,6 @@
 
-import { PhysicsComponent } from "../components/physics.component.mjs";
-import { RenderComponent } from "../components/render.component.mjs";
+
+import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
 import { CollisionGrid } from "../utils/collision-grid.mjs";
@@ -33,7 +33,7 @@ export class CollisionSystem {
  * Initialize static entities in the grid (called after dungeon generation)
  */
     initializeStaticGrid() {
-        const entities = this.world.query('PhysicsComponent', 'RenderComponent');
+        const entities = this.world.query('PhysicsComponent', 'CollisionComponent', 'ShapeComponent');
 
         const filterEntities = entities.filter(entity => {
             const renderComponent = entity.getComponent('RenderComponent');
@@ -57,9 +57,9 @@ export class CollisionSystem {
         const entities = this.world.query('PhysicsComponent');
 
         const dynamicEntities = entities.filter(e => {
-            const physics = e.getComponent('PhysicsComponent');
+            const collision = e.getComponent('CollisionComponent');
 
-            return physics && !physics.static;
+            return collision && !collision.static;
         });
 
         this.grid.clearDynamicEntities();
@@ -91,15 +91,23 @@ export class CollisionSystem {
         // }
     }
 
+    /**
+     * 
+     * @param {Entity} e1 
+     * @param {Entity} e2 
+     * @returns 
+     */
     checkCollision(e1, e2) {
         const p1 = e1.getComponent('PhysicsComponent');
         const p2 = e2.getComponent("PhysicsComponent");
-        const r1 = e1.getComponent("RenderComponent");
-        const r2 = e2.getComponent("RenderComponent");
-        if (!p1 || !p2 || !r1 || !r2) return;
+        const c1 = e1.getComponent('CollisionComponent');
+        const c2 = e2.getComponent('CollisionComponent');
+        const s1 = e1.getComponent('ShapeComponent');
+        const s2 = e2.getComponent('ShapeComponent');
+        if (!p1 || !p2 || !c1 || !c2 || !s1 || !s2) return;
 
         // Use SAT for all collision checks - it's more robust and handles rotation
-        const contact = SAT.checkCollision(e1, r1, e2, r2);
+        const contact = SAT.checkCollision(e1, s1, e2, s2);
 
         if (contact && contact.depth > 0) {
             this.events.emit('collisionDetected', e1, p1, e2, p2, contact);

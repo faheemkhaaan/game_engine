@@ -67,18 +67,18 @@ export class BoidSystem {
             const cohision = this.cohision(entity);
             const alignment = this.alignment(entity);
             const escape = this.fleeing(entity);
-            // const avoidWall = this.wallAvoidance(entity);
+            const avoidWall = this.wallAvoidance(entity);
 
             seperation.scale(boidComponent.seperationWeight);
             cohision.scale(boidComponent.cohesionWeight);
             alignment.scale(boidComponent.alignmentWeight);
             escape.scale(boidComponent.playerAvoidWeight)
-
+            avoidWall.scale(boidComponent.playerAvoidWeight)
 
             // avoidWall.scale(boidComponent.playerAvoidWeight);
             // physicsComponent.forces.push(seperation, cohision, alignment);
 
-            physicsComponent.forces.push(escape, seperation, cohision, alignment);
+            physicsComponent.forces.push(escape, seperation, cohision, alignment, avoidWall);
 
         });
     }
@@ -265,59 +265,56 @@ export class BoidSystem {
     }
 
     /**
-     * @param {Entity} entity 
-     */
+  * @param {Entity} entity 
+  * @returns {Vector}
+  */
     wallAvoidance(entity) {
         const physicsComponent = entity.getComponent("PhysicsComponent");
         const boidComponent = entity.getComponent('BoidComponent');
 
-        if (physicsComponent.velocity.mag() === 0) return new Vector(0, 0);
+        const currentSpeed = physicsComponent.velocity.mag();
+        if (currentSpeed === 0) return new Vector(0, 0);
 
-        const lookAhead = 100;
+        // 1. Project a radar "antenna" forward based on current velocity
+        const lookAhead = 80; // Distance in pixels to look forward
         const heading = physicsComponent.velocity.clone().normalize();
-        const antena = heading.clone().scale(lookAhead);
-        const directionToEntity = Vector.add(entity.transform.pos, antena);
+        const antenna = heading.clone().scale(lookAhead);
+        const futurePos = Vector.add(entity.transform.pos, antenna);
 
         const nearByEntities = this.grid.getPotentialCollisions(entity);
 
-
-
         let closestWall = null;
         let minDistance = Infinity;
+        const wallAvoidanceRadius = 40; // Danger zone radius around a wall entity
 
+        // 2. Find the closest static wall blocking our future position
         nearByEntities.forEach(other => {
             const otherPhysics = other.getComponent('PhysicsComponent');
-            if (!otherPhysics.static) return;
+            if (!otherPhysics || !otherPhysics.static) return;
 
             const wallPos = other.transform.pos;
+            const distToWall = Vector.dist(futurePos, wallPos);
 
-            const distToWall = Vector.dist(directionToEntity, wallPos);
-
-            const wallAvoidance = 50;
-
-            if (distToWall < wallAvoidance && distToWall < minDistance) {
+            if (distToWall < wallAvoidanceRadius && distToWall < minDistance) {
                 closestWall = other;
-                minDistance = distToWall
+                minDistance = distToWall;
             }
-        })
+        });
 
-
+        // 3. If a wall threatens our trajectory, calculate an escape steering force
         if (closestWall) {
-            const toWall = Vector.sub(closestWall.transform.pos, entity.transform.pos);
+            // Vector pointing directly from the wall's center to our future position
+            const escapeDirection = Vector.sub(futurePos, closestWall.transform.pos);
 
-            const sideIndicator = Vector.cross(heading, toWall);
-            const dodgeDirection = heading.normal();
+            // Desired velocity is flying away from the wall at max speed
+            const desired = escapeDirection.normalize().scale(physicsComponent.maxSpeed);
 
-            if (sideIndicator < 0) {
-                dodgeDirection.scale(-1);
-            }
-
-            const desired = dodgeDirection.normalize().scale(physicsComponent.maxSpeed);
+            // Steering = Desired - Current Velocity
             const steering = Vector.sub(desired, physicsComponent.velocity);
 
-            steering.limit(boidComponent.maxForce * 3.0);
+            // Give wall avoidance a lot of power so they don't break through
+            steering.limit(boidComponent.maxForce * 4.0);
             return steering;
-
         }
 
         return new Vector(0, 0);

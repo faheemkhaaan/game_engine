@@ -1,14 +1,19 @@
 // components/collision.component.mjs
 export class CollisionComponent {
+
     constructor({
-        static = false,
+        isStatic = false,
         broadphaseRadius = 0,
-        layers = ['default']
+        layers = ['default'],
+        enabled = true,
+        isTrigger = false, // True if you want to detect overlap without physical bounce
+
+        mask = ["default"] // Which layers this entity is allowed to hit
     } = {}) {
         /** @type {Entity|null} */
         this.entity = null;
 
-        this.static = static;
+        this.static = isStatic;
         this.broadphaseRadius = broadphaseRadius;
         this.layers = layers;
 
@@ -21,5 +26,9 @@ export class CollisionComponent {
         // Broadphase: Store grid cell coordinates for quick lookup
         /** @type {{x: number, y: number}|null} */
         this.gridCell = null;
+
+        this.enabled = enabled;
+        this.isTrigger = isTrigger;
+        this.mask = mask;
     }
 }

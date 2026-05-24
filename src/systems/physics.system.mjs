@@ -53,9 +53,9 @@ export class PhysicsSystem {
 
 
         physics.velocity.addScaled(physics.aceleration, deltaTime);
+        physics.velocity.addScaled(physics.gravity, deltaTime);
         physics.velocity.scale(physics.drag);
 
-        physics.velocity.addScaled(physics.gravity, deltaTime);
 
         if (physics.velocity.mag() > physics.maxSpeed) {
             physics.velocity.normalize().scale(physics.maxSpeed);

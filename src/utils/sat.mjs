@@ -4,49 +4,49 @@ export class SAT {
     // ─── Entry point ───────────────────────────────────────────────
 
 
-    static checkCollision(e1, r1, e2, r2) {
-        const typeKey = r1.type + r2.type;
+    static checkCollision(e1, s1, e2, s2) {
+        const typeKey = s1.type + s2.type;
 
-        if (typeKey === 'circlecircle') return SAT.circleCircle(e1, r1, e2, r2);
+        if (typeKey === 'circlecircle') return SAT.circleCircle(e1, s1, e2, s2);
 
         if (typeKey === 'circlerect') {
-            return SAT.circlePolygon(e1, r1, SAT.getCachedVerticies(e2, r2));
+            return SAT.circlePolygon(e1, s1, SAT.getCachedVerticies(e2, s2));
         }
 
         if (typeKey === 'rectcircle') {
-            const verts = SAT.getCachedVerticies(e1, r1);
-            const contact = SAT.circlePolygon(e2, r2, verts);
+            const verts = SAT.getCachedVerticies(e1, s1);
+            const contact = SAT.circlePolygon(e2, s2, verts);
             // ✅ Flip by creating new Vector, not mutating with .scale()
             if (contact) contact.normal = new Vector(-contact.normal.x, -contact.normal.y);
             return contact;
         }
 
         if (typeKey === 'rectrect') return SAT.polygonPolygon(
-            SAT.getCachedVerticies(e1, r1),
-            SAT.getCachedVerticies(e2, r2)
+            SAT.getCachedVerticies(e1, s1),
+            SAT.getCachedVerticies(e2, s2)
         );
 
         return null;
     }
 
-    static getCachedVerticies(entity, render) {
+    static getCachedVerticies(entity, shape) {
         const physics = entity.getComponent('PhysicsComponent');
         const isStatic = physics.static;
 
         if (isStatic) {
             const cachedKey = entity.id;
 
-            if (render.cachedVertices && !render.dirty) {
-                return render.cachedVertices;
+            if (shape.cachedVertices && !shape.dirty) {
+                return shape.cachedVertices;
             }
 
-            const vertices = SAT.rectToVertices(entity, render);
-            render.cachedVertices = vertices;
-            render.dirty = false;
+            const vertices = SAT.rectToVertices(entity, shape);
+            shape.cachedVertices = vertices;
+            shape.dirty = false;
 
             return vertices;
         }
-        return SAT.rectToVertices(entity, render);
+        return SAT.rectToVertices(entity, shape);
     }
     // ─── Shape helpers ─────────────────────────────────────────────
 
@@ -54,10 +54,10 @@ export class SAT {
      * Convert a rect entity into 4 world-space vertices
      * Supports rotation via entity.transform.rotation (radians)
      */
-    static rectToVertices(entity, render) {
+    static rectToVertices(entity, shape) {
         const pos = entity.transform.pos;
-        const hw = render.width / 2;
-        const hh = render.height / 2;
+        const hw = shape.width / 2;
+        const hh = shape.height / 2;
         const rot = entity.transform.rotation || 0;
 
         // Define corners relative to center
