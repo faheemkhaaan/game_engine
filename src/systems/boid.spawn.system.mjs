@@ -1,7 +1,9 @@
 import { BoidComponent } from "../components/boid.component.mjs";
+import { CollisionComponent } from "../components/collision.component.mjs";
 import { DungeonComponent } from "../components/dungeon.component.mjs";
 import { PhysicsComponent } from "../components/physics.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
+import { ShapeComponent } from "../components/shape.component.mjs";
 import { Transform } from "../components/transform.mjs";
 import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
@@ -61,7 +63,7 @@ export class BoidSpawnSystem {
             if (!floor) continue;
 
 
-            const render = floor.getComponent('RenderComponent');
+            const render = floor.getComponent('ShapeComponent');
 
             // const count = Math.floor(Math.random() * 20) + 10;
             const count = 10
@@ -93,7 +95,7 @@ export class BoidSpawnSystem {
         });
 
 
-        boid.addComponent(new RenderComponent({ type: 'rect', width: 30, height: 30, zIndex: 200, color: "lightblue" }));
+        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue" }));
 
         boid.addComponent(new PhysicsComponent({
             velocity: new Vector(
@@ -104,12 +106,13 @@ export class BoidSpawnSystem {
             mass: 2,
             maxSpeed: 800,
             drag: 1,
-            isStatic: false,
             restitution: 1
         }));
 
 
         boid.addComponent(new BoidComponent());
+        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['wall'] }));
+        boid.addComponent(new ShapeComponent({ type: 'rect', width: 30, height: 30 }));
 
     }
 }

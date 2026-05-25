@@ -70,14 +70,15 @@ export class CollisionDebugSystem {
 
     drawShape(ctx, entity) {
         const render = entity.getComponent('RenderComponent');
-        if (!render) return;
+        const shape = entity.getComponent("ShapeComponent");
+        if (!render || !shape) return;
 
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
 
-        if (render.type === 'circle') {
+        if (shape.type === 'circle') {
             const pos = entity.transform.pos;
-            const radius = render.radius || 16;
+            const radius = shape.radius || 16;
 
             // Draw circle outline
             ctx.beginPath();
@@ -90,8 +91,8 @@ export class CollisionDebugSystem {
             ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
             ctx.fill();
         }
-        else if (render.type === 'rect') {
-            const verts = SAT.rectToVertices(entity, render);
+        else if (shape.type === 'rect') {
+            const verts = SAT.rectToVertices(entity, shape);
 
             // Draw edges
             ctx.beginPath();
@@ -168,10 +169,11 @@ export class CollisionDebugSystem {
     drawSATVisuals(ctx, e1, e2, contact) {
         const r1 = e1.getComponent('RenderComponent');
         const r2 = e2.getComponent('RenderComponent');
-
+        const s1 = e1.getComponent('ShapeComponent');
+        const s2 = e1.getComponent('ShapeComponent');
         // Get all axes being tested
-        const verts1 = r1.type === 'rect' ? SAT.rectToVertices(e1, r1) : null;
-        const verts2 = r2.type === 'rect' ? SAT.rectToVertices(e2, r2) : null;
+        const verts1 = s1.type === 'rect' ? SAT.rectToVertices(e1, s1) : null;
+        const verts2 = s2.type === 'rect' ? SAT.rectToVertices(e2, s2) : null;
 
         const axes = [];
         if (verts1) axes.push(...SAT.getAxes(verts1));

@@ -19,6 +19,8 @@ import { BoidComponent } from "./src/components/boid.component.mjs";
 import { SnakeSkinSystem } from "./src/systems/snake-skin.system.mjs";
 import { Prefabs } from "./src/utils/prefabs.mjs";
 import { EntityBuilder } from "./src/core/entity-builder.mjs";
+import { ShapeComponent } from "./src/components/shape.component.mjs";
+import { CollisionComponent } from "./src/components/collision.component.mjs";
 
 
 const engine = new GameEngine()
@@ -34,7 +36,8 @@ const player = Prefabs.player(engine.world)
 console.log(dungen)
 const snake2 = engine.world.createEntity('snake2');
 
-snake2.addComponent(new RenderComponent({ color: 'green', type: 'circle', radius: 20 }));
+snake2.addComponent(new RenderComponent({ color: 'green', }));
+snake2.addComponent(new ShapeComponent({ type: 'circle', radius: 20 }));
 snake2.addComponent(new PhysicsComponent({
     maxSpeed: 800,
     mass: 1,
@@ -47,6 +50,7 @@ snake2.addComponent(new PhysicsComponent({
 
 }));
 snake2.addComponent(new SnakeComponent());
+snake2.addComponent(new CollisionComponent());
 snake2.addComponent(new BoidComponent());
 
 
@@ -113,4 +117,4 @@ engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.eventBus, engine.ctx));
 engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 engine.start();
-// console.log(engine.world.entities);
+console.log(engine.world.query("BoidComponent"));

@@ -101,13 +101,13 @@ export class EntityBuilder {
 
     /** Dynamic collision (participates in resolution). */
     withCollision(options = {}) {
-        this.#entity.addComponent(new CollisionComponent({ static: false, enabled: true, ...options }));
+        this.#entity.addComponent(new CollisionComponent({ isStatic: false, enabled: true, ...options }));
         return this;
     }
 
     /** Static collision (walls/terrain – only blocks, never moves). */
     withStaticCollision(options = {}) {
-        this.#entity.addComponent(new CollisionComponent({ static: true, enabled: true, ...options }));
+        this.#entity.addComponent(new CollisionComponent({ isStatic: true, enabled: true, ...options }));
         return this;
     }
 

@@ -31,16 +31,11 @@ export class CollisionGrid {
      * @param {Entity} entity 
      */
     addStaticEntity(entity) {
-        const physics = entity.getComponent('PhysicsComponent');
-        if (physics && !physics.static) return;
-        const render = entity.getComponent("RenderComponent");
-
-        if (!render) return;
-
-
-        const pos = physics.entity.transform.pos;
-        const hw = render.width / 2;
-        const hh = render.height / 2;
+        const shape = entity.getComponent('ShapeComponent');
+        if (!shape) return;
+        const pos = entity.transform.pos;
+        const hw = shape.width / 2;
+        const hh = shape.height / 2;
 
         const minX = pos.x - hw;
         const maxX = pos.x + hw;
@@ -59,12 +54,13 @@ export class CollisionGrid {
     }
     /**
     * Update dynamic entity position in grid (called every frame)
+    * @param {Entity} entity
     */
     updateDynamicEntity(entity) {
         const physics = entity.getComponent('PhysicsComponent');
-        if (!physics || physics.isStatic || physics.static) return;
+        if (!physics || physics.static) return;
 
-        const render = entity.getComponent('RenderComponent');
+        const render = entity.getComponent('ShapeComponent');
         if (!render) return;
 
         const pos = entity.transform.pos;
@@ -96,10 +92,11 @@ export class CollisionGrid {
 
     /**
      * Get potential collision candidates for a dynamic entity
+     * @param {Entity} dynamicEntity
      */
     getPotentialCollisions(dynamicEntity) {
         const pos = dynamicEntity.transform.pos;
-        const render = dynamicEntity.getComponent('RenderComponent');
+        const render = dynamicEntity.getComponent('ShapeComponent');
         const physics = dynamicEntity.getComponent('PhysicsComponent');
 
         if (!render || !physics) return [];
@@ -142,7 +139,7 @@ export class CollisionGrid {
 
     getPotentialBoids(dynamicEntity) {
         const pos = dynamicEntity.transform.pos;
-        const render = dynamicEntity.getComponent('RenderComponent');
+        const render = dynamicEntity.getComponent('ShapeComponent');
         const physics = dynamicEntity.getComponent('PhysicsComponent');
 
         if (!render || !physics) return [];

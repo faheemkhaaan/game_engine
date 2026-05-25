@@ -28,7 +28,7 @@ export class BoidSystem {
     }
 
     initializeStaticGrid() {
-        const entities = this.world.query('PhysicsComponent', 'RenderComponent');
+        const entities = this.world.query('PhysicsComponent', 'ShapeComponent');
 
         for (const entity of entities) {
             const physics = entity.getComponent('PhysicsComponent');
@@ -233,14 +233,14 @@ export class BoidSystem {
 
         const physicsComponent = entity.getComponent('PhysicsComponent');
         const boidComponent = entity.getComponent('BoidComponent');
-        const renderComponent = entity.getComponent("RenderComponent");
-        const playerRenderComponent = player.getComponent('RenderComponent');
-        const collision = SAT.checkCollision(entity, renderComponent, player, playerRenderComponent);
+        const shapeComponent = entity.getComponent('ShapeComponent');
+        const playerShapeComponent = player.getComponent('ShapeComponent');
+        // const collision = SAT.checkCollision(entity, shapeComponent, player, playerShapeComponent);
 
-        if (collision) {
-            // renderComponent.dead = true;
-            this.world.destory(entity.id);
-        }
+        // if (collision) {
+        //     // renderComponent.dead = true;
+        //     this.world.destory(entity.id);
+        // }
 
         // Vector from player to boid (escape direction)
         const fromPlayer = Vector.sub(entity.transform.pos, player.transform.pos);

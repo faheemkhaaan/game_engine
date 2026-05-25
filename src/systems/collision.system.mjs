@@ -33,16 +33,11 @@ export class CollisionSystem {
  * Initialize static entities in the grid (called after dungeon generation)
  */
     initializeStaticGrid() {
-        const entities = this.world.query('PhysicsComponent', 'CollisionComponent', 'ShapeComponent');
+        const entities = this.world.query('PhysicsComponent', 'ShapeComponent');
 
-        const filterEntities = entities.filter(entity => {
-            const renderComponent = entity.getComponent('RenderComponent');
-
-            return !renderComponent || !renderComponent.dead;
-        })
         for (const entity of entities) {
-            const physics = entity.getComponent('PhysicsComponent');
-            if (physics && physics.static) {
+            const collision = entity.getComponent('CollisionComponent');
+            if (collision && collision.static) {
                 this.grid.addStaticEntity(entity);
             }
         }

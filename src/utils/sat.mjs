@@ -147,6 +147,9 @@ export class SAT {
                 closest = v;
             }
         }
+        if (!closest) {
+            return new Vector(1, 0);
+        }
 
         const dx = circleCenter.x - closest.x;
         const dy = circleCenter.y - closest.y;

@@ -1,4 +1,5 @@
 import { CellComponent } from "../components/cell.component.mjs";
+import { CollisionComponent } from "../components/collision.component.mjs";
 import { DungeonComponent } from "../components/dungeon.component.mjs";
 import { PhysicsComponent } from "../components/physics.component.mjs";
 import { RenderComponent } from "../components/render.component.mjs";
@@ -86,7 +87,6 @@ export class DungeonSystem {
                 const overlapMinX = Math.max(r1MinX, r2MinX);
                 const overlapMaxX = Math.min(r1MaxX, r2MaxX);
                 const overlapWidth = overlapMaxX - overlapMinX;
-                console.log(overlapMinX, overlapMaxX, overlapWidth)
 
                 // Only spawn if the actual rooms visually line up enough to fit the hallway
                 if (overlapWidth > hallWidth) {
@@ -102,26 +102,12 @@ export class DungeonSystem {
                     // Spawn Hallway Floor
                     const hallFloor = Prefabs.floor(this.world, `hall_floor_${c1.id}_to_c2.id`, centerX, centerY, hallWidth, hallHeight);
 
-                    // Spawn Left Wall
-                    // const leftWall = this.world.createEntity(`hall_wall_l_${c1.id}_to_${c2.id}`);
-                    // leftWall.transform = new Transform({ pos: new Vector(hallX + (wallThickness / 2), centerY), size: new Vector(1, 1) });
-                    // leftWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
-                    // leftWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
-
-                    // // Spawn Right Wall
-                    // const rightWall = this.world.createEntity(`hall_wall_r_${c1.id}_to_${c2.id}`);
-                    // rightWall.transform = new Transform({ pos: new Vector(hallX + hallWidth - (wallThickness / 2), centerY), size: new Vector(1, 1) });
-                    // rightWall.addComponent(new RenderComponent({ width: wallThickness, height: hallHeight + wallThickness * 2, type: 'rect', color: '#5a5a5a' }));
-                    // rightWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
-                    // // Floor
-
 
                     // Side walls
-                    const hallLeft = Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + hallWidth / 2, centerY, hallWidth, hallHeight + wallThickness * 2);
-                    const hallRight = Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - wallThickness / 2, centerY, wallThickness, hallHeight + wallThickness * 2);
+                    const hallLeft = Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
+                    const hallRight = Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
 
 
-                    console.log(hallLeft)
                     // Split C1's Bottom Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
                     this.splitWall('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false, wallThickness);
 
@@ -160,29 +146,16 @@ export class DungeonSystem {
 
                     if (hallWidthSegment <= 0) continue; // Skip if rooms visually overlap/touch
 
-
-                    // Spawn Top Wall
-                    // const topWall = this.world.createEntity(`hall_wall_t_${c1.id}_to_${c2.id}`);
-                    // topWall.transform = new Transform({ pos: new Vector(centerX, hallY + (wallThickness / 2)), size: new Vector(1, 1) });
-                    // topWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-                    // topWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
-
-                    // // Spawn Bottom Wall
-                    // const bottomWall = this.world.createEntity(`hall_wall_b_${c1.id}_to_${c2.id}`);
-                    // bottomWall.transform = new Transform({ pos: new Vector(centerX, hallY + hallWidth - (wallThickness / 2)), size: new Vector(1, 1) });
-                    // bottomWall.addComponent(new RenderComponent({ width: hallWidthSegment + wallThickness * 2, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-                    // bottomWall.addComponent(new PhysicsComponent({ isStatic: true, restitution: 1 }));
-
                     // Spawn Hallway Floor
                     const hallFloor = Prefabs.floor(this.world,
                         `hall_floor_${c1.id}_to_${c2.id}`,
                         centerX, centerY,
-                        hallWidth + wallThickness * 4, hallWidth,
+                        hallWidthSegment + wallThickness * 4, hallWidth,
                     );
 
                     // Side walls
-                    const hallTopWall = Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + wallThickness / 2, hallWidth + wallThickness * 2, wallThickness);
-                    const hallBottomWall = Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - wallThickness / 2, hallWidth + wallThickness * 2, wallThickness);
+                    const hallTopWall = Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + (wallThickness / 2), hallWidthSegment + wallThickness * 2, wallThickness);
+                    const hallBottomWall = Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - (wallThickness / 2), hallWidthSegment + (wallThickness * 2), wallThickness);
 
                     // Carve openings
                     this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);
@@ -205,60 +178,49 @@ export class DungeonSystem {
         const oldWall = this.world.getEntity(oldWallId);
         if (!oldWall) return;
 
-        const render = oldWall.getComponent('ShapeComponent');
+        const shape = oldWall.getComponent('ShapeComponent');
         const pos = oldWall.transform.pos;
 
 
 
         if (!isVerticalWall) {
             // --- SPLITTING A HORIZONTAL WALL (Top/Bottom Walls running along X-axis) ---
-            const wallMinX = pos.x - render.width / 2;
-            const wallMaxX = pos.x + render.width / 2;
+            const wallMinX = pos.x - shape.width / 2;
+            const wallMaxX = pos.x + shape.width / 2;
 
             // Segment A: Left side of the doorway
             const widthA = hallStart - wallMinX;
             if (widthA > 5) { // Avoid creating micro-artifacts
                 const centerXA = wallMinX + widthA / 2;
-                const partA = this.world.createEntity(`${oldWallId}_split_left`);
-                partA.transform = new Transform({ pos: new Vector(centerXA, pos.y), size: new Vector(1, 1) });
-                partA.addComponent(new RenderComponent({ width: widthA, height: wallThickness, type: 'rect', color: '#5a5a5a' }));
-                partA.addComponent(new PhysicsComponent({ isStatic: true }));
-                partA.addComponent(new ShapeComponent({ type: 'rect', width: widthA, height: wallThickness }))
+
+                const partA = Prefabs.wall(this.world, `${oldWallId}_split_left`, centerXA, pos.y, widthA, wallThickness);
             }
 
             // Segment B: Right side of the doorway
             const widthB = wallMaxX - hallEnd;
             if (widthB > 5) {
                 const centerXB = hallEnd + widthB / 2;
-                const partB = this.world.createEntity(`${oldWallId}_split_right`);
-                partB.transform = new Transform({ pos: new Vector(centerXB, pos.y), size: new Vector(1, 1) });
-                partB.addComponent(new RenderComponent({ color: '#5a5a5a' }));
-                partB.addComponent(new PhysicsComponent({ isStatic: true }));
-                partB.addComponent(new ShapeComponent({ type: "rect", width: widthB, height: wallThickness }))
+
+                const partB = Prefabs.wall(this.world, `${oldWallId}_split_right`, centerXB, pos.y, widthB, wallThickness);
             }
         } else {
             // --- SPLITTING A VERTICAL WALL (Left/Right Walls running along Y-axis) ---
-            const wallMinY = pos.y - render.height / 2;
-            const wallMaxY = pos.y + render.height / 2;
+            const wallMinY = pos.y - shape.height / 2;
+            const wallMaxY = pos.y + shape.height / 2;
 
             // Segment A: Top side of the doorway
             const heightA = hallStart - wallMinY;
             if (heightA > 5) {
                 const centerYA = wallMinY + heightA / 2;
-                const partA = this.world.createEntity(`${oldWallId}_split_top`);
-                partA.transform = new Transform({ pos: new Vector(pos.x, centerYA), size: new Vector(1, 1) });
-                partA.addComponent(new RenderComponent({ width: wallThickness, height: heightA, type: 'rect', color: '#5a5a5a' }));
-                partA.addComponent(new PhysicsComponent({ isStatic: true }));
+
+                const partA = Prefabs.wall(this.world, `${oldWallId}_split_top`, pos.x, centerYA, wallThickness, heightA);
             }
 
             // Segment B: Bottom side of the doorway
             const heightB = wallMaxY - hallEnd;
             if (heightB > 5) {
                 const centerYB = hallEnd + heightB / 2;
-                const partB = this.world.createEntity(`${oldWallId}_split_bottom`);
-                partB.transform = new Transform({ pos: new Vector(pos.x, centerYB), size: new Vector(1, 1) });
-                partB.addComponent(new RenderComponent({ width: wallThickness, height: heightB, type: 'rect', color: '#5a5a5a' }));
-                partB.addComponent(new PhysicsComponent({ isStatic: true }));
+                const partB = Prefabs.wall(this.world, `${oldWallId}_split_bottom`, pos.x, centerYB, wallThickness, heightB);
             }
         }
         this.world.destory(oldWallId);
@@ -287,8 +249,9 @@ export class DungeonSystem {
             const wallThickness = 20;
 
             // Floor (visual only, no physics, so player can walk on it)
-
             const floor = Prefabs.floor(this.world, 'room_floor_' + cell.id, center.x, center.y, width, height)
+
+
             const topWall = Prefabs.wall(this.world, 'wall_top_' + cell.id, center.x, topLeft.y + wallThickness / 2, width, wallThickness);
             const bottomWall = Prefabs.wall(this.world, 'wall_bottom_' + cell.id, center.x, bottomRight.y - wallThickness / 2, width, wallThickness)
             const leftWall = Prefabs.wall(this.world, 'wall_left_' + cell.id, topLeft.x + wallThickness / 2, center.y, wallThickness, height);
