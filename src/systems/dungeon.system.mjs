@@ -76,8 +76,6 @@ export class DungeonSystem {
                 if (!floor2) continue;
                 const r2 = floor2.getComponent('ShapeComponent');
 
-
-                console.log(r2);
                 // Visual bounds of Room 2
                 const r2MinX = floor2.transform.pos.x - r2.width / 2;
                 const r2MaxX = floor2.transform.pos.x + r2.width / 2;
@@ -100,12 +98,13 @@ export class DungeonSystem {
                     if (hallHeight <= 0) continue; // Skip if rooms visually overlap/touch
 
                     // Spawn Hallway Floor
-                    const hallFloor = Prefabs.floor(this.world, `hall_floor_${c1.id}_to_c2.id`, centerX, centerY, hallWidth, hallHeight);
-
+                    Prefabs.floor(this.world, `hall_floor_${c1.id}_to_c2.id`, centerX, centerY, hallWidth, hallHeight);
 
                     // Side walls
-                    const hallLeft = Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
-                    const hallRight = Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
+                    // left hall wall
+                    Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
+                    // right hall wall
+                    Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
 
 
                     // Split C1's Bottom Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
@@ -154,8 +153,10 @@ export class DungeonSystem {
                     );
 
                     // Side walls
-                    const hallTopWall = Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + (wallThickness / 2), hallWidthSegment + wallThickness * 2, wallThickness);
-                    const hallBottomWall = Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - (wallThickness / 2), hallWidthSegment + (wallThickness * 2), wallThickness);
+                    // hall top wall
+                    Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + (wallThickness / 2), hallWidthSegment + wallThickness * 2, wallThickness);
+                    // hall bottom wall
+                    Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - (wallThickness / 2), hallWidthSegment + (wallThickness * 2), wallThickness);
 
                     // Carve openings
                     this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);

@@ -235,12 +235,12 @@ export class BoidSystem {
         const boidComponent = entity.getComponent('BoidComponent');
         const shapeComponent = entity.getComponent('ShapeComponent');
         const playerShapeComponent = player.getComponent('ShapeComponent');
-        // const collision = SAT.checkCollision(entity, shapeComponent, player, playerShapeComponent);
+        const collision = SAT.checkCollision(entity, shapeComponent, player, playerShapeComponent);
 
-        // if (collision) {
-        //     // renderComponent.dead = true;
-        //     this.world.destory(entity.id);
-        // }
+        if (collision) {
+            // renderComponent.dead = true;
+            this.world.destory(entity.id);
+        }
 
         // Vector from player to boid (escape direction)
         const fromPlayer = Vector.sub(entity.transform.pos, player.transform.pos);
