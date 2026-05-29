@@ -85,7 +85,7 @@ export const Prefabs = {
     enemySnake(world, id, pos = new Vector(0, 0)) {
         return new EntityBuilder(world, id)
             .at(pos.x, pos.y)
-            .asCircle(20)
+            .asCircle(10)
             .withRender({ color: 'green', zIndex: 100 })
             .withPhysics({
                 maxSpeed: 800,
@@ -97,6 +97,7 @@ export const Prefabs = {
                 ),
             })
             .withSnake()
+            .withCollision()
             .withBoid()
             .build();
     },
@@ -139,6 +140,7 @@ export const Prefabs = {
                 ),
                 restitution: 1
             })
+            .withCollision({ mask: ['wall'] })
             .build();
     },
 };

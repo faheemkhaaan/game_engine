@@ -31,27 +31,15 @@ engine.inputs.mapActions('attack', 'Space');
 const dungen = Prefabs.dungeon(engine.world, engine.canvas.width, engine.canvas.height);
 const player = Prefabs.player(engine.world)
 
+engine.eventBus.on('mousedown', (loc) => {
+    const dungenComponent = dungen.getComponent('DungeonComponent');
 
+    const worldPos = engine.camera.canvasToWorld(loc);
+    console.log(worldPos);
+})
 
 console.log(dungen)
-const snake2 = engine.world.createEntity('snake2');
-
-snake2.addComponent(new RenderComponent({ color: 'green', }));
-snake2.addComponent(new ShapeComponent({ type: 'circle', radius: 20 }));
-snake2.addComponent(new PhysicsComponent({
-    maxSpeed: 800,
-    mass: 1,
-    velocity: new Vector(
-        (Math.random() - 0.5) * 1300,
-        (Math.random() - 0.5) * 1300
-    ),
-    aceleration: new Vector(1, 1),
-    drag: 1,
-
-}));
-snake2.addComponent(new SnakeComponent());
-snake2.addComponent(new CollisionComponent());
-snake2.addComponent(new BoidComponent());
+const snake2 = Prefabs.enemySnake(engine.world)
 
 
 engine.inputs.mapActions('move_up', 'KeyW')

@@ -193,9 +193,9 @@ export class SnakeSkeletonSystem {
      */
     applyAngleConstraint(snakeComponent) {
 
-        const entity = snakeComponent.entity;
+        // const entity = snakeComponent.entity;
         const segments = snakeComponent.segments;
-        const maxBend = (45 * Math.PI) / 180;
+        const maxBend = (40 * Math.PI) / 180;
 
 
         for (let i = 1; i < segments.length - 1; i++) {

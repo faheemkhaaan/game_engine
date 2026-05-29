@@ -52,6 +52,29 @@ export class Camera {
         ctx.translate(drawX, drawY)
     }
 
+
+    /**
+         * Converts a world position to a canvas/screen position.
+         * Useful for drawing UI elements over world objects.
+         * @param {Vector} worldPos - The position in the game world.
+         * @returns {Vector} The corresponding position on the canvas.
+         */
+    worldToCanvas(worldPos) {
+        // Since this.transform.pos is the translation offset applied to the canvas context:
+        // Canvas Position = World Position + Camera Offset
+        return Vector.add(worldPos, this.transform.pos);
+    }
+
+    /**
+     * Converts a canvas/screen position (like a mouse click) to a world position.
+     * Useful for handling mouse/touch interactions in the game world.
+     * @param {Vector} canvasPos - The position on the canvas.
+     * @returns {Vector} The corresponding position in the game world.
+     */
+    canvasToWorld(canvasPos) {
+        // World Position = Canvas Position - Camera Offset
+        return Vector.sub(canvasPos, this.transform.pos);
+    }
     /**
      * @param {CanvasRenderingContext2D} ctx
      */

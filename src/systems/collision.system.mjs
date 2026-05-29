@@ -85,7 +85,22 @@ export class CollisionSystem {
         //     }
         // }
     }
+    /**
+         * Determines if two collision components are allowed to collide based on their layers and masks.
+         * @param {CollisionComponent} c1 
+         * @param {CollisionComponent} c2 
+         * @returns {boolean}
+         */
+    shouldCollide(c1, c2) {
+        // Does c1's mask include any of c2's layers?
+        const c1CanHitC2 = c1.mask.some(maskLayer => c2.layers.includes(maskLayer));
 
+        // Does c2's mask include any of c1's layers?
+        const c2CanHitC1 = c2.mask.some(maskLayer => c1.layers.includes(maskLayer));
+
+        // Both must agree to collide. (If you prefer one-way permissions, change this to ||)
+        return c1CanHitC2 || c2CanHitC1;
+    }
     /**
      * 
      * @param {Entity} e1 
@@ -97,6 +112,8 @@ export class CollisionSystem {
         const p2 = e2.getComponent("PhysicsComponent");
         const c1 = e1.getComponent('CollisionComponent');
         const c2 = e2.getComponent('CollisionComponent');
+
+        if (!this.shouldCollide(c1, c2)) return;
         const s1 = e1.getComponent('ShapeComponent');
         const s2 = e2.getComponent('ShapeComponent');
         if (!p1 || !p2 || !c1 || !c2 || !s1 || !s2) return;
@@ -106,6 +123,7 @@ export class CollisionSystem {
 
         if (contact && contact.depth > 0) {
             this.events.emit('collisionDetected', e1, p1, e2, p2, contact);
+
             this.resolveCollision(e1, p1, e2, p2, contact);
         }
     }

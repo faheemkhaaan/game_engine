@@ -175,10 +175,7 @@ export class BoidSystem {
             steering.scale(physicsComponent.maxSpeed);
             steering.sub(physicsComponent.velocity);
             steering.limit(boidComponent.maxForce);
-
-
         }
-
         return steering;
 
     }

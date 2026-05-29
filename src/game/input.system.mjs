@@ -38,7 +38,8 @@ export class InputSystem {
         });
 
         window.addEventListener('mousedown', (e) => {
-
+            const loc = { x: e.offsetX, y: e.offsetY }
+            this.events.emit('mousedown', loc);
         })
     }
 

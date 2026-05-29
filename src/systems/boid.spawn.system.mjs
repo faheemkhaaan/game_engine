@@ -111,8 +111,7 @@ export class BoidSpawnSystem {
 
 
         boid.addComponent(new BoidComponent());
-        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['wall'] }));
+        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['wall', 'snake'] }));
         boid.addComponent(new ShapeComponent({ type: 'rect', width: 30, height: 30 }));
-
     }
 }
