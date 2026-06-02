@@ -22,12 +22,15 @@ export class CollisionSystem {
         this.grid = new CollisionGrid(200);
         this.gridInitialized = false;
         this.events = events;
+        this.enable = true;
+        this.events.on('enableCollision', () => {
+            this.enable = !this.enable;
+        })
         this.events.on("dungeonGenerated", () => {
             if (!this.gridInitialized) {
                 this.initializeStaticGrid();
             }
         })
-
     }
     /**
  * Initialize static entities in the grid (called after dungeon generation)
@@ -47,6 +50,7 @@ export class CollisionSystem {
 
 
     update(deltaTime) {
+        if (!this.enable) return;
         // console.log(deltaTime);
 
         const entities = this.world.query('PhysicsComponent');

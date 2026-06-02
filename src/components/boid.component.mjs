@@ -12,7 +12,7 @@ export class BoidComponent {
         playerAvoidRadius = 200,
         seperationWeight = 1400,
         alignmentWeight = 1200,
-        cohesionWeight = 1200,
+        cohesionWeight = 1300,
         playerAvoidWeight = 3500
     } = {}) {
         this.maxForce = maxForce;

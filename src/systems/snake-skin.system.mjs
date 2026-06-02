@@ -100,3 +100,4 @@ export class SnakeSkinSystem {
         return { lVert: leftSkinVert, rVert: rightSkinVert }
     }
 }
+

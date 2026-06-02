@@ -25,13 +25,35 @@ export class DungeonSystem {
      * @param {World} world
      * @param {EventBus} events
      */
-    constructor(world, events) {
+    constructor(world, events, canvasWidth, canvasHeight) {
         this.world = world;
         this.events = events;
         this.dungenGenerated = false;
+
+        this.enable = true;
+
+        this.events.on('enableDungeonGeneration', () => {
+            const dungeonEntities = this.world.query('DungeonComponent');
+            const entities = this.world.query('ShapeComponent').filter(s => s.id.startsWith('room_floor_') || s.id.startsWith('hall_floor_') || s.id.startsWith('hall_wall_') || s.id.startsWith('wall_'))
+            for (const entity of dungeonEntities) {
+                console.log(entity);
+                const success = this.world.destory(entity.id);
+                if (success) {
+                    console.log(`Successfully deleted ${entity.id}`);
+                }
+            }
+            for (const entity of entities) {
+                console.log(entity.id)
+                this.world.destory(entity.id);
+            }
+            const dungen = Prefabs.dungeon(this.world, canvasWidth, canvasHeight);
+            this.dungenGenerated = false;
+            console.log(dungen);
+        })
     }
 
     update(dt) {
+
 
         const dungeonEntities = this.world.query('DungeonComponent');
 

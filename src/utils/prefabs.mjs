@@ -54,7 +54,7 @@ export const Prefabs = {
     },
 
 
-    dungeon(world, w, h, id = 'dungeon') {
+    dungeon(world, w, h, id = 'dungeon' + Math.random().toString(36)) {
         return new EntityBuilder(world, id)
             .at(0, 0, 0)
             .withDungeon(w, h)
@@ -72,10 +72,10 @@ export const Prefabs = {
         return new EntityBuilder(world, 'player')
             .at(pos.x, pos.y)
             .asCircle(12)
-            .withRender({ color: 'rgba(255,255,255,0)' })
+            .withRender({ color: 'rgba(155,255,255,1)' })
             .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
             .withCollision()
-            .withSnake()
+            // .withSnake()
             .build();
     },
 
@@ -96,7 +96,7 @@ export const Prefabs = {
                     (Math.random() - 0.5) * 1300,
                 ),
             })
-            .withSnake()
+            // .withSnake()
             .withCollision()
             .withBoid()
             .build();

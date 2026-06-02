@@ -23,8 +23,19 @@ export class BoidSpawnSystem {
         this.world = world;
         this.events = events;
         this.spawned = false;
-        this.shouldSpawnBoids = false;
+        this.shouldSpawnBoids = true;
 
+
+        this.events.on('respawnBoids', () => {
+            const dungeon = this.world.query('DungeonComponent');
+            const boids = this.world.query('BoidComponent');
+            for (const boid of boids) {
+                if (boid.id !== 'player' && boid.id !== 'snake-enemy') {
+                    this.world.destory(boid.id);
+                }
+            }
+            this.spawnBoidsInRooms(dungeon[0]);
+        })
         this.events.on('dungeonGenerated', () => {
             this.shouldSpawnBoids = true;
         })
@@ -35,7 +46,7 @@ export class BoidSpawnSystem {
 
 
     update(dt) {
-
+        if (!this.spawned) return;
         const dungeon = this.world.query('DungeonComponent');
 
         if (this.shouldSpawnBoids && !this.spawned && dungeon.length > 0) {
@@ -66,7 +77,7 @@ export class BoidSpawnSystem {
             const render = floor.getComponent('ShapeComponent');
 
             // const count = Math.floor(Math.random() * 20) + 10;
-            const count = 10
+            const count = 50
 
             for (let i = 0; i < count; i++) {
                 this.spawnSingleBoid(floor, render)

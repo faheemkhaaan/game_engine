@@ -54,7 +54,10 @@ export class RenderStratagies {
                 const skin = snakeComponent.snakeSkinVerticies
 
                 ctx.beginPath();
-                ctx.fillStyle = 'indigo'
+                const snakeScaleCanvas = createSnakePattern();
+                const snakePattern = ctx.createPattern(snakeScaleCanvas, 'repeat');
+                ctx.fillStyle = snakePattern;
+                // ctx.fillStyle = 'indigo'
                 ctx.strokeStyle = 'yellow'
                 const first = skin[0];
                 const last = skin[skin.length - 1];
@@ -80,7 +83,7 @@ export class RenderStratagies {
                     const right = snakeComponent.rightEye;
                     // console.log(left);
                     ctx.beginPath();
-                    ctx.fillStyle = 'green'
+                    ctx.fillStyle = 'red'
 
                     ctx.arc(left.x, left.y, 3, 0, Math.PI * 2);
                     ctx.arc(right.x, right.y, 3, 0, Math.PI * 2);
@@ -110,7 +113,10 @@ export class RenderStratagies {
             if (!skin || skin.length < 3) return; // Guard against empty or incomplete meshes
 
             ctx.beginPath();
-            ctx.fillStyle = 'indigo';
+            const snakeScaleCanvas = createSnakePattern();
+            const snakePattern = mainCtx.createPattern(snakeScaleCanvas, 'repeat');
+            ctx.fillStyle = snakePattern;
+            // ctx.fillStyle = 'indigo';
             ctx.strokeStyle = 'yellow';
             ctx.lineWidth = 2; // Make that outline clean
 
@@ -144,7 +150,7 @@ export class RenderStratagies {
                 const right = snakeComponent.rightEye;
                 // console.log(left);
                 ctx.beginPath();
-                ctx.fillStyle = 'green'
+                ctx.fillStyle = 'red'
                 ctx.arc(left.x, left.y, 3, 0, Math.PI * 2);
                 ctx.arc(right.x, right.y, 3, 0, Math.PI * 2);
                 ctx.fill()
@@ -178,3 +184,32 @@ export class RenderStratagies {
         this[name] = { render: renderFunction };
     }
 }
+function createSnakePattern() {
+    const scaleSize = 10;
+    const canvas = document.createElement('canvas');
+    canvas.width = scaleSize;
+    canvas.height = scaleSize;
+    const ctx = canvas.getContext('2d');
+
+    // Draw a single diamond scale
+    ctx.fillStyle = "#ffcc00"; // Yellow snake
+    ctx.fillRect(0, 0, scaleSize, scaleSize);
+
+    ctx.strokeStyle = "green"; // Darker scale outline
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(scaleSize / 2, 0);
+    ctx.lineTo(scaleSize, scaleSize / 2);
+    ctx.lineTo(scaleSize / 2, scaleSize);
+    ctx.lineTo(0, scaleSize / 2);
+    ctx.closePath();
+    ctx.stroke();
+
+    return canvas; // Return the canvas itself to be used as a pattern
+}
+
+// How to use it in your game loop:
+// const snakeScaleCanvas = createSnakePattern();
+// const snakePattern = mainCtx.createPattern(snakeScaleCanvas, 'repeat');
+// mainCtx.fillStyle = snakePattern;
+// mainCtx.fill(); // Fill your snake body path
