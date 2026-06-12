@@ -3,10 +3,10 @@
 
 export class DungeonComponent {
 
-    static scaler = 5;
+    static scaler = 20;
 
     constructor({ root } = {}) {
-        this.minRooms = 10;
+        this.minRooms = 40;
         this.minDimensions = 130 * DungeonComponent.scaler;
         this.root = root;
         this.cells = [];

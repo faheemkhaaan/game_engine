@@ -56,9 +56,10 @@ export class RenderStratagies {
                 ctx.beginPath();
                 const snakeScaleCanvas = createSnakePattern();
                 const snakePattern = ctx.createPattern(snakeScaleCanvas, 'repeat');
-                ctx.fillStyle = snakePattern;
-                // ctx.fillStyle = 'indigo'
-                ctx.strokeStyle = 'yellow'
+                // ctx.fillStyle = snakePattern;
+                ctx.fillStyle = 'darkgreen'
+                ctx.strokeStyle = 'white'
+                ctx.lineWidth = 2
                 const first = skin[0];
                 const last = skin[skin.length - 1];
 

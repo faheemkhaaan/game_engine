@@ -29,20 +29,27 @@ export class SnakeSkeletonSystem {
     update(dt) {
         this.snakeTime += dt;
         const entities = this.world.query('SnakeComponent');
-
         for (const entity of entities) {
             const snakeComponent = entity.getComponent('SnakeComponent');
             if (!snakeComponent.segmentsGenerated) this.generateSegments(snakeComponent);
             // this.applySnakeMovement(snakeComponent, dt)
-            this.applyDistanceConstraint(snakeComponent);
-            this.applyAngleConstraint(snakeComponent)
+            const physics = entity.getComponent('PhysicsComponent');
+            if (!physics || physics.velocity.mag() < 1) continue; // skip if idle
+
+            for (let iter = 0; iter < 5; iter++) {
+                this.applyDistanceConstraint(snakeComponent);
+                this.applyAngleConstraint(snakeComponent);
+                this.applyDistanceConstraint(snakeComponent);
+            }
         }
 
     }
     /**
          * Apply sinusoidal lateral movement to create snake-like motion
+         * @param {SnakeComponent} snakeComponent
          */
     applySnakeMovement(snakeComponent, dt) {
+        if (!snakeComponent.isSnakeMoving) return;
         const entity = snakeComponent.entity;
         const headPos = entity.transform.pos;
 
@@ -128,10 +135,14 @@ export class SnakeSkeletonSystem {
         for (let i = 0; i < snakeComponent.totalSegments; i++) {
 
             const radius = this.getSegmentThickness(i, snakeComponent.totalSegments);
+            const spawnPos = new Vector(
+                headPos.x - (i + 1) * snakeComponent.segmentLength,
+                headPos.y
+            );
             const segment = Prefabs.snakeSegment(
                 this.world,
                 `snake_body_part_${i}_` + entity.id,
-                headPos,
+                spawnPos,
                 radius,
             );
             snakeComponent.segments.push(segment);
@@ -148,6 +159,10 @@ export class SnakeSkeletonSystem {
     applyDistanceConstraint(snakeComponent) {
 
         const entity = snakeComponent.entity;
+        const physics = entity.getComponent('PhysicsComponent');
+
+        // Skip constraint propagation if snake is essentially still
+        if (physics && physics.velocity.mag() < 1) return;
         const headPos = entity.transform.pos;
 
         const firstSegment = snakeComponent.segments[0];
@@ -208,6 +223,9 @@ export class SnakeSkeletonSystem {
             const v1 = Vector.sub(joint.transform.pos, previous.transform.pos);
             const v2 = Vector.sub(next.transform.pos, joint.transform.pos);
 
+            const v1mag = v1.mag();
+            const v2mag = v2.mag();
+            if (v1mag < 0.0001 || v2mag < 0.0001) continue; //
 
             const angle = Vector.angle(v1, v2);
 

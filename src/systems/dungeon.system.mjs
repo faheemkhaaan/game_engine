@@ -120,7 +120,7 @@ export class DungeonSystem {
                     if (hallHeight <= 0) continue; // Skip if rooms visually overlap/touch
 
                     // Spawn Hallway Floor
-                    Prefabs.floor(this.world, `hall_floor_${c1.id}_to_c2.id`, centerX, centerY, hallWidth, hallHeight);
+                    Prefabs.floor(this.world, `hall_floor_${c1.id}_to_${c2.id}`, centerX, centerY, hallWidth, hallHeight);
 
                     // Side walls
                     // left hall wall

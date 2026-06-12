@@ -18,5 +18,6 @@ export class SnakeComponent {
         this.segmentsGenerated = false;
         this.segmentLength = 25;
         this.totalSegments = 30;
+        this.isSnakeMoving = false;
     }
 }

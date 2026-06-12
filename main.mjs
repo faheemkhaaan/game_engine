@@ -25,7 +25,7 @@ const player = new EntityBuilder(engine.world, 'player')
     .at(150, 150)
     .asCircle(12)
     .withRender({ color: 'rgba(155,255,255,1)' })
-    .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+    .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0), velocity: new Vector(0, 0) })
     .withCollision()
     .withSnake()
     .build()
@@ -41,18 +41,18 @@ engine.eventBus.on('mousedown', (loc) => {
 // console.log(dungen)
 const snake2 = new EntityBuilder(engine.world, 'snake-enemy')
     .at(100, 100)
-    .asCircle(20)
+    .asCircle(12)
     .withRender({ color: 'green', zIndex: 100 })
     .withPhysics({
-        maxSpeed: 100,
+        maxSpeed: 800,
         mass: 1,
         drag: 1,
         velocity: new Vector(
-            (Math.random() - 0.5) * 300,
-            (Math.random() - 0.5) * 300,
+            (Math.random() - 0.5) * 1300,
+            (Math.random() - 0.5) * 1300,
         ),
     })
-    // .withSnake()
+    .withSnake()
     .withCollision()
     .withBoid()
     .build();
@@ -71,9 +71,9 @@ engine.inputs.mapActions('respawnBoids', "KeyR");
 
 
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus, engine.canvas.width, engine.canvas.height))
+engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSpawnSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSystem(engine.world, engine.eventBus))
-engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(physicsSystem);
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
@@ -109,9 +109,19 @@ engine.addSystem({
 
     update: () => {
         const force = engine.inputs.getAxis('move_up', "move_down", "move_left", "move_right");
+        const snakeComponent = player.getComponent('SnakeComponent');
+        const physicsComponent = player.getComponent('PhysicsComponent');
+        const playerVelocity = physicsComponent.velocity;
 
+        if (playerVelocity.mag() < 1) {
+            // console.log('setting player velocity to 0')
+            physicsComponent.velocity.set(0, 0);
+        }
         if (force.mag() > 0) {
+            if (snakeComponent) snakeComponent.isSnakeMoving = true;
             physicsSystem.applyForce(player, force.normalize().scale(1500));
+        } else {
+            if (snakeComponent) snakeComponent.isSnakeMoving = false;
         }
     }
 });
@@ -124,4 +134,4 @@ engine.addSystem(new RendererSystem(engine.world, engine.ctx, engine.camera));
 engine.addSystem(new MinimapSystem(engine.world, engine.eventBus, engine.ctx));
 engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx, engine.camera, engine.clock))
 engine.start();
-console.log(engine.world.entities.size);
+console.log(engine.world.entities.size)

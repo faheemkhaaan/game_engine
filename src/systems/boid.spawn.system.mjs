@@ -46,10 +46,10 @@ export class BoidSpawnSystem {
 
 
     update(dt) {
-        if (!this.spawned) return;
+        if (!this.shouldSpawnBoids) return;
         const dungeon = this.world.query('DungeonComponent');
 
-        if (this.shouldSpawnBoids && !this.spawned && dungeon.length > 0) {
+        if (!this.spawned && dungeon.length > 0) {
             this.spawnBoidsInRooms(dungeon[0]);
             this.spawned = true;
         };
@@ -77,7 +77,7 @@ export class BoidSpawnSystem {
             const render = floor.getComponent('ShapeComponent');
 
             // const count = Math.floor(Math.random() * 20) + 10;
-            const count = 50
+            const count = 30
 
             for (let i = 0; i < count; i++) {
                 this.spawnSingleBoid(floor, render)

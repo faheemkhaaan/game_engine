@@ -13,7 +13,7 @@ export class MinimapSystem {
         this.ctx = ctx;
         this.size = 200; // Fixed size
         this.margin = 20; // Margin from bottom right
-        this.enableMinMap = true;
+        this.enableMinMap = false;
 
         events.on('enableMinMap', () => {
             this.enableMinMap = !this.enableMinMap;

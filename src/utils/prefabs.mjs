@@ -135,8 +135,8 @@ export const Prefabs = {
             .withPhysics({
                 mass: 1,
                 velocity: new Vector(
-                    (Math.random() - 0.5) * 1000,
-                    (Math.random() - 0.5) * 1000,
+                    0,
+                    0,
                 ),
                 restitution: 1
             })

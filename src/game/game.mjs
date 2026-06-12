@@ -40,7 +40,7 @@ export class GameEngine {
         const simulation = this.startGenerator();
 
         window.addEventListener("keydown", (e) => {
-            if (e.code === 'KeyP') {
+            if (e.code === 'KeyL') {
                 simulation.next();
             }
         })
