@@ -1,0 +1,20 @@
+{
+  "name": "game_engine",
+  "version": "1.0.0",
+  "description": "This engine uses the **Separating Axis Theorem (SAT)** for robust, rotation-aware collision detection between circles and polygons.",
+  "homepage": "https://github.com/faheemkhaaan/game_engine#readme",
+  "bugs": {
+    "url": "https://github.com/faheemkhaaan/game_engine/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faheemkhaaan/game_engine.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

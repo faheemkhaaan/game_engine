@@ -50,6 +50,7 @@ export class RenderStratagies {
             const pos = component.entity.transform.pos;
             const snakeComponent = component.entity.getComponent('SnakeComponent');
 
+
             if (snakeComponent) {
                 const skin = snakeComponent.snakeSkinVerticies
 
@@ -57,7 +58,7 @@ export class RenderStratagies {
                 const snakeScaleCanvas = createSnakePattern();
                 const snakePattern = ctx.createPattern(snakeScaleCanvas, 'repeat');
                 // ctx.fillStyle = snakePattern;
-                ctx.fillStyle = 'darkgreen'
+                ctx.fillStyle = component.color ?? 'green'
                 ctx.strokeStyle = 'white'
                 ctx.lineWidth = 2
                 const first = skin[0];

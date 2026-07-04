@@ -13,6 +13,7 @@
  */
 
 import { EntityBuilder } from '../core/entity-builder.mjs';
+import { randomColor } from './random-color-generator.mjs';
 import { Vector } from './vector.mjs';
 
 
@@ -52,7 +53,15 @@ export const Prefabs = {
             .withRender({ color: FLOOR_COLOR, zIndex: -1 })
             .build();
     },
-
+    walls(world, id, cx, cy, w, h) {
+        return new EntityBuilder(world, id)
+            .at(cx, cy)
+            .asRect(w, h)
+            .withRender({ color: randomColor(), zIndex: -2 })
+            .withStaticPhysics({ restitution: 1 })
+            .withStaticCollision()
+            .build();
+    },
 
     dungeon(world, w, h, id = 'dungeon' + Math.random().toString(36)) {
         return new EntityBuilder(world, id)
@@ -84,8 +93,8 @@ export const Prefabs = {
      */
     enemySnake(world, id, pos = new Vector(0, 0)) {
         return new EntityBuilder(world, id)
-            .at(pos.x, pos.y)
-            .asCircle(10)
+            .at(100, 100)
+            .asCircle(12)
             .withRender({ color: 'green', zIndex: 100 })
             .withPhysics({
                 maxSpeed: 800,
@@ -96,10 +105,39 @@ export const Prefabs = {
                     (Math.random() - 0.5) * 1300,
                 ),
             })
-            // .withSnake()
+            .withSnake()
             .withCollision()
             .withBoid()
             .build();
+    },
+
+    enemySnakes(world, id, pos = new Vector(0, 0), count = 10) {
+        const snakes = [];
+
+        for (let i = 0; i < count; i++) {
+            const color = randomColor();
+            snakes.push(
+                new EntityBuilder(world, `${id}-${i}`)
+                    .at(100, 100)
+                    .asCircle(12)
+                    .withRender({ color, zIndex: 100 })
+                    .withPhysics({
+                        maxSpeed: 800,
+                        mass: 1,
+                        drag: 1,
+                        velocity: new Vector(
+                            (Math.random() - 0.5) * 1300,
+                            (Math.random() - 0.5) * 1300,
+                        ),
+                    })
+                    .withSnake()
+                    .withCollision()
+                    .withBoid()
+                    .build()
+            )
+        }
+        return snakes;
+
     },
 
     /**

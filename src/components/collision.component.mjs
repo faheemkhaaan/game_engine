@@ -8,7 +8,10 @@ export class CollisionComponent {
         enabled = true,
         isTrigger = false, // True if you want to detect overlap without physical bounce
 
-        mask = ["default"] // Which layers this entity is allowed to hit
+        mask = ["default"], // Which layers this entity is allowed to hit
+        containment = false,
+        dungeonBound = false,
+        boundary = false
     } = {}) {
         /** @type {Entity|null} */
         this.entity = null;
@@ -30,5 +33,8 @@ export class CollisionComponent {
         this.enabled = enabled;
         this.isTrigger = isTrigger;
         this.mask = mask;
+        this.containment = containment;
+        this.dungeonBound = dungeonBound;
+        this.boundary = boundary;
     }
 }

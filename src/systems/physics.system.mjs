@@ -46,6 +46,8 @@ export class PhysicsSystem {
      */
     updatePhysics(physics, deltaTime) {
         if (physics.static) return;
+        physics.prevPos = physics.entity.transform.pos.clone();
+
         physics.forces.forEach(force => {
             physics.aceleration.add(force.divByNumber(physics.mass));
         });

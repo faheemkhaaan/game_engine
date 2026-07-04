@@ -13,6 +13,7 @@ import { SnakeSkeletonSystem } from "./src/systems/snake-skeleton.system.mjs";
 import { SnakeSkinSystem } from "./src/systems/snake-skin.system.mjs";
 import { Prefabs } from "./src/utils/prefabs.mjs";
 import { EntityBuilder } from "./src/core/entity-builder.mjs";
+import { randomColor } from "./src/utils/random-color-generator.mjs";
 
 
 const engine = new GameEngine()
@@ -24,9 +25,9 @@ const dungen = Prefabs.dungeon(engine.world, engine.canvas.width, engine.canvas.
 const player = new EntityBuilder(engine.world, 'player')
     .at(150, 150)
     .asCircle(12)
-    .withRender({ color: 'rgba(155,255,255,1)' })
+    .withRender({ color: randomColor() })
     .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0), velocity: new Vector(0, 0) })
-    .withCollision()
+    .withCollision({ dungeonBound: true })
     .withSnake()
     .build()
 
@@ -35,29 +36,12 @@ engine.eventBus.on('mousedown', (loc) => {
     const dungenComponent = dungen.getComponent('DungeonComponent');
 
     const worldPos = engine.camera.canvasToWorld(loc);
-    console.log(worldPos);
 });
 
-// console.log(dungen)
-const snake2 = new EntityBuilder(engine.world, 'snake-enemy')
-    .at(100, 100)
-    .asCircle(12)
-    .withRender({ color: 'green', zIndex: 100 })
-    .withPhysics({
-        maxSpeed: 800,
-        mass: 1,
-        drag: 1,
-        velocity: new Vector(
-            (Math.random() - 0.5) * 1300,
-            (Math.random() - 0.5) * 1300,
-        ),
-    })
-    .withSnake()
-    .withCollision()
-    .withBoid()
-    .build();
+const snakes = Prefabs.enemySnakes(engine.world, 'snakeEnemy', null);
 
 
+console.log(snakes.length)
 engine.inputs.mapActions('move_up', 'KeyW')
 engine.inputs.mapActions('move_right', 'KeyD')
 engine.inputs.mapActions('move_left', 'KeyA')
@@ -71,10 +55,10 @@ engine.inputs.mapActions('respawnBoids', "KeyR");
 
 
 engine.addSystem(new DungeonSystem(engine.world, engine.eventBus, engine.canvas.width, engine.canvas.height))
+engine.addSystem(physicsSystem);
 engine.addSystem(new CollisionSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSpawnSystem(engine.world, engine.eventBus))
 engine.addSystem(new BoidSystem(engine.world, engine.eventBus))
-engine.addSystem(physicsSystem);
 player.transform = new Transform({ pos: new Vector(100, 100), size: new Vector(1, 1) });
 
 
@@ -99,9 +83,12 @@ engine.eventBus.on('dungeonGenerated', () => {
     const firstRoom = engine.world.getEntity('room_floor_' + firstCell.id);
     if (!firstRoom) return;
     const pos = firstRoom.transform.pos;
-    console.log(pos)
     player.transform = new Transform({ pos: new Vector(pos.x, pos.y), size: new Vector(1, 1) });
-    snake2.transform = new Transform({ pos: new Vector(pos.x + 30, pos.y + 30), size: new Vector(1, 1) });
+    snakes.forEach((snake, index) => {
+        const p = new Vector(pos.x + (index * 30), pos.y + (index * 30));
+        snake.transform = new Transform({ pos: p, size: new Vector(1, 1) });
+    });
+    console.log(snakes)
     engine.camera.follow(player);
 })
 

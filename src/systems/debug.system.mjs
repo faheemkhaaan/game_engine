@@ -21,7 +21,7 @@ export class CollisionDebugSystem {
 
         this.interval = 0;
         this.frameInterval = 20;
-        this.debugEnabled = true;
+        this.debugEnabled = false;
 
         eventBus.on('collisionDetected', (e1, p1, e2, p2, contact) => {
             this.contacts.push({ e1, p1, e2, p2, contact });

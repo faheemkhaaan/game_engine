@@ -8,6 +8,7 @@ import { Transform } from "../components/transform.mjs";
 import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
+import { Prefabs } from "../utils/prefabs.mjs";
 import { Vector } from "../utils/vector.mjs";
 
 
@@ -27,14 +28,28 @@ export class BoidSpawnSystem {
 
 
         this.events.on('respawnBoids', () => {
-            const dungeon = this.world.query('DungeonComponent');
+            const dungeons = this.world.query('DungeonComponent');
+            const firstDungeon = dungeons[0]
             const boids = this.world.query('BoidComponent');
+
+            const dungeonComponent = firstDungeon.getComponent('DungeonComponent')
+
+            const firstCell = dungeonComponent.cells[0];
+
+            const firstRoom = this.world.getEntity('room_floor_' + firstCell.id);
+            const pos = firstRoom.transform.pos;
+            const snakes = Prefabs.enemySnakes(this.world, 'snakeEnemy', null);
+
             for (const boid of boids) {
                 if (boid.id !== 'player' && boid.id !== 'snake-enemy') {
                     this.world.destory(boid.id);
                 }
             }
-            this.spawnBoidsInRooms(dungeon[0]);
+            this.spawnBoidsInRooms(firstDungeon);
+            snakes.forEach((snake, index) => {
+                const p = new Vector(pos.x + (index * 30), pos.y + (index * 30));
+                snake.transform = new Transform({ pos: p, size: new Vector(1, 1) });
+            });
         })
         this.events.on('dungeonGenerated', () => {
             this.shouldSpawnBoids = true;
@@ -122,7 +137,7 @@ export class BoidSpawnSystem {
 
 
         boid.addComponent(new BoidComponent());
-        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['wall', 'snake'] }));
+        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['wall', 'snake'], dungeonBound: true }));
         boid.addComponent(new ShapeComponent({ type: 'rect', width: 30, height: 30 }));
     }
 }

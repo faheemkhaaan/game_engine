@@ -34,6 +34,7 @@ export class PhysicsComponent {
         this.mass = this.static ? 0 : mass || Math.random() * 2 + 2
         this.restitution = restitution || 0.4
         this.forces = [];
+        this.prevPos = new Vector(0, 0)
 
     }
 

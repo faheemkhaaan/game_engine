@@ -1,10 +1,6 @@
 import { CellComponent } from "../components/cell.component.mjs";
-import { CollisionComponent } from "../components/collision.component.mjs";
 import { DungeonComponent } from "../components/dungeon.component.mjs";
-import { PhysicsComponent } from "../components/physics.component.mjs";
-import { RenderComponent } from "../components/render.component.mjs";
-import { ShapeComponent } from "../components/shape.component.mjs";
-import { Transform } from "../components/transform.mjs";
+
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
 import { GameEngine } from "../game/game.mjs";
@@ -48,7 +44,6 @@ export class DungeonSystem {
             }
             const dungen = Prefabs.dungeon(this.world, canvasWidth, canvasHeight);
             this.dungenGenerated = false;
-            console.log(dungen);
         })
     }
 
@@ -70,7 +65,6 @@ export class DungeonSystem {
             this.dungenGenerated = true;
             this.events.emit('dungeonGenerated', this.dungenGenerated);
         }
-
     }
     /**
    * @param {DungeonComponent} dungenComponent
@@ -78,6 +72,14 @@ export class DungeonSystem {
     addHalls(dungenComponent) {
         const hallWidth = 60 * Math.floor(DungeonComponent.scaler * 0.5);
         const wallThickness = 20;
+        const wallOpenings = new Map();
+
+        const registerOpening = (wallId, start, end, isVertical) => {
+            if (!wallOpenings.has(wallId)) {
+                wallOpenings.set(wallId, { isVertical, intervals: [] });
+            }
+            wallOpenings.get(wallId).intervals.push({ start, end });
+        };
 
         for (const c1 of dungenComponent.cells) {
             const floor1 = this.world.getEntity('room_floor_' + c1.id);
@@ -120,20 +122,23 @@ export class DungeonSystem {
                     if (hallHeight <= 0) continue; // Skip if rooms visually overlap/touch
 
                     // Spawn Hallway Floor
+                    // Prefabs.walls(this.world, `hall_walls_${c1.id}_to_${c2.id}`, centerX, centerY, hallWidth + wallThickness, hallHeight + wallThickness)
                     Prefabs.floor(this.world, `hall_floor_${c1.id}_to_${c2.id}`, centerX, centerY, hallWidth, hallHeight);
 
                     // Side walls
                     // left hall wall
                     Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
-                    // right hall wall
+                    // // right hall wall
                     Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
 
 
                     // Split C1's Bottom Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
-                    this.splitWall('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false, wallThickness);
+                    // this.splitWall('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false, wallThickness);
 
-                    // Split C2's Top Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
-                    this.splitWall('wall_top_' + c2.id, hallX, hallX + hallWidth, false, wallThickness);
+                    // // Split C2's Top Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
+                    // this.splitWall('wall_top_' + c2.id, hallX, hallX + hallWidth, false, wallThickness);
+                    registerOpening('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false);
+                    registerOpening('wall_top_' + c2.id, hallX, hallX + hallWidth, false);
 
                 }
             }
@@ -167,6 +172,7 @@ export class DungeonSystem {
 
                     if (hallWidthSegment <= 0) continue; // Skip if rooms visually overlap/touch
 
+
                     // Spawn Hallway Floor
                     const hallFloor = Prefabs.floor(this.world,
                         `hall_floor_${c1.id}_to_${c2.id}`,
@@ -177,77 +183,89 @@ export class DungeonSystem {
                     // Side walls
                     // hall top wall
                     Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + (wallThickness / 2), hallWidthSegment + wallThickness * 2, wallThickness);
-                    // hall bottom wall
+                    // // hall bottom wall
                     Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - (wallThickness / 2), hallWidthSegment + (wallThickness * 2), wallThickness);
 
                     // Carve openings
-                    this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);
+                    // this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);
 
-                    // Split C2's Left Wall (Vertical cut along Y: between hallY and hallY + hallWidth)
-                    this.splitWall('wall_left_' + c2.id, hallY, hallY + hallWidth, true, wallThickness);
+                    // // Split C2's Left Wall (Vertical cut along Y: between hallY and hallY + hallWidth)
+                    // this.splitWall('wall_left_' + c2.id, hallY, hallY + hallWidth, true, wallThickness);
+
+                    registerOpening('wall_right_' + c1.id, hallY, hallY + hallWidth, true);
+                    registerOpening('wall_left_' + c2.id, hallY, hallY + hallWidth, true);
                 }
             }
         }
+
+        for (const [wallId, data] of wallOpenings.entries()) {
+            this.splitWallMulti(wallId, data.intervals, data.isVertical, wallThickness);
+        }
+
     }
     /**
- * Splits an existing room wall to carve a path for a hallway.
- * @param {string} oldWallId The entity ID of the room wall to destroy and split.
- * @param {number} hallStart The minimum coordinate along the cutting axis where the hall begins.
- * @param {number} hallEnd The maximum coordinate along the cutting axis where the hall ends.
- * @param {boolean} isVerticalWall True if splitting a Left/Right wall (Y-axis), False if splitting a Top/Bottom wall (X-axis).
- * @param {number} wallThickness Thickness of the room walls.
- */
-    splitWall(oldWallId, hallStart, hallEnd, isVerticalWall, wallThickness) {
+      * Splits an existing room wall into multiple pieces to carve all hallways cleanly.
+      * @param {string} oldWallId The entity ID of the room wall to destroy and split.
+      * @param {Array<{start: number, end: number}>} intervals Array of start/end coordinates where hallways pass.
+      * @param {boolean} isVerticalWall True if splitting a Left/Right wall (Y-axis), False if Top/Bottom (X-axis).
+      * @param {number} wallThickness Thickness of the room walls.
+      */
+    splitWallMulti(oldWallId, intervals, isVerticalWall, wallThickness) {
         const oldWall = this.world.getEntity(oldWallId);
         if (!oldWall) return;
 
         const shape = oldWall.getComponent('ShapeComponent');
         const pos = oldWall.transform.pos;
 
-
+        // Sort intervals from lowest coordinate to highest to slice sequentially
+        intervals.sort((a, b) => a.start - b.start);
 
         if (!isVerticalWall) {
-            // --- SPLITTING A HORIZONTAL WALL (Top/Bottom Walls running along X-axis) ---
+            // --- SPLITTING HORIZONTAL WALLS (Along X-Axis) ---
             const wallMinX = pos.x - shape.width / 2;
             const wallMaxX = pos.x + shape.width / 2;
+            let currentX = wallMinX;
 
-            // Segment A: Left side of the doorway
-            const widthA = hallStart - wallMinX;
-            if (widthA > 5) { // Avoid creating micro-artifacts
-                const centerXA = wallMinX + widthA / 2;
+            intervals.forEach((interval, index) => {
+                const width = interval.start - currentX;
+                if (width > 5) {
+                    const centerX = currentX + width / 2;
+                    Prefabs.wall(this.world, `${oldWallId}_split_${index}`, centerX, pos.y, width, wallThickness);
+                }
+                currentX = interval.end;
+            });
 
-                const partA = Prefabs.wall(this.world, `${oldWallId}_split_left`, centerXA, pos.y, widthA, wallThickness);
-            }
-
-            // Segment B: Right side of the doorway
-            const widthB = wallMaxX - hallEnd;
-            if (widthB > 5) {
-                const centerXB = hallEnd + widthB / 2;
-
-                const partB = Prefabs.wall(this.world, `${oldWallId}_split_right`, centerXB, pos.y, widthB, wallThickness);
+            // Final trailing piece
+            const finalWidth = wallMaxX - currentX;
+            if (finalWidth > 5) {
+                const centerX = currentX + finalWidth / 2;
+                Prefabs.wall(this.world, `${oldWallId}_split_final`, centerX, pos.y, finalWidth, wallThickness);
             }
         } else {
-            // --- SPLITTING A VERTICAL WALL (Left/Right Walls running along Y-axis) ---
+            // --- SPLITTING VERTICAL WALLS (Along Y-Axis) ---
             const wallMinY = pos.y - shape.height / 2;
             const wallMaxY = pos.y + shape.height / 2;
+            let currentY = wallMinY;
 
-            // Segment A: Top side of the doorway
-            const heightA = hallStart - wallMinY;
-            if (heightA > 5) {
-                const centerYA = wallMinY + heightA / 2;
+            intervals.forEach((interval, index) => {
+                const height = interval.start - currentY;
+                if (height > 5) {
+                    const centerY = currentY + height / 2;
+                    Prefabs.wall(this.world, `${oldWallId}_split_${index}`, pos.x, centerY, wallThickness, height);
+                }
+                currentY = interval.end;
+            });
 
-                const partA = Prefabs.wall(this.world, `${oldWallId}_split_top`, pos.x, centerYA, wallThickness, heightA);
-            }
-
-            // Segment B: Bottom side of the doorway
-            const heightB = wallMaxY - hallEnd;
-            if (heightB > 5) {
-                const centerYB = hallEnd + heightB / 2;
-                const partB = Prefabs.wall(this.world, `${oldWallId}_split_bottom`, pos.x, centerYB, wallThickness, heightB);
+            // Final trailing piece
+            const finalHeight = wallMaxY - currentY;
+            if (finalHeight > 5) {
+                const centerY = currentY + finalHeight / 2;
+                Prefabs.wall(this.world, `${oldWallId}_split_final`, pos.x, centerY, wallThickness, finalHeight);
             }
         }
-        this.world.destory(oldWallId);
 
+        // Safely wipe out the old solid wall
+        this.world.destory(oldWallId);
     }
     /**
      * 
@@ -272,8 +290,8 @@ export class DungeonSystem {
             const wallThickness = 20;
 
             // Floor (visual only, no physics, so player can walk on it)
+            // const walls = Prefabs.walls(this.world, 'room_walls_' + cell.id, center.x, center.y, width + wallThickness, height + wallThickness);
             const floor = Prefabs.floor(this.world, 'room_floor_' + cell.id, center.x, center.y, width, height)
-
 
             const topWall = Prefabs.wall(this.world, 'wall_top_' + cell.id, center.x, topLeft.y + wallThickness / 2, width, wallThickness);
             const bottomWall = Prefabs.wall(this.world, 'wall_bottom_' + cell.id, center.x, bottomRight.y - wallThickness / 2, width, wallThickness)

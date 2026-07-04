@@ -44,7 +44,6 @@ export class CollisionSystem {
                 this.grid.addStaticEntity(entity);
             }
         }
-
         this.gridInitialized = true;
     }
 
@@ -70,6 +69,7 @@ export class CollisionSystem {
         for (const entityA of dynamicEntities) {
             const candidates = this.grid.getPotentialCollisions(entityA);
 
+
             for (const entityB of candidates) {
                 const pairKey = entityA.id < entityB.id ?
                     `${entityA.id}-${entityB.id}` :
@@ -81,13 +81,7 @@ export class CollisionSystem {
                 this.checkCollision(entityA, entityB);
             }
         }
-        // console.log(entities[0])
-        // for (let i = 0; i < entities.length; i++) {
-        //     for (let j = i + 1; j < entities.length; j++) {
-        //         this.checkCollision(entities[i], entities[j]);
 
-        //     }
-        // }
     }
     /**
          * Determines if two collision components are allowed to collide based on their layers and masks.
@@ -121,6 +115,8 @@ export class CollisionSystem {
         const s1 = e1.getComponent('ShapeComponent');
         const s2 = e2.getComponent('ShapeComponent');
         if (!p1 || !p2 || !c1 || !c2 || !s1 || !s2) return;
+
+
 
         // Use SAT for all collision checks - it's more robust and handles rotation
         const contact = SAT.checkCollision(e1, s1, e2, s2);
@@ -166,4 +162,5 @@ export class CollisionSystem {
         p1.velocity.addScaled(impules, invMass1);
         p2.velocity.subScaled(impules, invMass2)
     }
+
 }
