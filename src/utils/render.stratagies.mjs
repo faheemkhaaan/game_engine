@@ -176,7 +176,99 @@ export class RenderStratagies {
     }
 
 
+    static rat = {
+        /**
+         * 
+         * @param {CanvasRenderingContext2D} ctx 
+         * @param {} component 
+         */
+        render(ctx, component) {
+            const pos = component.entity.transform.pos;
+            const shape = component.entity.getComponent('ShapeComponent');
+            const physics = component.entity.getComponent('PhysicsComponent');
 
+            const ratColor = '#b68119';
+            const pinkColor = '#e19898'; // Pink inside of the ears
+            const eyeColor = 'white';
+
+            const velocity = physics.velocity;
+            const angle = velocity.angle();
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            const headX = pos.x + cos * 15;
+            const headY = pos.y + sin * 15;
+
+            // --- 1. Body ---
+            ctx.beginPath();
+            ctx.ellipse(pos.x, pos.y, 20, 15, angle, 0, Math.PI * 2);
+            ctx.fillStyle = ratColor;
+            ctx.fill();
+
+            // --- 2. Ears (Drawn behind the head, but in front of the body) ---
+            // Ears look best slightly behind the head center
+            const earForward = -2;
+            const earSide = 10;
+            // Angle offset so the oval ears flare outwards away from the head
+            const leftEarAngle = angle - Math.PI / 4;
+            const rightEarAngle = angle + Math.PI / 4;
+
+            // Left Ear
+            const leftEarX = headX + cos * earForward - sin * earSide;
+            const leftEarY = headY + sin * earForward + cos * earSide;
+            ctx.beginPath();
+            ctx.ellipse(leftEarX, leftEarY, 6, 8, leftEarAngle, 0, Math.PI * 2);
+            ctx.fillStyle = ratColor;
+            ctx.fill();
+            // Pink inner ear
+            ctx.beginPath();
+            ctx.ellipse(leftEarX, leftEarY, 3, 5, leftEarAngle, 0, Math.PI * 2);
+            ctx.fillStyle = pinkColor;
+            ctx.fill();
+
+            // Right Ear
+            const rightEarX = headX + cos * earForward + sin * earSide;
+            const rightEarY = headY + sin * earForward - cos * earSide;
+            ctx.beginPath();
+            ctx.ellipse(rightEarX, rightEarY, 6, 8, rightEarAngle, 0, Math.PI * 2);
+            ctx.fillStyle = ratColor;
+            ctx.fill();
+            // Pink inner ear
+            ctx.beginPath();
+            ctx.ellipse(rightEarX, rightEarY, 3, 5, rightEarAngle, 0, Math.PI * 2);
+            ctx.fillStyle = pinkColor;
+            ctx.fill();
+
+            // --- 3. Head ---
+            ctx.beginPath();
+            ctx.ellipse(headX, headY, 15, 10, angle, 0, Math.PI * 2);
+            ctx.fillStyle = ratColor;
+            ctx.fill();
+
+            // --- 4. Eyes ---
+            const eyeForward = 7;
+            const eyeSide = 4;
+
+            // Left Eye
+            ctx.beginPath();
+            ctx.arc(
+                headX + cos * eyeForward - sin * eyeSide,
+                headY + sin * eyeForward + cos * eyeSide,
+                2, 0, Math.PI * 2
+            );
+            ctx.fillStyle = eyeColor;
+            ctx.fill();
+
+            // Right Eye
+            ctx.beginPath();
+            ctx.arc(
+                headX + cos * eyeForward + sin * eyeSide,
+                headY + sin * eyeForward - cos * eyeSide,
+                2, 0, Math.PI * 2
+            );
+            ctx.fill();
+        }
+    }
     /**
      * 
      * @param {string} name 

@@ -68,7 +68,7 @@ export class RendererSystem {
 
             if (!shape || !shape.type) continue;
 
-            render.type = shape.type;
+            if (!render.type) render.type = shape.type;
             if (shape.width) render.width = shape.width;
             if (shape.height) render.height = shape.height;
             if (shape.radius) render.radius = shape.radius;

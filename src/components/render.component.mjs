@@ -14,7 +14,7 @@ export class RenderComponent {
     entity
 
 
-    constructor({ color = '#2f2341', image = null, zIndex = 0 } = {}) {
+    constructor({ color = '#2f2341', image = null, zIndex = 0, type } = {}) {
         this.entity = null;
         this.color = color || defaultOptions.color;
 
@@ -28,5 +28,6 @@ export class RenderComponent {
         this.dirty = true; // Flag to force recalculation when transform changes
 
         this.dead = false;
+        this.type = type;
     }
 }

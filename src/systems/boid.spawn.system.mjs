@@ -38,7 +38,7 @@ export class BoidSpawnSystem {
 
             const firstRoom = this.world.getEntity('room_floor_' + firstCell.id);
             const pos = firstRoom.transform.pos;
-            const snakes = Prefabs.enemySnakes(this.world, 'snakeEnemy', null);
+            const snakes = Prefabs.enemySnakes(this.world, 'snakeEnemy', null, 1);
 
             for (const boid of boids) {
                 if (boid.id !== 'player' && boid.id !== 'snake-enemy') {
@@ -92,7 +92,7 @@ export class BoidSpawnSystem {
             const render = floor.getComponent('ShapeComponent');
 
             // const count = Math.floor(Math.random() * 20) + 10;
-            const count = 30
+            const count = 80
 
             for (let i = 0; i < count; i++) {
                 this.spawnSingleBoid(floor, render)
@@ -121,7 +121,7 @@ export class BoidSpawnSystem {
         });
 
 
-        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue" }));
+        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue", type: 'rat' }));
 
         boid.addComponent(new PhysicsComponent({
             velocity: new Vector(
