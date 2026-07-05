@@ -38,7 +38,7 @@ export class BoidSpawnSystem {
 
             const firstRoom = this.world.getEntity('room_floor_' + firstCell.id);
             const pos = firstRoom.transform.pos;
-            const snakes = Prefabs.enemySnakes(this.world, 'snakeEnemy', null, 1);
+            const snakes = Prefabs.enemySnakes(this.world, 'snakeEnemy', null, 10);
 
             for (const boid of boids) {
                 if (boid.id !== 'player' && boid.id !== 'snake-enemy') {
@@ -82,7 +82,7 @@ export class BoidSpawnSystem {
 
         for (const cell of dungeonComponent.cells) {
 
-            if (Math.random() > 0.6) continue;
+            // if (Math.random() > 0.6) continue;
 
             const floor = this.world.getEntity('room_floor_' + cell.id);
 
@@ -92,7 +92,7 @@ export class BoidSpawnSystem {
             const render = floor.getComponent('ShapeComponent');
 
             // const count = Math.floor(Math.random() * 20) + 10;
-            const count = 80
+            const count = 100
 
             for (let i = 0; i < count; i++) {
                 this.spawnSingleBoid(floor, render)
@@ -125,8 +125,8 @@ export class BoidSpawnSystem {
 
         boid.addComponent(new PhysicsComponent({
             velocity: new Vector(
-                (Math.random() - 0.5) * 1300,
-                (Math.random() - 0.5) * 1300
+                (Math.random() - 0.5) * 800,
+                (Math.random() - 0.5) * 800
             ),
             aceleration: new Vector(1, 1),
             mass: 2,

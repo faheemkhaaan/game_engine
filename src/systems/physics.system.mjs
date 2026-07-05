@@ -1,6 +1,7 @@
 import { PhysicsComponent } from "../components/physics.component.mjs";
 import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
+import { distanceToShape } from "../utils/distance-to-shape.mjs";
 import { Vector } from "../utils/vector.mjs";
 
 export class PhysicsSystem {
@@ -27,10 +28,15 @@ export class PhysicsSystem {
 
 
         const entities = this.world.query('PhysicsComponent');
+        const player = entities.find(e => e.id === 'player');
         const filteredDeadEntities = entities.filter(entity => {
             const renderComponent = entity.getComponent('RenderComponent');
-
             return renderComponent && !renderComponent.dead;
+        }).filter(entity => {
+            const pos = entity.transform.pos;
+            const shape = entity.getComponent('ShapeComponent');
+            if (!shape) return true;
+            return distanceToShape(pos, shape, player.transform.pos) < 2000;
         })
         filteredDeadEntities.forEach(entity => {
             const physicsComponent = entity.getComponent("PhysicsComponent")

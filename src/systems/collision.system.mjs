@@ -4,6 +4,7 @@ import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
 import { CollisionGrid } from "../utils/collision-grid.mjs";
+import { distanceToShape } from "../utils/distance-to-shape.mjs";
 import { SAT } from "../utils/sat.mjs";
 import { Vector } from "../utils/vector.mjs";
 
@@ -53,11 +54,17 @@ export class CollisionSystem {
         // console.log(deltaTime);
 
         const entities = this.world.query('PhysicsComponent');
+        const player = this.world.getEntity('player');
 
         const dynamicEntities = entities.filter(e => {
             const collision = e.getComponent('CollisionComponent');
 
             return collision && !collision.static;
+        }).filter(entity => {
+            const pos = entity.transform.pos;
+            const shape = entity.getComponent('ShapeComponent');
+            if (!shape) return true;
+            return distanceToShape(pos, shape, player.transform.pos) < 2000;
         });
 
         this.grid.clearDynamicEntities();
@@ -68,7 +75,6 @@ export class CollisionSystem {
         const checked = new Set()
         for (const entityA of dynamicEntities) {
             const candidates = this.grid.getPotentialCollisions(entityA);
-
 
             for (const entityB of candidates) {
                 const pairKey = entityA.id < entityB.id ?

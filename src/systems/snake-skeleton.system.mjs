@@ -162,7 +162,7 @@ export class SnakeSkeletonSystem {
         const physics = entity.getComponent('PhysicsComponent');
 
         // Skip constraint propagation if snake is essentially still
-        if (physics && physics.velocity.mag() < 1) return;
+        // if (physics && physics.velocity.mag() < 1) return;
         const headPos = entity.transform.pos;
 
         const firstSegment = snakeComponent.segments[0];

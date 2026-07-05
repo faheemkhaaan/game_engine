@@ -38,7 +38,7 @@ engine.eventBus.on('mousedown', (loc) => {
     const worldPos = engine.camera.canvasToWorld(loc);
 });
 
-const snakes = Prefabs.enemySnakes(engine.world, 'snakeEnemy', null);
+const snakes = Prefabs.enemySnakes(engine.world, 'snakeEnemy', null, 10);
 
 
 console.log(snakes.length)

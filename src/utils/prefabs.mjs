@@ -18,7 +18,7 @@ import { Vector } from './vector.mjs';
 
 
 const WALL_COLOR = '#5a5a5a';
-const FLOOR_COLOR = '#2f2341';
+const FLOOR_COLOR = '#1e222a';
 
 export const Prefabs = {
 

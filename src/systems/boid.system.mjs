@@ -4,6 +4,7 @@ import { Entity } from "../core/entity.mjs";
 import { World } from "../core/world.mjs";
 import { EventBus } from "../game/eventBus.mjs";
 import { CollisionGrid } from "../utils/collision-grid.mjs";
+import { distanceToShape } from "../utils/distance-to-shape.mjs";
 import { SAT } from "../utils/sat.mjs";
 import { Vector } from "../utils/vector.mjs";
 
@@ -43,7 +44,13 @@ export class BoidSystem {
 
 
     update(dt) {
-        const entites = this.world.query('BoidComponent');
+        const player = this.world.getEntity('player')
+        const entites = this.world.query('BoidComponent').filter(entity => {
+            const pos = entity.transform.pos;
+            const shape = entity.getComponent('ShapeComponent');
+            if (!shape) return true;
+            return distanceToShape(pos, shape, player.transform.pos) < 2000
+        });
 
 
         this.grid.clearDynamicEntities();
@@ -95,7 +102,13 @@ export class BoidSystem {
             2. get the distance from the entites and calculate the steering force and add them to the steering vector
             3. average the steering force and add it to the main entity.
         */
-        const entities = this.grid.getPotentialCollisions(entity);
+        const player = this.world.getEntity('player');
+        const entities = this.grid.getPotentialCollisions(entity).filter(entity => {
+            const pos = entity.transform.pos;
+            const shape = entity.getComponent("ShapeComponent");
+            if (!shape) return true;
+            return distanceToShape(pos, shape, player.transform.pos) < 2000;
+        });
         // console.log(entities.length);
         /**
          * @type {PhysicsComponent}
@@ -149,7 +162,7 @@ export class BoidSystem {
         const boidComponent = entity.getComponent('BoidComponent');
         const physicsComponent = entity.getComponent('PhysicsComponent');
         // console.log(physicsComponent)
-        const entities = this.grid.getPotentialCollisions(entity);
+        const entities = this.grid.getPotentialCollisions(entity)
         // console.log(entities)
         const steering = new Vector(0, 0);
         let count = 0;
@@ -187,7 +200,7 @@ export class BoidSystem {
      */
     cohision(entity) {
 
-        const entities = this.grid.getPotentialCollisions(entity);
+        const entities = this.grid.getPotentialCollisions(entity)
         /**@type {BoidComponent} */
         const boidComponent = entity.getComponent('BoidComponent');
         const physicsComponent = entity.getComponent("PhysicsComponent");

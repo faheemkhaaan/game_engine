@@ -40,23 +40,20 @@ export class RendererSystem {
     update(deltaTime) {
         this.clearCanvas();
         // console.log(deltaTime);
-        let renderableEntities = this.world.query('RenderComponent');
+        const playerEntity = this.world.getEntity('player');
+        const renderableEntities = this.world.query('RenderComponent').filter(a => {
+            const pos = a.transform.pos;
+            const shape = a.getComponent('ShapeComponent');
+            if (!shape) return true; // no shape info, don't cull it blindly
+            return distanceToShape(pos, shape, playerEntity.transform.pos) < 2000
+        });
 
         // Sort entities by their zIndex (lowest to highest)
         renderableEntities.sort((a, b) => {
             const renderA = a.getComponent('RenderComponent');
             const renderB = b.getComponent('RenderComponent');
             return (renderA?.zIndex || 0) - (renderB?.zIndex || 0);
-        });
-        const playerEntity = renderableEntities.find(a => a.id === 'player');
-
-        renderableEntities = renderableEntities.filter(a => {
-            const pos = a.transform.pos;
-            const shape = a.getComponent('ShapeComponent');
-            if (!shape) return true; // no shape info, don't cull it blindly
-            return distanceToShape(pos, shape, playerEntity.transform.pos) < 2000
         })
-
 
         this.camera.apply(this.ctx);
 
