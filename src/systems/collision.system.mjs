@@ -33,9 +33,7 @@ export class CollisionSystem {
             }
         })
     }
-    /**
- * Initialize static entities in the grid (called after dungeon generation)
- */
+
     initializeStaticGrid() {
         const entities = this.world.query('PhysicsComponent', 'ShapeComponent');
 
@@ -51,7 +49,6 @@ export class CollisionSystem {
 
     update(deltaTime) {
         if (!this.enable) return;
-        // console.log(deltaTime);
 
         const entities = this.world.query('PhysicsComponent');
         const player = this.world.getEntity('player');
@@ -66,7 +63,6 @@ export class CollisionSystem {
             if (!shape) return true;
             return distanceToShape(pos, shape, player.transform.pos) < 2000;
         });
-
         this.grid.clearDynamicEntities();
 
         for (const entity of dynamicEntities) {
@@ -90,19 +86,16 @@ export class CollisionSystem {
 
     }
     /**
-         * Determines if two collision components are allowed to collide based on their layers and masks.
+         * Determine if two collision components are allowed to collide based on their layers and masks.
          * @param {CollisionComponent} c1 
          * @param {CollisionComponent} c2 
          * @returns {boolean}
          */
     shouldCollide(c1, c2) {
-        // Does c1's mask include any of c2's layers?
         const c1CanHitC2 = c1.mask.some(maskLayer => c2.layers.includes(maskLayer));
 
-        // Does c2's mask include any of c1's layers?
         const c2CanHitC1 = c2.mask.some(maskLayer => c1.layers.includes(maskLayer));
 
-        // Both must agree to collide. (If you prefer one-way permissions, change this to ||)
         return c1CanHitC2 || c2CanHitC1;
     }
     /**
@@ -124,7 +117,6 @@ export class CollisionSystem {
 
 
 
-        // Use SAT for all collision checks - it's more robust and handles rotation
         const contact = SAT.checkCollision(e1, s1, e2, s2);
 
         if (contact && contact.depth > 0) {
@@ -134,7 +126,7 @@ export class CollisionSystem {
         }
     }
     resolveCollision(e1, p1, e2, p2, contact) {
-        const invMass1 = p1.mass === 0 ? 0 : 1 / p1.mass; // Handle static objects (mass 0)
+        const invMass1 = p1.mass === 0 ? 0 : 1 / p1.mass;
         const invMass2 = p2.mass === 0 ? 0 : 1 / p2.mass;
 
         const totalInMass = invMass1 + invMass2;

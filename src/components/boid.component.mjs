@@ -9,7 +9,7 @@ export class BoidComponent {
         separationRadius = 100,
         alignmentRadius = 100,
         cohesionRadius = 100,
-        playerAvoidRadius = 200,
+        playerAvoidRadius = 300,
         seperationWeight = 1400,
         alignmentWeight = 1200,
         cohesionWeight = 1300,

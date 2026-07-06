@@ -32,14 +32,12 @@ export class DungeonSystem {
             const dungeonEntities = this.world.query('DungeonComponent');
             const entities = this.world.query('ShapeComponent').filter(s => s.id.startsWith('room_floor_') || s.id.startsWith('hall_floor_') || s.id.startsWith('hall_wall_') || s.id.startsWith('wall_'))
             for (const entity of dungeonEntities) {
-                console.log(entity);
                 const success = this.world.destory(entity.id);
                 if (success) {
                     console.log(`Successfully deleted ${entity.id}`);
                 }
             }
             for (const entity of entities) {
-                console.log(entity.id)
                 this.world.destory(entity.id);
             }
             const dungen = Prefabs.dungeon(this.world, canvasWidth, canvasHeight);

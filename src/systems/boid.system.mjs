@@ -19,7 +19,8 @@ export class BoidSystem {
      */
     constructor(world, events) {
         this.world = world;
-        this.grid = new CollisionGrid(200)
+        this.grid = new CollisionGrid(200);
+        this.cullingDistance = 1000;
         this.events = events;
         this.events.on("dungeonGenerated", () => {
             if (!this.gridInitialized) {
@@ -49,7 +50,7 @@ export class BoidSystem {
             const pos = entity.transform.pos;
             const shape = entity.getComponent('ShapeComponent');
             if (!shape) return true;
-            return distanceToShape(pos, shape, player.transform.pos) < 2000
+            return distanceToShape(pos, shape, player.transform.pos) < this.cullingDistance
         });
 
 
@@ -69,10 +70,10 @@ export class BoidSystem {
 
             /**@type {PhysicsComponent} */
             const physicsComponent = entity.getComponent("PhysicsComponent");
-
-            const seperation = this.seperation(entity);
-            const cohision = this.cohision(entity);
-            const alignment = this.alignment(entity);
+            const entites = this.grid.getPotentialBoids(entity)
+            const seperation = this.seperation(entity, entites);
+            const cohision = this.cohision(entity, entites);
+            const alignment = this.alignment(entity, entites);
             const escape = this.fleeing(entity);
             const avoidWall = this.wallAvoidance(entity);
 
@@ -94,21 +95,16 @@ export class BoidSystem {
     /**
      * 
      * @param {Entity} entity
+     * @param {Entity[]} entites
      * @returns {Vector}
      */
-    seperation(entity) {
+    seperation(entity, entites) {
         /*
             1. get all the entites 
             2. get the distance from the entites and calculate the steering force and add them to the steering vector
             3. average the steering force and add it to the main entity.
         */
-        const player = this.world.getEntity('player');
-        const entities = this.grid.getPotentialCollisions(entity).filter(entity => {
-            const pos = entity.transform.pos;
-            const shape = entity.getComponent("ShapeComponent");
-            if (!shape) return true;
-            return distanceToShape(pos, shape, player.transform.pos) < 2000;
-        });
+        const entities = this.grid.getPotentialCollisions(entity)
         // console.log(entities.length);
         /**
          * @type {PhysicsComponent}
@@ -155,15 +151,14 @@ export class BoidSystem {
 
     /**
      * @param {Entity} entity
+     * @param {Entity[]} entities
      * @returns {Vector}
      */
-    alignment(entity) {
+    alignment(entity, entities) {
         /**@type {BoidComponent} */
         const boidComponent = entity.getComponent('BoidComponent');
         const physicsComponent = entity.getComponent('PhysicsComponent');
         // console.log(physicsComponent)
-        const entities = this.grid.getPotentialCollisions(entity)
-        // console.log(entities)
         const steering = new Vector(0, 0);
         let count = 0;
 
@@ -196,11 +191,11 @@ export class BoidSystem {
 
     /**
      * @param {Entity} entity
+     * @param {Entity[]} entities
      * @returns {Vector}
      */
-    cohision(entity) {
+    cohision(entity, entities) {
 
-        const entities = this.grid.getPotentialCollisions(entity)
         /**@type {BoidComponent} */
         const boidComponent = entity.getComponent('BoidComponent');
         const physicsComponent = entity.getComponent("PhysicsComponent");

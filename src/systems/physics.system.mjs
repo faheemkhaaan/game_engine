@@ -32,12 +32,13 @@ export class PhysicsSystem {
         const filteredDeadEntities = entities.filter(entity => {
             const renderComponent = entity.getComponent('RenderComponent');
             return renderComponent && !renderComponent.dead;
-        }).filter(entity => {
-            const pos = entity.transform.pos;
-            const shape = entity.getComponent('ShapeComponent');
-            if (!shape) return true;
-            return distanceToShape(pos, shape, player.transform.pos) < 2000;
         })
+            .filter(entity => {
+                const pos = entity.transform.pos;
+                const shape = entity.getComponent('ShapeComponent');
+                if (!shape) return true;
+                return distanceToShape(pos, shape, player.transform.pos) < 2000;
+            })
         filteredDeadEntities.forEach(entity => {
             const physicsComponent = entity.getComponent("PhysicsComponent")
             this.updatePhysics(physicsComponent, deltaTime);
