@@ -1,4 +1,4 @@
-// components/collision.component.mjs
+
 export class CollisionComponent {
 
     constructor({
@@ -6,12 +6,10 @@ export class CollisionComponent {
         broadphaseRadius = 0,
         layers = ['default'],
         enabled = true,
-        isTrigger = false, // True if you want to detect overlap without physical bounce
+        isTrigger = false, // True if i want to detect overlap without physical bounce
 
         mask = ["default"], // Which layers this entity is allowed to hit
-        containment = false,
-        dungeonBound = false,
-        boundary = false
+
     } = {}) {
         /** @type {Entity|null} */
         this.entity = null;
@@ -20,21 +18,16 @@ export class CollisionComponent {
         this.broadphaseRadius = broadphaseRadius;
         this.layers = layers;
 
-        // CACHING: For SAT collision data
         /** @type {Vector[]|null} */
         this.cachedVertices = null;
         /** @type {number|null} */
         this.cachedRadius = null;
 
-        // Broadphase: Store grid cell coordinates for quick lookup
         /** @type {{x: number, y: number}|null} */
         this.gridCell = null;
 
         this.enabled = enabled;
         this.isTrigger = isTrigger;
         this.mask = mask;
-        this.containment = containment;
-        this.dungeonBound = dungeonBound;
-        this.boundary = boundary;
     }
 }
