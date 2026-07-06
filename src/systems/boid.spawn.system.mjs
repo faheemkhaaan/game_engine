@@ -131,7 +131,7 @@ export class BoidSpawnSystem {
             ),
             aceleration: new Vector(1, 1),
             mass: 2,
-            maxSpeed: 800,
+            maxSpeed: 400,
             drag: 1,
             restitution: 1
         }));

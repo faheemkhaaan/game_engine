@@ -6,9 +6,9 @@ export class BoidComponent {
 
     constructor({
         maxForce = 0.4,
-        separationRadius = 100,
-        alignmentRadius = 100,
-        cohesionRadius = 100,
+        separationRadius = 600,
+        alignmentRadius = 600,
+        cohesionRadius = 600,
         playerAvoidRadius = 300,
         seperationWeight = 1400,
         alignmentWeight = 1200,

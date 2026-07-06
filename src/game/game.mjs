@@ -11,7 +11,6 @@ export class GameEngine {
         this.canvas = document.createElement('canvas');
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-
         /**
          * @type {CanvasRenderingContext2D}
          */
@@ -59,31 +58,24 @@ export class GameEngine {
     gameLoopSteps() {
         const delta = this.clock.getDelta();
 
-        // console.log(this.inputs.isKeyPressed('Space'));
-        // console.log(this.inputs.keys);
         this.camera.update(delta)
-        // this.camera.apply(this.ctx);
         this.systems.forEach(system => {
             if (system && system.update) {
                 system.update(delta);
             }
         });
-        // this.camera.restore(this.ctx);
-        // requestAnimationFrame(() => this.gameLoop())
+
     }
     gameLoop() {
         const delta = this.clock.getDelta();
 
-        // console.log(this.inputs.isKeyPressed('Space'));
-        // console.log(this.inputs.keys);
+
         this.camera.update(delta)
-        // this.camera.apply(this.ctx);
         this.systems.forEach(system => {
             if (system && system.update) {
                 system.update(delta);
             }
         });
-        // this.camera.restore(this.ctx);
         requestAnimationFrame(() => this.gameLoop())
     }
 
