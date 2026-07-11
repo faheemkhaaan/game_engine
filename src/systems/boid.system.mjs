@@ -19,7 +19,7 @@ export class BoidSystem {
      */
     constructor(world, events) {
         this.world = world;
-        this.grid = new CollisionGrid(200);
+        this.grid = new CollisionGrid(1000);
         this.cullingDistance = 1000;
         this.events = events;
         this.events.on("dungeonGenerated", () => {
@@ -61,7 +61,7 @@ export class BoidSystem {
             if (entity.getComponent('RenderComponent').dead) continue;
             this.grid.updateDynamicEntity(entity);
         }
-        entites.forEach(entity => {
+        for (const entity of entites) {
             if (entity.getComponent('RenderComponent').dead) return;
             /**
              * @type {BoidComponent}
@@ -70,41 +70,36 @@ export class BoidSystem {
 
             /**@type {PhysicsComponent} */
             const physicsComponent = entity.getComponent("PhysicsComponent");
-            const entites = this.grid.getPotentialBoids(entity)
+            const entites = this.grid.getPotentialBoidsOnly(entity);
+
             const seperation = this.seperation(entity, entites);
             const cohision = this.cohision(entity, entites);
             const alignment = this.alignment(entity, entites);
             const escape = this.fleeing(entity);
-            const avoidWall = this.wallAvoidance(entity);
 
             seperation.scale(boidComponent.seperationWeight);
             cohision.scale(boidComponent.cohesionWeight);
             alignment.scale(boidComponent.alignmentWeight);
             escape.scale(boidComponent.playerAvoidWeight)
-            avoidWall.scale(boidComponent.playerAvoidWeight)
 
-            // avoidWall.scale(boidComponent.playerAvoidWeight);
-            // physicsComponent.forces.push(seperation, cohision, alignment);
+            physicsComponent.forces.push(escape, seperation, cohision, alignment);
+        }
 
-            physicsComponent.forces.push(escape, seperation, cohision, alignment, avoidWall);
-
-        });
     }
 
 
     /**
      * 
      * @param {Entity} entity
-     * @param {Entity[]} entites
+     * @param {Entity[]} entities
      * @returns {Vector}
      */
-    seperation(entity, entites) {
+    seperation(entity, entities) {
         /*
             1. get all the entites 
             2. get the distance from the entites and calculate the steering force and add them to the steering vector
             3. average the steering force and add it to the main entity.
         */
-        const entities = this.grid.getPotentialCollisions(entity)
         // console.log(entities.length);
         /**
          * @type {PhysicsComponent}
@@ -117,7 +112,8 @@ export class BoidSystem {
         const pos = entity.transform.pos;
         const steering = new Vector(0, 0);
         let count = 0;
-        entities.forEach(other => {
+
+        for (const other of entities) {
             if (other === entity) return;
 
             const otherPos = other.transform.pos;
@@ -134,7 +130,8 @@ export class BoidSystem {
                 steering.add(distVect);
                 count++
             }
-        })
+        }
+
 
         if (count > 0) {
             steering.divByNumber(count);
@@ -163,7 +160,7 @@ export class BoidSystem {
         let count = 0;
 
 
-        entities.forEach(entityB => {
+        for (const entityB of entities) {
 
             if (entity === entityB) return;
 
@@ -176,7 +173,8 @@ export class BoidSystem {
 
                 count++;
             }
-        });
+        }
+
         if (count > 0) {
             steering.divByNumber(count);
             steering.normalize();
@@ -201,7 +199,8 @@ export class BoidSystem {
         const physicsComponent = entity.getComponent("PhysicsComponent");
         const steering = new Vector(0, 0);
         let count = 0;
-        entities.forEach(entityB => {
+
+        for (const entityB of entities) {
             if (entity === entityB) return;
 
             const pos = entityB.transform.pos;
@@ -212,7 +211,8 @@ export class BoidSystem {
                 steering.add(pos);
                 count++
             }
-        });
+        }
+
 
         if (count > 0) {
             steering.divByNumber(count);
@@ -244,6 +244,8 @@ export class BoidSystem {
 
         if (collision) {
             // renderComponent.dead = true;
+
+            this.events.emit('snakeEatsMouse');
             this.world.destory(entity.id);
         }
 

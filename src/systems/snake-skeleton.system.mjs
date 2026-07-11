@@ -22,6 +22,32 @@ export class SnakeSkeletonSystem {
         this.events = events;
         this.snakeTime = 0;
 
+        this.events.on('snakeEatsMouse', () => {
+            const player = this.world.getEntity('player');
+            const snakeComponent = player.getComponent('SnakeComponent');
+            snakeComponent.enemyEaten += 1;
+            if (!snakeComponent.segmentsGenerated) return;
+            if (snakeComponent.enemyEaten < snakeComponent.enemyEatenGrowThreshold) return;
+            snakeComponent.segmentLength += 0.9;
+            snakeComponent.totalSegments += 1;
+
+            const lastSegment = snakeComponent.segments[snakeComponent.segments.length - 1];
+            const lastSegmentPos = lastSegment.transform.pos;
+            const angle = lastSegmentPos.angle()
+            const spawnPosX = lastSegmentPos.x * Math.cos(angle) - lastSegmentPos.y * Math.sin(angle);
+            const spawnPosY = lastSegmentPos.x * Math.sin(angle) + lastSegmentPos.y * Math.cos(angle);
+            const spawnPos = new Vector(spawnPosX, spawnPosY);
+            this.generateSingleSegment(snakeComponent, spawnPos, snakeComponent.totalSegments);
+            const snakeSegments = snakeComponent.segments;
+            for (const entity of snakeSegments) {
+                const shapeComponent = entity.getComponent('ShapeComponent');
+                // console.log((1 - (snakeSegments.length / 1000)) * 0.5, snakeSegments.length);
+                shapeComponent.radius += (Math.abs(1 - (snakeSegments.length / 1000))) * 0.5
+            }
+
+            snakeComponent.enemyEaten = 0;
+        })
+
 
     }
 
@@ -116,6 +142,18 @@ export class SnakeSkeletonSystem {
         // Main body
         return 14;
     }
+    generateSingleSegment(snakeComponent, spawnPos, i) {
+        const entity = snakeComponent.entity;
+        const radius = this.getSegmentThickness(i, snakeComponent.totalSegments);
+        const segment = Prefabs.snakeSegment(
+            this.world,
+            `snake_body_part_${i}_` + entity.id,
+            spawnPos,
+            radius,
+        );
+        snakeComponent.segments.push(segment);
+
+    }
     /**
      * 
      * @param {SnakeComponent} snakeComponent 
@@ -125,27 +163,19 @@ export class SnakeSkeletonSystem {
 
         const entity = snakeComponent.entity;
         const headPos = entity.transform.pos;
-        const entityRenderComponent = entity.getComponent('RenderComponent');
+        const shapeComponent = entity.getComponent('ShapeComponent');
 
-        entityRenderComponent.radius = 12
+        shapeComponent.radius = 12
 
         snakeComponent.segments.push(entity);
 
 
         for (let i = 0; i < snakeComponent.totalSegments; i++) {
-
-            const radius = this.getSegmentThickness(i, snakeComponent.totalSegments);
             const spawnPos = new Vector(
                 headPos.x - (i + 1) * snakeComponent.segmentLength,
                 headPos.y
             );
-            const segment = Prefabs.snakeSegment(
-                this.world,
-                `snake_body_part_${i}_` + entity.id,
-                spawnPos,
-                radius,
-            );
-            snakeComponent.segments.push(segment);
+            this.generateSingleSegment(snakeComponent, spawnPos, i);
 
         }
 
@@ -186,7 +216,7 @@ export class SnakeSkeletonSystem {
             const firstPos = first.transform.pos;
             const secondPos = second.transform.pos;
 
-            // if (!firstPos || !secondPos) continue;
+            if (!firstPos || !secondPos) continue;
 
             const currentVector = Vector.sub(secondPos, firstPos);
             const currentLength = currentVector.mag();
@@ -230,21 +260,7 @@ export class SnakeSkeletonSystem {
             const angle = Vector.angle(v1, v2);
 
             if (Math.abs(angle) > maxBend) {
-                // console.log(Math.abs(angle), maxBend)
-                // console.log("Should Apply angle constraint")
 
-                // const clampedAngle = Math.sign(angle) * maxBend;
-
-                // // Get the current distance between the joint and the next segment
-                // const segmentLength = v2.mag(); // Assuming your Vector has a magnitude method
-
-                // // Rotate v1 by the clamped angle to find the new allowed direction for v2
-                // const v1Heading = Math.atan2(v1.y, v1.x);
-                // const targetHeading = v1Heading + clampedAngle;
-
-                // // Reconstruct the corrected position for the next segment
-                // next.transform.pos.x = joint.transform.pos.x + Math.cos(targetHeading) * segmentLength;
-                // next.transform.pos.y = joint.transform.pos.y + Math.sin(targetHeading) * segmentLength;
 
 
 

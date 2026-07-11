@@ -46,23 +46,23 @@ export class CollisionDebugSystem {
         this.drawPlayerInfo(player);
         ctx.restore();
 
-        // ctx.save();
-        // this.camera.apply(ctx);
-        // this.drawPlayPhysicsComponentInfo(player)
-        // // 1. Draw all collision shapes (vertices/radii)
-        // const entities = this.world.query('PhysicsComponent');
-        // entities.forEach(entity => {
-        //     this.drawShape(ctx, entity);
-        // });
+        ctx.save();
+        this.camera.apply(ctx);
+        this.drawPlayPhysicsComponentInfo(player)
+        // 1. Draw all collision shapes (vertices/radii)
+        const entities = this.world.query('PhysicsComponent');
+        entities.forEach(entity => {
+            this.drawShape(ctx, entity);
+        });
 
-        // // 2. Draw active collision info
-        // this.contacts.forEach(({ e1, p1, e2, p2, contact }) => {
-        //     this.drawCollision(ctx, e1, e2, contact);
-        // });
+        // 2. Draw active collision info
+        this.contacts.forEach(({ e1, p1, e2, p2, contact }) => {
+            this.drawCollision(ctx, e1, e2, contact);
+        });
 
 
 
-        // ctx.restore();
+        ctx.restore();
 
         // Clear contacts for next frame
         this.contacts.length = 0;

@@ -16,8 +16,10 @@ export class SnakeComponent {
         this.segments = [];
         this.snakeSkinVerticies = [];
         this.segmentsGenerated = false;
-        this.segmentLength = 25;
+        this.segmentLength = 12;
         this.totalSegments = 30;
         this.isSnakeMoving = false;
+        this.enemyEaten = 0;
+        this.enemyEatenGrowThreshold = 10;
     }
 }

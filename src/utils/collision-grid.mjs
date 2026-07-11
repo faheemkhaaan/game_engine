@@ -179,6 +179,44 @@ export class CollisionGrid {
 
         return Array.from(candidates);
     }
+    getPotentialBoidsOnly(dynamicEntity) {
+        const pos = dynamicEntity.transform.pos;
+        const candidates = new Set();
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const cellX = Math.floor(pos.x / this.cellSize) + dx;
+                const cellY = Math.floor(pos.y / this.cellSize) + dy;
+                const key = `${cellX},${cellY}`;
+
+                const dynamicEntities = this.dynamicEntities.get(key);
+                if (dynamicEntities) {
+                    for (const entity of dynamicEntities) {
+                        if (entity !== dynamicEntity) candidates.add(entity);
+                    }
+                }
+            }
+        }
+        return candidates; // return Set directly, avoid Array.from
+    }
+    getNearbyWalls(dynamicEntity) {
+        const pos = dynamicEntity.transform.pos;
+        const candidates = new Set();
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const cellX = Math.floor(pos.x / this.cellSize) + dx;
+                const cellY = Math.floor(pos.y / this.cellSize) + dy;
+                const key = `${cellX},${cellY}`;
+
+                const statics = this.staticEntities.get(key);
+                if (statics) {
+                    for (const entity of statics) candidates.add(entity);
+                }
+            }
+        }
+        return candidates;
+    }
     /**
      * Perform AABB (Axis-Aligned Bounding Box) fast check
      * Returns true if bounding boxes overlap

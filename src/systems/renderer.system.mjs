@@ -22,7 +22,7 @@ export class RendererSystem {
 
         this.ctx = ctx;
         this.camera = camera;
-
+        this.renderDistance = 3000;
         this.resize();
         window.addEventListener("resize", () => this.resize());
     }
@@ -41,11 +41,14 @@ export class RendererSystem {
         this.clearCanvas();
         // console.log(deltaTime);
         const playerEntity = this.world.getEntity('player');
+
+
+
         const renderableEntities = this.world.query('RenderComponent').filter(a => {
             const pos = a.transform.pos;
             const shape = a.getComponent('ShapeComponent');
             if (!shape) return true; // no shape info, don't cull it blindly
-            return distanceToShape(pos, shape, playerEntity.transform.pos) < 2000
+            return distanceToShape(pos, shape, playerEntity.transform.pos) < this.renderDistance
         });
 
         // Sort entities by their zIndex (lowest to highest)
@@ -56,7 +59,6 @@ export class RendererSystem {
         })
 
         this.camera.apply(this.ctx);
-
 
         for (const entity of renderableEntities) {
             const render = entity.getComponent('RenderComponent');
@@ -72,6 +74,12 @@ export class RendererSystem {
 
             this.renderEntity(render);
         }
+        // this.ctx.beginPath();
+        // this.ctx.fillStyle = 'lightblue';
+        // this.ctx.globalAlpha = 0.3;
+        // this.ctx.arc(playerEntity.transform.pos.x, playerEntity.transform.pos.y, this.renderDistance, 0, Math.PI * 2);
+        // this.ctx.fill();
+        // this.ctx.globalAlpha = 1;
         this.camera.restore(this.ctx)
     }
 

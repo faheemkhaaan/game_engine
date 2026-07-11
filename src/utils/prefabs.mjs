@@ -12,6 +12,7 @@
  *  rather than rebuilding that knowledge from scratch every time.
  */
 
+import { SegmentComponent } from '../components/segment.component.mjs';
 import { EntityBuilder } from '../core/entity-builder.mjs';
 import { randomColor } from './random-color-generator.mjs';
 import { Vector } from './vector.mjs';
@@ -59,7 +60,7 @@ export const Prefabs = {
             .asRect(w, h)
             .withRender({ color: randomColor(), zIndex: -2 })
             .withStaticPhysics({ restitution: 1 })
-            .withStaticCollision()
+            .withStaticCollision({ layers: ['walls'] })
             .build();
     },
 
@@ -84,6 +85,7 @@ export const Prefabs = {
             .withRender({ color: 'rgba(155,255,255,1)' })
             .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
             .withCollision()
+            .with(new SegmentComponent())
             // .withSnake()
             .build();
     },
@@ -178,7 +180,8 @@ export const Prefabs = {
                 ),
                 restitution: 1
             })
-            .withCollision({ mask: ['wall'] })
+            .withCollision({ mask: ['walls'], layers: [] })
+            .with(new SegmentComponent())
             .build();
     },
 };

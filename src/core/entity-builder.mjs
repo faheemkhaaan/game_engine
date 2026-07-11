@@ -130,6 +130,8 @@ export class EntityBuilder {
         return this;
     }
 
+
+
     // ─── Build ────────────────────────────────────────────────────────────────
 
     build() {

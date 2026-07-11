@@ -9,12 +9,10 @@ export class SegmentComponent {
      * @param {Transform} pointA 
      * @param {Transform} pointB 
      */
-    constructor(pointA, pointB) {
+    constructor(radius, parentId) {
 
-        this.a = pointA;
-        this.b = pointB;
-
-        this.length = Vector.dist(pointA.pos, pointB.pos);
+        this.radius = radius;
+        this.parentId = parentId;
     }
 
 }

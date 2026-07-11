@@ -25,7 +25,7 @@ export class BoidSpawnSystem {
         this.events = events;
         this.spawned = false;
         this.shouldSpawnBoids = true;
-        this.totalBoids = 200;
+        this.totalBoids = 100;
 
 
         this.events.on('respawnBoids', () => {
@@ -122,7 +122,7 @@ export class BoidSpawnSystem {
         });
 
 
-        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue", type: 'rat' }));
+        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue", type: "rat" }));
 
         boid.addComponent(new PhysicsComponent({
             velocity: new Vector(

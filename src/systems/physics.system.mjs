@@ -38,11 +38,13 @@ export class PhysicsSystem {
                 const shape = entity.getComponent('ShapeComponent');
                 if (!shape) return true;
                 return distanceToShape(pos, shape, player.transform.pos) < 2000;
-            })
-        filteredDeadEntities.forEach(entity => {
+            });
+
+        for (const entity of filteredDeadEntities) {
             const physicsComponent = entity.getComponent("PhysicsComponent")
             this.updatePhysics(physicsComponent, deltaTime);
-        })
+        }
+
 
     }
 
@@ -55,9 +57,10 @@ export class PhysicsSystem {
         if (physics.static) return;
         physics.prevPos = physics.entity.transform.pos.clone();
 
-        physics.forces.forEach(force => {
+        for (const force of physics.forces) {
             physics.aceleration.add(force.divByNumber(physics.mass));
-        });
+
+        }
         physics.forces.length = 0;
 
 
