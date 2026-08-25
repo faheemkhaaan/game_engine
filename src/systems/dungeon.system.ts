@@ -1,0 +1,395 @@
+import { CellComponent } from "../components/cell.component";
+import { DungeonComponent } from "../components/dungeon.component";
+
+import { World } from "../core/world";
+import { EventBus } from "../game/eventBus";
+import { Prefabs } from "../utils/prefabs";
+import { SpatialGrid } from "../utils/spatial-grid";
+import { Vector } from "../utils/vector";
+
+
+
+export class DungeonSystem {
+
+    private dungenGenerated: boolean = false;
+    private enable: boolean = true;
+    /**
+     * @param {World} world
+     * @param {EventBus} events
+     */
+    constructor(private world: World, private events: EventBus, private canvasWidth: number, private canvasHeight: number) {
+        this.world = world;
+        this.events = events;
+
+        this.events.on('enableDungeonGeneration', (levelConfig) => {
+            const dungeonEntities = this.world.query('DungeonComponent');
+            const entities = this.world.query('ShapeComponent').filter(s => s.id.startsWith('room_floor_') || s.id.startsWith('hall_floor_') || s.id.startsWith('hall_wall_') || s.id.startsWith('wall_'))
+            for (const entity of dungeonEntities) {
+                const success = this.world.destory(entity.id);
+                if (success) {
+                    console.log(`Successfully deleted ${entity.id}`);
+                }
+            }
+            for (const entity of entities) {
+                this.world.destory(entity.id);
+            }
+            // levelConfig (optional) lets LevelManager drive dungeon size per-level;
+            // the debug KeyG binding still calls this with no payload and gets defaults.
+            const dungeonOptions = levelConfig
+                ? { minRooms: levelConfig.minRooms, minDimensions: levelConfig.minDimensions }
+                : undefined;
+            const dungen = Prefabs.dungeon(this.world, canvasWidth, canvasHeight, undefined, dungeonOptions);
+            this.dungenGenerated = false;
+        })
+    }
+
+    update(dt: number) {
+
+
+        const dungeonEntities = this.world.query('DungeonComponent');
+
+        if (!this.dungenGenerated && dungeonEntities) {
+            for (const entity of dungeonEntities) {
+                const dungenComponent = entity.getComponent('DungeonComponent');
+                if (dungenComponent) {
+                    this.divide(dungenComponent);
+                    this.getNeighbours(dungenComponent);
+                    this.shrink(dungenComponent);
+                    this.addHalls(dungenComponent);
+                }
+            }
+            this.dungenGenerated = true;
+            this.events.emit('dungeonGenerated', this.dungenGenerated);
+        }
+    }
+    /**
+   * @param {DungeonComponent} dungenComponent
+   */
+    addHalls(dungenComponent: DungeonComponent) {
+        const hallWidth = 60 * Math.floor(DungeonComponent.scaler * 0.5);
+        const wallThickness = 20;
+        const wallOpenings = new Map();
+
+        const registerOpening = (wallId: string, start, end, isVertical) => {
+            if (!wallOpenings.has(wallId)) {
+                wallOpenings.set(wallId, { isVertical, intervals: [] });
+            }
+            wallOpenings.get(wallId).intervals.push({ start, end });
+        };
+
+        for (const c1 of dungenComponent.cells) {
+            const floor1 = this.world.getEntity('room_floor_' + c1.id);
+            if (!floor1) continue;
+            const r1 = floor1.getComponent('ShapeComponent');
+
+            // Visual bounds of Room 1
+            const r1MinX = floor1.transform.pos.x - r1.width / 2;
+            const r1MaxX = floor1.transform.pos.x + r1.width / 2;
+            const r1MinY = floor1.transform.pos.y - r1.height / 2;
+            const r1MaxY = floor1.transform.pos.y + r1.height / 2;
+
+            // --- 1. VERTICAL NEIGHBORS (c2 sits BELOW c1) ---
+            for (const c2 of c1.vNeighbours) {
+                if (c1.bottomRight.y !== c2.topLeft.y) continue;
+
+                const floor2 = this.world.getEntity('room_floor_' + c2.id);
+                if (!floor2) continue;
+                const r2 = floor2.getComponent('ShapeComponent');
+
+                // Visual bounds of Room 2
+                const r2MinX = floor2.transform.pos.x - r2.width / 2;
+                const r2MaxX = floor2.transform.pos.x + r2.width / 2;
+                const r2MinY = floor2.transform.pos.y - r2.height / 2;
+
+                // CRITICAL: Calculate overlap based on the VISUAL ROOM boundaries, not structural grid boundaries
+                const overlapMinX = Math.max(r1MinX, r2MinX);
+                const overlapMaxX = Math.min(r1MaxX, r2MaxX);
+                const overlapWidth = overlapMaxX - overlapMinX;
+
+                // Only spawn if the actual rooms visually line up enough to fit the hallway
+                if (overlapWidth > hallWidth) {
+                    const centerX = overlapMinX + (overlapWidth / 2);
+                    const hallX = centerX - (hallWidth / 2);
+
+                    const startY = r1MaxY;
+                    const endY = r2MinY;
+                    const hallHeight = endY - startY;
+                    const centerY = startY + (hallHeight / 2);
+                    if (hallHeight <= 0) continue; // Skip if rooms visually overlap/touch
+
+                    // Spawn Hallway Floor
+                    // Prefabs.walls(this.world, `hall_walls_${c1.id}_to_${c2.id}`, centerX, centerY, hallWidth + wallThickness, hallHeight + wallThickness)
+                    Prefabs.floor(this.world, `hall_floor_${c1.id}_to_${c2.id}`, centerX, centerY, hallWidth, hallHeight);
+
+                    // Side walls
+                    // left hall wall
+                    Prefabs.wall(this.world, `hall_wall_l_${c1.id}_to_${c2.id}`, hallX + (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
+                    // // right hall wall
+                    Prefabs.wall(this.world, `hall_wall_r_${c1.id}_to_${c2.id}`, hallX + hallWidth - (wallThickness / 2), centerY, wallThickness, hallHeight + wallThickness * 2);
+
+
+                    // Split C1's Bottom Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
+                    // this.splitWall('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false, wallThickness);
+
+                    // // Split C2's Top Wall (Horizontal cut along X: between hallX and hallX + hallWidth)
+                    // this.splitWall('wall_top_' + c2.id, hallX, hallX + hallWidth, false, wallThickness);
+                    registerOpening('wall_bottom_' + c1.id, hallX, hallX + hallWidth, false);
+                    registerOpening('wall_top_' + c2.id, hallX, hallX + hallWidth, false);
+
+                }
+            }
+
+            // --- 2. HORIZONTAL NEIGHBORS (c2 sits to the RIGHT of c1) ---
+            for (const c2 of c1.hNeighbours) {
+                if (c1.bottomRight.x !== c2.topLeft.x) continue;
+
+                const floor2 = this.world.getEntity('room_floor_' + c2.id);
+                if (!floor2) continue;
+                const r2 = floor2.getComponent('ShapeComponent');
+
+                // Visual bounds of Room 2
+                const r2MinY = floor2.transform.pos.y - r2.height / 2;
+                const r2MaxY = floor2.transform.pos.y + r2.height / 2;
+                const r2MinX = floor2.transform.pos.x - r2.width / 2;
+
+                // CRITICAL: Calculate overlap based on the VISUAL ROOM boundaries, not structural grid boundaries
+                const overlapMinY = Math.max(r1MinY, r2MinY);
+                const overlapMaxY = Math.min(r1MaxY, r2MaxY);
+                const overlapHeight = overlapMaxY - overlapMinY;
+
+                if (overlapHeight > hallWidth) {
+                    const centerY = overlapMinY + (overlapHeight / 2);
+                    const hallY = centerY - (hallWidth / 2);
+
+                    const startX = r1MaxX;
+                    const endX = r2MinX;
+                    const hallWidthSegment = endX - startX;
+                    const centerX = startX + (hallWidthSegment / 2);
+
+                    if (hallWidthSegment <= 0) continue; // Skip if rooms visually overlap/touch
+
+
+                    // Spawn Hallway Floor
+                    const hallFloor = Prefabs.floor(this.world,
+                        `hall_floor_${c1.id}_to_${c2.id}`,
+                        centerX, centerY,
+                        hallWidthSegment + wallThickness * 4, hallWidth,
+                    );
+
+                    // Side walls
+                    // hall top wall
+                    Prefabs.wall(this.world, `hall_wall_t_${c1.id}_to_${c2.id}`, centerX, hallY + (wallThickness / 2), hallWidthSegment + wallThickness * 2, wallThickness);
+                    // // hall bottom wall
+                    Prefabs.wall(this.world, `hall_wall_b_${c1.id}_to_${c2.id}`, centerX, hallY + hallWidth - (wallThickness / 2), hallWidthSegment + (wallThickness * 2), wallThickness);
+
+                    // Carve openings
+                    // this.splitWall('wall_right_' + c1.id, hallY, hallY + hallWidth, true, wallThickness);
+
+                    // // Split C2's Left Wall (Vertical cut along Y: between hallY and hallY + hallWidth)
+                    // this.splitWall('wall_left_' + c2.id, hallY, hallY + hallWidth, true, wallThickness);
+
+                    registerOpening('wall_right_' + c1.id, hallY, hallY + hallWidth, true);
+                    registerOpening('wall_left_' + c2.id, hallY, hallY + hallWidth, true);
+                }
+            }
+        }
+
+        for (const [wallId, data] of wallOpenings.entries()) {
+            this.splitWallMulti(wallId, data.intervals, data.isVertical, wallThickness);
+        }
+
+    }
+    /**
+      * Splits an existing room wall into multiple pieces to carve all hallways cleanly.
+      * @param {string} oldWallId The entity ID of the room wall to destroy and split.
+      * @param {Array<{start: number, end: number}>} intervals Array of start/end coordinates where hallways pass.
+      * @param {boolean} isVerticalWall True if splitting a Left/Right wall (Y-axis), False if Top/Bottom (X-axis).
+      * @param {number} wallThickness Thickness of the room walls.
+      */
+    splitWallMulti(oldWallId, intervals, isVerticalWall, wallThickness) {
+        const oldWall = this.world.getEntity(oldWallId);
+        if (!oldWall) return;
+
+        const shape = oldWall.getComponent('ShapeComponent');
+        const pos = oldWall.transform.pos;
+
+        // Sort intervals from lowest coordinate to highest to slice sequentially
+        intervals.sort((a, b) => a.start - b.start);
+
+        if (!isVerticalWall) {
+            // --- SPLITTING HORIZONTAL WALLS (Along X-Axis) ---
+            const wallMinX = pos.x - shape.width / 2;
+            const wallMaxX = pos.x + shape.width / 2;
+            let currentX = wallMinX;
+
+            intervals.forEach((interval, index) => {
+                const width = interval.start - currentX;
+                if (width > 5) {
+                    const centerX = currentX + width / 2;
+                    Prefabs.wall(this.world, `${oldWallId}_split_${index}`, centerX, pos.y, width, wallThickness);
+                }
+                currentX = interval.end;
+            });
+
+            // Final trailing piece
+            const finalWidth = wallMaxX - currentX;
+            if (finalWidth > 5) {
+                const centerX = currentX + finalWidth / 2;
+                Prefabs.wall(this.world, `${oldWallId}_split_final`, centerX, pos.y, finalWidth, wallThickness);
+            }
+        } else {
+            // --- SPLITTING VERTICAL WALLS (Along Y-Axis) ---
+            const wallMinY = pos.y - shape.height / 2;
+            const wallMaxY = pos.y + shape.height / 2;
+            let currentY = wallMinY;
+
+            intervals.forEach((interval, index) => {
+                const height = interval.start - currentY;
+                if (height > 5) {
+                    const centerY = currentY + height / 2;
+                    Prefabs.wall(this.world, `${oldWallId}_split_${index}`, pos.x, centerY, wallThickness, height);
+                }
+                currentY = interval.end;
+            });
+
+            // Final trailing piece
+            const finalHeight = wallMaxY - currentY;
+            if (finalHeight > 5) {
+                const centerY = currentY + finalHeight / 2;
+                Prefabs.wall(this.world, `${oldWallId}_split_final`, pos.x, centerY, wallThickness, finalHeight);
+            }
+        }
+
+        // Safely wipe out the old solid wall
+        this.world.destory(oldWallId);
+    }
+    /**
+     * 
+     * @param {DungeonComponent} dungenComponent 
+     */
+    shrink(dungenComponent) {
+
+        for (const cell of dungenComponent.cells) {
+            const topLeft = new Vector(
+                cell.topLeft.x + Math.floor(cell.width * 0.4 * (Math.random() * 0.5 + 0.3)),
+                cell.topLeft.y + Math.floor(cell.height * 0.4 * (Math.random() * 0.5 + 0.3))
+            );
+            const bottomRight = new Vector(
+                cell.bottomRight.x - Math.floor(cell.width * 0.4 * (Math.random() * 0.5 + 0.3)),
+                cell.bottomRight.y - Math.floor(cell.height * 0.4 * (Math.random() * 0.5 + 0.3))
+            );
+
+            const width = bottomRight.x - topLeft.x;
+            const height = bottomRight.y - topLeft.y;
+            const center = new Vector(topLeft.x + width / 2, topLeft.y + height / 2);
+
+            const wallThickness = 20;
+
+            // Floor (visual only, no physics, so player can walk on it)
+            // const walls = Prefabs.walls(this.world, 'room_walls_' + cell.id, center.x, center.y, width + wallThickness, height + wallThickness);
+            const floor = Prefabs.floor(this.world, 'room_floor_' + cell.id, center.x, center.y, width, height)
+
+            const topWall = Prefabs.wall(this.world, 'wall_top_' + cell.id, center.x, topLeft.y + wallThickness / 2, width, wallThickness);
+            const bottomWall = Prefabs.wall(this.world, 'wall_bottom_' + cell.id, center.x, bottomRight.y - wallThickness / 2, width, wallThickness)
+            const leftWall = Prefabs.wall(this.world, 'wall_left_' + cell.id, topLeft.x + wallThickness / 2, center.y, wallThickness, height);
+            const rightWall = Prefabs.wall(this.world, 'wall_right_' + cell.id, bottomRight.x - wallThickness / 2, center.y, wallThickness, height);
+
+        }
+    }
+    /**
+     * 
+     * @param {DungeonComponent} dungeonComponent 
+     */
+    getNeighbours(dungeonComponent) {
+        const root = dungeonComponent.root;
+        const spatialGrid = new SpatialGrid(root);
+
+        for (const cellA of spatialGrid.cells) {
+            // 1. Find Horizontal Neighbours (checking the RIGHT edge of cellA)
+            // We sample the spatial grid just along the right edge of cellA
+            const potentialHNeighbours = new Set();
+            for (let y = cellA.topLeft.y; y < cellA.bottomRight.y; y += Math.min(50, spatialGrid.cellSize)) {
+                const cells = spatialGrid.getPotentialsCells(cellA.bottomRight.x, y);
+                for (const c of cells) potentialHNeighbours.add(c);
+            }
+
+            for (const cellB of potentialHNeighbours) {
+                if (cellB === cellA) continue; // Skip self
+
+                // Ensure cellB is physically to the right of cellA and their Y spans overlap
+                if (cellA.bottomRight.x === cellB.topLeft.x &&
+                    cellA.topLeft.y < cellB.bottomRight.y && cellA.bottomRight.y > cellB.topLeft.y) {
+
+                    if (!cellA.hNeighbours.includes(cellB)) cellA.hNeighbours.push(cellB);
+                    if (!cellB.hNeighbours.includes(cellA)) cellB.hNeighbours.push(cellA);
+                }
+            }
+
+            // 2. Find Vertical Neighbours (checking the BOTTOM edge of cellA)
+            // We sample the spatial grid just along the bottom edge of cellA
+            const potentialVNeighbours = new Set();
+            for (let x = cellA.topLeft.x; x < cellA.bottomRight.x; x += Math.min(50, spatialGrid.cellSize)) {
+                const cells = spatialGrid.getPotentialsCells(x, cellA.bottomRight.y);
+                for (const c of cells) potentialVNeighbours.add(c);
+            }
+
+            for (const cellB of potentialVNeighbours) {
+                if (cellB === cellA) continue; // Skip self
+
+                // Ensure cellB is physically below cellA and their X spans overlap
+                if (cellA.bottomRight.y === cellB.topLeft.y &&
+                    cellA.topLeft.x < cellB.bottomRight.x && cellA.bottomRight.x > cellB.topLeft.x) {
+
+                    if (!cellA.vNeighbours.includes(cellB)) cellA.vNeighbours.push(cellB);
+                    if (!cellB.vNeighbours.includes(cellA)) cellB.vNeighbours.push(cellA);
+                }
+            }
+        }
+        dungeonComponent.cells = spatialGrid.cells;
+
+    }
+    /**
+     * 
+     * @param {DungeonComponent} dungenComponent 
+     */
+    divide(dungenComponent) {
+        const root = dungenComponent.root;
+        let rooms = 0;
+        while (rooms < dungenComponent.minRooms) {
+            if (this.divideCell(root, dungenComponent)) {
+                rooms++;
+            }
+        }
+
+    }
+    /**
+     * 
+     * @param {CellComponent} cell 
+     * @param {DungeonComponent} dungeonComponent
+     */
+    divideCell(cell, dungeonComponent) {
+        if (cell.width < dungeonComponent.minDimensions || cell.height < dungeonComponent.minDimensions) return false;
+
+        if (cell.left && cell.right) {
+            if (Math.random() > 0.5) {
+                return this.divideCell(cell.left, dungeonComponent);
+            } else {
+                return this.divideCell(cell.right, dungeonComponent)
+            }
+        }
+
+        // split horizontally else split the cell vertically
+        if (cell.width > cell.height) {
+            const midX = cell.topLeft.x + Math.floor(Math.random() * (cell.width * 0.5) + cell.width * 0.25);
+            cell.left = new CellComponent(new Vector(cell.topLeft.x, cell.topLeft.y), new Vector(midX, cell.bottomRight.y));
+            cell.right = new CellComponent(new Vector(midX, cell.topLeft.y), new Vector(cell.bottomRight.x, cell.bottomRight.y));
+        } else {
+
+            const midY = cell.topLeft.y + Math.floor(Math.random() * (cell.height * 0.5) + cell.height * 0.25);
+            cell.left = new CellComponent(new Vector(cell.topLeft.x, cell.topLeft.y), new Vector(cell.bottomRight.x, midY));
+            cell.right = new CellComponent(new Vector(cell.topLeft.x, midY), new Vector(cell.bottomRight.x, cell.bottomRight.y));
+        }
+
+        return true;
+    }
+}

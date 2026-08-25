@@ -1,0 +1,367 @@
+/* ──────────────────────────────────────────────────────────────────────
+   Theme: "Expedition Ledger" — a cartographer's dungeon log by torchlight.
+   Design tokens
+   Color:   bg #120e0a, panel #1c150e, border #3a2c1c, ink #e8d9b5,
+            ink-dim #a89878, amber #d98e3f, amber-glow #f2b566,
+            locked #4a4238, danger #b3462c
+   Type:    Cinzel (display, carved-stone headings), Inter (body/UI),
+            JetBrains Mono (stats, counts, coordinates)
+   Signature: level nodes strung along a dotted expedition trail; locked
+   characters shown as wax-sealed medallions.
+   ────────────────────────────────────────────────────────────────────── */
+
+:root {
+    --bg: #120e0a;
+    --panel: #1c150e;
+    --panel-border: #3a2c1c;
+    --ink: #e8d9b5;
+    --ink-dim: #a89878;
+    --amber: #d98e3f;
+    --amber-glow: #f2b566;
+    --locked: #4a4238;
+    --danger: #b3462c;
+
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+#ui-root {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    font-family: var(--font-body);
+    color: var(--ink);
+}
+
+.ui-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    background:
+        radial-gradient(ellipse at 50% -10%, rgba(217, 142, 63, 0.12), transparent 60%),
+        var(--bg);
+    padding: 4vh 4vw;
+    overflow-y: auto;
+}
+
+.ui-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-align: center;
+}
+
+.ui-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    letter-spacing: 0.06em;
+    text-align: center;
+    color: var(--ink);
+    text-shadow: 0 0 30px rgba(217, 142, 63, 0.25);
+    margin: 0;
+}
+
+.ui-subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--ink-dim);
+    text-align: center;
+    max-width: 32rem;
+    margin: -1.5rem 0 0 0;
+}
+
+/* ─── Character roster (main menu) ─────────────────────────────────── */
+
+.character-roster {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.4rem;
+    max-width: 60rem;
+}
+
+.character-card {
+    position: relative;
+    width: 11.5rem;
+    padding: 1.4rem 1rem 1.1rem;
+    border-radius: 0.4rem;
+    background: linear-gradient(180deg, var(--panel), #14100a);
+    border: 1px solid var(--panel-border);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.character-card:not(.locked):hover,
+.character-card.selected {
+    border-color: var(--amber);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(217, 142, 63, 0.25) inset;
+}
+
+.character-card.selected {
+    background: linear-gradient(180deg, #241a0f, #14100a);
+}
+
+.character-card.locked {
+    cursor: default;
+    opacity: 0.55;
+}
+
+.character-medallion {
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    margin: 0 auto 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    border: 2px solid var(--panel-border);
+    background: #0d0a06;
+}
+
+.character-card.locked .character-medallion {
+    border-color: var(--locked);
+    color: var(--locked);
+}
+
+.character-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.character-tagline {
+    font-size: 0.72rem;
+    color: var(--ink-dim);
+    line-height: 1.4;
+    min-height: 2.4em;
+}
+
+.character-lock-seal {
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--locked);
+    border-top: 1px dashed var(--panel-border);
+    padding-top: 0.5rem;
+}
+
+.character-card:not(.locked) .character-lock-seal {
+    color: var(--amber);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────── */
+
+.ui-button {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: linear-gradient(180deg, var(--amber-glow), var(--amber));
+    border: none;
+    border-radius: 0.3rem;
+    padding: 0.9rem 2.4rem;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(217, 142, 63, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ui-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(217, 142, 63, 0.35);
+}
+
+.ui-button:disabled {
+    background: var(--locked);
+    color: var(--ink-dim);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.ui-button-ghost {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    border-radius: 0.3rem;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.ui-button-ghost:hover {
+    color: var(--ink);
+    border-color: var(--amber);
+}
+
+/* ─── Expedition trail (level select) ──────────────────────────────── */
+
+.expedition-trail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    max-width: 64rem;
+}
+
+.trail-node-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.trail-connector {
+    width: 3.5rem;
+    height: 0;
+    border-top: 3px dotted var(--panel-border);
+    margin: 0 0.25rem;
+}
+
+.trail-connector.unlocked {
+    border-top-color: var(--amber);
+}
+
+.level-node {
+    position: relative;
+    width: 8.5rem;
+    padding: 1.1rem 0.9rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    background: linear-gradient(180deg, var(--panel), #14100a);
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.level-node:not(.locked):hover {
+    border-color: var(--amber);
+    transform: translateY(-3px);
+}
+
+.level-node.locked {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.level-node.completed {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px rgba(217, 142, 63, 0.3) inset;
+}
+
+.level-torch {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    margin: 0 auto 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: #0d0a06;
+    border: 2px solid var(--panel-border);
+    color: var(--ink-dim);
+}
+
+.level-node:not(.locked) .level-torch {
+    border-color: var(--amber);
+    color: var(--amber-glow);
+    box-shadow: 0 0 14px rgba(217, 142, 63, 0.35);
+}
+
+.level-name {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+}
+
+.level-description {
+    font-size: 0.66rem;
+    color: var(--ink-dim);
+    line-height: 1.35;
+    min-height: 2.6em;
+}
+
+.level-stats {
+    margin-top: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--ink-dim);
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px dashed var(--panel-border);
+    padding-top: 0.45rem;
+}
+
+.level-lock-label {
+    margin-top: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    color: var(--locked);
+}
+
+/* ─── HUD (in-level overlay) ────────────────────────────────────────── */
+
+.hud-root {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 90;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
+    font-family: var(--font-mono);
+}
+
+.hud-root>* {
+    pointer-events: auto;
+}
+
+.hud-panel {
+    background: rgba(18, 14, 10, 0.78);
+    border: 1px solid var(--panel-border);
+    border-radius: 0.35rem;
+    padding: 0.6rem 1rem;
+    backdrop-filter: blur(3px);
+}
+
+.hud-points-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+}
+
+.hud-points-value {
+    font-size: 1.3rem;
+    color: var(--amber-glow);
+}
+
+.hud-level-name {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+
+.ui-hidden {
+    display: none !important;
+}
