@@ -1,9 +1,25 @@
 
-import { Entity } from "../core/entity.ts";
-import { World } from "../core/world.ts";
-import { SAT } from "../utils/sat.ts";
-import { Vector } from "../utils/vector.ts";
+import { PhysicsComponent } from "../components/physics.component";
+import { Clock } from "../core/clock";
+import { Entity } from "../core/entity";
+import { World } from "../core/world";
+import { Camera } from "../game/camera";
+import { EventBus } from "../game/eventBus";
+import { Contact, SAT } from "../utils/sat";
+import { Vector } from "../utils/vector";
+
+
+type DebugContacts = {
+    e1: Entity;
+    p1: PhysicsComponent;
+    e2: Entity;
+    p2: PhysicsComponent;
+    contact: Contact
+}
 export class CollisionDebugSystem {
+    private contacts: DebugContacts[] = []
+
+    private debugEnabled = false;
     /**
      * 
      * @param {World} world 
@@ -12,18 +28,15 @@ export class CollisionDebugSystem {
      * @param {*} camera 
      * @param {*} clock 
      */
-    constructor(world, eventBus, ctx, camera, clock) {
-        this.world = world;
-        this.ctx = ctx;
-        this.camera = camera
-        this.clock = clock
-        this.contacts = [];
+    constructor(
+        private world: World,
+        private eventBus: EventBus,
+        private ctx: CanvasRenderingContext2D,
+        private camera: Camera,
+        private clock: Clock
+    ) {
 
-        this.interval = 0;
-        this.frameInterval = 20;
-        this.debugEnabled = false;
-
-        eventBus.on('collisionDetected', (e1, p1, e2, p2, contact) => {
+        eventBus.on('collisionDetected', (e1: Entity, p1: PhysicsComponent, e2: Entity, p2: PhysicsComponent, contact: Contact) => {
             this.contacts.push({ e1, p1, e2, p2, contact });
         });
         eventBus.on("enableDebug", () => {
@@ -36,6 +49,7 @@ export class CollisionDebugSystem {
         const ctx = this.ctx;
         const player = this.world.getEntity('player');
 
+        if (!player) return;
         // Draw FPS in top-left (static UI, no camera apply yet)
         ctx.save();
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -68,7 +82,7 @@ export class CollisionDebugSystem {
         this.contacts.length = 0;
     }
 
-    drawShape(ctx, entity) {
+    drawShape(ctx: CanvasRenderingContext2D, entity: Entity) {
         const render = entity.getComponent('RenderComponent');
         const shape = entity.getComponent("ShapeComponent");
         if (!render || !shape) return;
@@ -118,7 +132,7 @@ export class CollisionDebugSystem {
         }
     }
 
-    drawCollision(ctx, e1, e2, contact) {
+    drawCollision(ctx: CanvasRenderingContext2D, e1: Entity, e2: Entity, contact: Contact) {
         const p1 = e1.transform.pos;
         const p2 = e2.transform.pos;
 
@@ -166,7 +180,7 @@ export class CollisionDebugSystem {
         }
     }
 
-    drawSATVisuals(ctx, e1, e2, contact) {
+    drawSATVisuals(ctx: CanvasRenderingContext2D, e1: Entity, e2: Entity) {
         const r1 = e1.getComponent('RenderComponent');
         const r2 = e2.getComponent('RenderComponent');
         const s1 = e1.getComponent('ShapeComponent');
@@ -175,6 +189,8 @@ export class CollisionDebugSystem {
         const verts1 = s1.type === 'rect' ? SAT.rectToVertices(e1, s1) : null;
         const verts2 = s2.type === 'rect' ? SAT.rectToVertices(e2, s2) : null;
 
+        if (!verts1) return;
+        if (!verts2) return;
         const axes = [];
         if (verts1) axes.push(...SAT.getAxes(verts1));
         if (verts2) axes.push(...SAT.getAxes(verts2));
@@ -234,7 +250,7 @@ export class CollisionDebugSystem {
      * 
      * @param {Entity} entity 
      */
-    drawPlayerInfo(entity) {
+    drawPlayerInfo(entity: Entity) {
 
         const physicsComponent = entity.getComponent('PhysicsComponent');
         const vel = {
@@ -260,7 +276,7 @@ export class CollisionDebugSystem {
 
     }
 
-    drawPlayPhysicsComponentInfo(entity) {
+    drawPlayPhysicsComponentInfo(entity: Entity) {
 
         const physicsComponent = entity.getComponent('PhysicsComponent');
         const vel = {

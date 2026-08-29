@@ -1,6 +1,8 @@
 import { Vector } from "../utils/vector";
 import { solveFABRIK } from "../utils/fabrik";
 import type { LizardComponent, LizardLeg } from "../components/lizard.component";
+import { SnakeComponent } from "../components/snake.component";
+import { Entity } from "../core/entity";
 
 export class LizardLegSystem {
     world: any;
@@ -18,7 +20,7 @@ export class LizardLegSystem {
         for (const entity of entities) {
 
             const lizard = entity.getComponent("LizardComponent") as LizardComponent;
-            const snake = entity.getComponent("SnakeComponent");
+            const snake = entity.getComponent("SnakeComponent") as SnakeComponent;
 
             if (!lizard) continue;
             if (!snake) continue;
@@ -92,9 +94,9 @@ export class LizardLegSystem {
     }
 
     private updateLegs(
-        entity: any,
+        entity: Entity,
         lizard: LizardComponent,
-        snake: any,
+        snake: SnakeComponent,
         dt: number
     ): void {
         const physics = entity.getComponent("PhysicsComponent");
@@ -141,7 +143,12 @@ export class LizardLegSystem {
             }
 
             if (leg.stepping) {
-                leg.t += dt / Math.max(0.06, lizard.stepDuration);
+                const speedFactor = Math.min(
+                    Math.max(speed / lizard.minSpeedToStep, 1),
+                    lizard.maxStepSpeedFactor
+                );
+
+                leg.t += (dt * speedFactor) / Math.max(0.06, lizard.stepDuration);
 
                 if (leg.t >= 1) {
                     leg.t = 1;
@@ -252,9 +259,45 @@ export class LizardLegSystem {
         return this.normalize(dir);
     }
 
-    /**
-     * Solve one leg with FABRIK.
-     */
+    // /**
+    //  * Solve one leg with FABRIK.
+    //  */
+    // private solveLeg(
+    //     root: any,
+    //     target: any,
+    //     lizard: LizardComponent,
+    //     leg: LizardLeg,
+    //     forward: any,
+    //     side: any
+    // ): any[] {
+    //     const upper = lizard.upperLegLength;
+    //     const lower = lizard.lowerLegLength;
+
+    //     // Give the solver an initial bend so it does not start perfectly straight.
+    //     // This helps FABRIK choose a nicer knee direction.
+    //     const kneeHint = Vector.add(
+    //         root,
+    //         Vector.add(
+    //             Vector.scale(forward, upper * 0.35),
+    //             Vector.scale(side, leg.side * upper * 0.85)
+    //         )
+    //     );
+
+    //     const initialJoints = [
+    //         this.clone(root),
+    //         kneeHint,
+    //         this.clone(target),
+    //     ];
+
+    //     return solveFABRIK(
+    //         initialJoints,
+    //         [upper, lower],
+    //         root,
+    //         target,
+    //         10
+    //     );
+    // }
+
     private solveLeg(
         root: any,
         target: any,
@@ -265,32 +308,105 @@ export class LizardLegSystem {
     ): any[] {
         const upper = lizard.upperLegLength;
         const lower = lizard.lowerLegLength;
+        const lengths = [upper, lower];
 
-        // Give the solver an initial bend so it does not start perfectly straight.
-        // This helps FABRIK choose a nicer knee direction.
-        const kneeHint = Vector.add(
-            root,
-            Vector.add(
-                Vector.scale(forward, upper * 0.35),
-                Vector.scale(side, leg.side * upper * 0.85)
-            )
-        );
+        // Seed the chain on first use so there's a sane starting knee bend,
+        // same idea as your old kneeHint.
+        if (!leg.points || leg.points.length !== 3) {
+            const kneeHint = Vector.add(
+                root,
+                Vector.add(
+                    Vector.scale(forward, upper * 0.35),
+                    Vector.scale(side, leg.side * upper * 0.85)
+                )
+            );
+            leg.points = [this.clone(root), kneeHint, this.clone(target)];
+        }
 
-        const initialJoints = [
-            this.clone(root),
-            kneeHint,
-            this.clone(target),
-        ];
+        for (let iter = 0; iter < 10; iter++) {
+            this.backwardMovement(leg.points, target, lengths); // pin foot, solve toward hip
+            this.forwardMovement(leg.points, root, lengths);    // pin hip, solve toward foot
+            this.applyKneeAngleConstraint(leg, lizard);
+        }
 
-        return solveFABRIK(
-            initialJoints,
-            [upper, lower],
-            root,
-            target,
-            10
-        );
+        return leg.points;
     }
 
+    /**
+     * Root-anchored pass. Same math as SnakeSkeletonSystem.applyDistanceConstraint,
+     * walking start -> end.
+     */
+    private forwardMovement(points: any[], root: any, lengths: number[]): void {
+        points[0] = this.clone(root);
+
+        for (let i = 1; i < points.length; i++) {
+            const prev = points[i - 1];
+            const current = points[i];
+
+            const currentVector = Vector.sub(current, prev);
+            const currentLength = currentVector.mag();
+            if (currentLength === 0) continue;
+
+            const difference = (currentLength - lengths[i - 1]) / currentLength;
+            const correction = Vector.scale(currentVector, difference);
+            current.x -= correction.x;
+            current.y -= correction.y;
+        }
+    }
+
+    /**
+     * Target-anchored pass. Identical constraint math, walking end -> start instead.
+     */
+    private backwardMovement(points: any[], target: any, lengths: number[]): void {
+        const last = points.length - 1;
+        points[last] = this.clone(target);
+
+        for (let i = last - 1; i >= 0; i--) {
+            const next = points[i + 1];
+            const current = points[i];
+
+            const currentVector = Vector.sub(current, next);
+            const currentLength = currentVector.mag();
+            if (currentLength === 0) continue;
+
+            const difference = (currentLength - lengths[i]) / currentLength;
+            const correction = Vector.scale(currentVector, difference);
+            current.x -= correction.x;
+            current.y -= correction.y;
+        }
+    }
+    /**
+     * Clamps the knee's bend and forces it to always bend to the same
+     * rotational side, so the leg can't flip between elbow-up/elbow-down.
+     */
+    private applyKneeAngleConstraint(leg: LizardLeg, lizard: LizardComponent): void {
+        const [hip, knee, foot] = leg.points;
+
+        const v1 = Vector.sub(knee, hip);
+        const v2 = Vector.sub(foot, knee);
+
+        const v1mag = v1.mag();
+        const v2mag = v2.mag();
+        if (v1mag < 0.0001 || v2mag < 0.0001) return;
+
+        const angle = Vector.angle(v1, v2);
+
+        // leg.side > 0 = left leg, < 0 = right leg — pick one rotational
+        // direction per side so the knee only ever bends outward.
+        const desiredSign = leg.side >= 0 ? -1 : 1;
+
+        let clamped = Math.min(Math.max(Math.abs(angle), lizard.minKneeBend), lizard.maxKneeBend);
+        clamped *= desiredSign;
+
+        const correction = clamped - angle;
+        if (Math.abs(correction) < 0.0001) return;
+
+        v2.rotate(correction);
+
+        const lowerLength = lizard.lowerLegLength;
+        foot.x = knee.x + (v2.x / v2mag) * lowerLength;
+        foot.y = knee.y + (v2.y / v2mag) * lowerLength;
+    }
     // ─── Math helpers ────────────────────────────────────────────────────
 
     private clone(v: any): any {

@@ -1,7 +1,13 @@
 import { CellComponent } from "../components/cell.component";
 import { DungeonComponent } from "../components/dungeon.component";
 import { RenderComponent } from "../components/render.component";
+import { ShapeComponent } from "../components/shape.component";
 import { Vector } from "./vector";
+
+// Optional: Uncomment these if you have them for stricter typing on getComponent()
+// import { SnakeComponent } from "../components/snake.component";
+// import { LizardComponent } from "../components/lizard.component";
+// import { PhysicsComponent } from "../components/physics.component";
 
 /**
  * Helper function to draw procedural FABRIK legs.
@@ -88,8 +94,35 @@ function drawLizardLegs(ctx: CanvasRenderingContext2D, lizardComponent: any, leg
     }
 }
 
-export class RenderStratagies {
-    static rect = {
+/**
+ * Helper function to recursively draw dungeon cells.
+ * Extracted from the class to keep the registry object clean.
+ */
+function drawCellHelper(ctx: CanvasRenderingContext2D, cell: CellComponent) {
+    if (cell.left && cell.right) {
+        drawCellHelper(ctx, cell.left);
+        drawCellHelper(ctx, cell.right);
+    } else {
+        ctx.beginPath();
+        ctx.fillStyle = 'brown';
+        ctx.strokeRect(cell.topLeft.x, cell.topLeft.y, cell.width, cell.height);
+    }
+}
+
+/**
+ * Defines the exact shape of a render strategy.
+ */
+export interface RenderStrategy {
+    render: (ctx: CanvasRenderingContext2D, component: any) => void;
+}
+
+/**
+ * A type-safe registry of render strategies.
+ * Using a Record<string, RenderStrategy> explicitly tells TypeScript that 
+ * dynamic string indexing is allowed and safe.
+ */
+export const RenderStrategies: Record<string, RenderStrategy> = {
+    rect: {
         render(ctx: CanvasRenderingContext2D, renderComponent: RenderComponent) {
             if (!renderComponent.entity) return;
             const pos = renderComponent.entity.transform.pos;
@@ -100,19 +133,20 @@ export class RenderStratagies {
             ctx.fillStyle = renderComponent.color;
             ctx.fillRect(pos.x - w / 2, pos.y - h / 2, w, h);
         }
-    }
+    },
 
-    static cell = {
-        render(ctx: CanvasRenderingContext2D, dungenComponent: DungeonComponent) {
-            const root = dungenComponent.root;
-            RenderStratagies.drawCell(ctx, root);
+    cell: {
+        render(ctx: CanvasRenderingContext2D, dungeonComponent: DungeonComponent) {
+            const root = dungeonComponent.root;
+            drawCellHelper(ctx, root);
         }
-    }
+    },
 
-    static circle = {
+    circle: {
         render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
             if (!component.entity) return;
             const pos = component.entity.transform.pos;
+            const shapeComponent = component.entity.getComponent("ShapeComponent") as ShapeComponent;
             const snakeComponent = component.entity.getComponent('SnakeComponent');
 
             if (snakeComponent) {
@@ -125,8 +159,6 @@ export class RenderStratagies {
 
                 const skin = snakeComponent.snakeSkinVerticies;
                 ctx.beginPath();
-                const snakeScaleCanvas = createSnakePattern();
-                const snakePattern = ctx.createPattern(snakeScaleCanvas, 'repeat');
                 ctx.fillStyle = component.color ?? 'green';
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 2;
@@ -165,12 +197,12 @@ export class RenderStratagies {
 
             ctx.beginPath();
             ctx.fillStyle = component.color ?? 'blue';
-            ctx.arc(pos.x, pos.y, component.radius, 0, Math.PI * 2);
+            ctx.arc(pos.x, pos.y, shapeComponent.radius, 0, Math.PI * 2);
             ctx.fill();
         }
-    }
+    },
 
-    static snake = {
+    snake: {
         render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
             if (!component.entity) return;
             const snakeComponent = component.entity.getComponent('SnakeComponent');
@@ -188,9 +220,8 @@ export class RenderStratagies {
 
             ctx.beginPath();
             const snakeScaleCanvas = createSnakePattern();
-            // Note: changed mainCtx to ctx to prevent ReferenceErrors if mainCtx isn't global
-            const snakePattern = ctx.createPattern(snakeScaleCanvas, 'repeat');
-            ctx.fillStyle = snakePattern || 'indigo';
+
+            ctx.fillStyle = 'indigo';
             ctx.strokeStyle = 'yellow';
             ctx.lineWidth = 2;
 
@@ -230,20 +261,9 @@ export class RenderStratagies {
                 ctx.fill();
             }
         }
-    }
+    },
 
-    static drawCell(ctx: CanvasRenderingContext2D, cell: CellComponent) {
-        if (cell.left && cell.right) {
-            RenderStratagies.drawCell(ctx, cell.left);
-            RenderStratagies.drawCell(ctx, cell.right);
-        } else {
-            ctx.beginPath();
-            ctx.fillStyle = 'brown';
-            ctx.strokeRect(cell.topLeft.x, cell.topLeft.y, cell.width, cell.height);
-        }
-    }
-
-    static rat = {
+    rat: {
         render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
             if (!component.entity) return;
             const pos = component.entity.transform.pos;
@@ -319,10 +339,14 @@ export class RenderStratagies {
             ctx.fill();
         }
     }
+};
 
-    static register(name: string, renderFunction: () => void) {
-        (this as any)[name] = { render: renderFunction };
-    }
+/**
+ * Safely registers a new render strategy at runtime.
+ * No more `(this as any)` hacks needed!
+ */
+export function registerRenderStrategy(name: string, strategy: RenderStrategy) {
+    RenderStrategies[name] = strategy;
 }
 
 function createSnakePattern() {
@@ -331,7 +355,9 @@ function createSnakePattern() {
     canvas.width = scaleSize;
     canvas.height = scaleSize;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+
+    // If context fails to load, return the canvas anyway to prevent breaking callers
+    if (!ctx) return canvas;
 
     ctx.fillStyle = "#ffcc00";
     ctx.fillRect(0, 0, scaleSize, scaleSize);

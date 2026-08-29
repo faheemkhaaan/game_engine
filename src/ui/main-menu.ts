@@ -1,4 +1,5 @@
-import { CHARACTERS, isCharacterPlayable } from "../game/character-config";
+import { Character, CHARACTERS, isCharacterPlayable } from "../game/character-config";
+import { ProgressStore } from "../game/progress-store";
 
 /**
  * createMainMenu
@@ -14,13 +15,18 @@ import { CHARACTERS, isCharacterPlayable } from "../game/character-config";
  * }} options
  * @returns {{ element: HTMLElement, refresh: () => void }}
  */
-export function createMainMenu({ progressStore, onPlay }) {
+
+type CreateMainMenuProps = {
+    progressStore: ProgressStore;
+    onPlay: (id: string) => void;
+}
+export function createMainMenu({ progressStore, onPlay }: CreateMainMenuProps) {
     const screen = document.createElement('div');
     screen.className = 'ui-screen';
 
     let selectedId = 'snake';
 
-    function renderCard(character) {
+    function renderCard(character: Character) {
         const playable = isCharacterPlayable(character, progressStore);
         const points = progressStore.getPoints();
         const card = document.createElement('div');

@@ -1,8 +1,8 @@
-import { PhysicsComponent } from "../components/physics.component.ts";
-import { Entity } from "../core/entity.ts";
-import { World } from "../core/world.ts";
-import { distanceToShape } from "../utils/distance-to-shape.ts";
-import { Vector } from "../utils/vector.ts";
+import { PhysicsComponent } from "../components/physics.component";
+import { Entity } from "../core/entity";
+import { World } from "../core/world";
+import { distanceToShape } from "../utils/distance-to-shape";
+import { Vector } from "../utils/vector";
 
 export class PhysicsSystem {
 
@@ -10,7 +10,7 @@ export class PhysicsSystem {
      * 
      * @param {World} world 
      */
-    constructor(world) {
+    constructor(private world: World) {
         /**
          * @type {World}
          */
@@ -24,11 +24,12 @@ export class PhysicsSystem {
      * 
      * @param {number} deltaTime 
      */
-    update(deltaTime) {
+    update(deltaTime: number) {
 
 
         const entities = this.world.query('PhysicsComponent');
         const player = entities.find(e => e.id === 'player');
+        if (!player) return;
         const filteredDeadEntities = entities.filter(entity => {
             const renderComponent = entity.getComponent('RenderComponent');
             return renderComponent && !renderComponent.dead;
@@ -53,8 +54,8 @@ export class PhysicsSystem {
      * @param {PhysicsComponent} physics 
      * @param {number} deltaTime
      */
-    updatePhysics(physics, deltaTime) {
-        if (physics.static) return;
+    updatePhysics(physics: PhysicsComponent, deltaTime: number) {
+        if (physics.static || !physics.entity) return;
         physics.prevPos = physics.entity.transform.pos.clone();
 
         for (const force of physics.forces) {
@@ -81,7 +82,7 @@ export class PhysicsSystem {
      * @param {Entity} entity 
      * @param {Vector} force 
      */
-    applyForce(entity, force) {
+    applyForce(entity: Entity, force: Vector) {
         const physics = entity.getComponent("PhysicsComponent");
         if (physics) {
             physics.forces.push(force.clone())
@@ -93,7 +94,7 @@ export class PhysicsSystem {
      * @param {Entity} entity 
      * @param {Vector} impulse 
      */
-    applyImpulse(entity, impulse) {
+    applyImpulse(entity: Entity, impulse: Vector) {
         const physics = entity.getComponent("PhysicsComponent");
         if (physics) {
             physics.velocity.add(impulse);

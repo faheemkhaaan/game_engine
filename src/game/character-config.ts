@@ -14,7 +14,17 @@
  * flip `implemented: true`.
  */
 
-export const CHARACTERS = [
+import { ProgressStore } from "./progress-store";
+
+export type Character = {
+    id: string;
+    name: string;
+    tagline: string;
+    pointsRequired: number;
+    implemented: boolean;
+    color: string;
+}
+export const CHARACTERS: Character[] = [
     {
         id: 'snake',
         name: 'Snake',
@@ -49,18 +59,18 @@ export const CHARACTERS = [
     },
 ];
 
-export function getCharacter(id) {
+export function getCharacter(id: string) {
     return CHARACTERS.find((c) => c.id === id) ?? null;
 }
 
 /** True only when the animal both has enough points banked AND has real gameplay behind it. */
-export function isCharacterPlayable(character, progressStore) {
+export function isCharacterPlayable(character: Character, progressStore: ProgressStore) {
     if (!character || !character.implemented) return false;
     return progressStore.isAnimalUnlocked(character.id);
 }
 
 /** Call after points change to promote any newly-affordable animals into unlockedAnimals. */
-export function refreshAnimalUnlocks(progressStore) {
+export function refreshAnimalUnlocks(progressStore: ProgressStore) {
     const newlyUnlocked = [];
     for (const character of CHARACTERS) {
         if (progressStore.getPoints() >= character.pointsRequired && !progressStore.isAnimalUnlocked(character.id)) {

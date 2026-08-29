@@ -4,6 +4,10 @@ import { Entity } from "../core/entity";
 import { Vector } from "./vector";
 
 
+export type Contact = {
+    normal: Vector;
+    depth: number;
+}
 
 export type PolygonProjType = {
     max: number;

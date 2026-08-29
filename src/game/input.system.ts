@@ -1,18 +1,19 @@
-import { Vector } from "../utils/vector.ts";
-import { EventBus } from "./eventBus.ts";
+import { Vector } from "../utils/vector";
+import { EventBus } from "./eventBus";
 
 
 
 export class InputSystem {
+
+    private actions = new Map<string, string>();
+    private keys = new Map<string, boolean>();
+
     /**
      * 
      * @param {EventBus} events 
      */
-    constructor(events) {
+    constructor(private events: EventBus) {
 
-        this.keys = new Map();
-        this.actions = new Map();
-        this.events = events;
 
 
         this.#addEventListeners();
@@ -48,19 +49,19 @@ export class InputSystem {
      * @param {string} name - Name of the actions 
      * @param {string} key - Key code of the actions
      */
-    mapActions(name, key) {
+    mapActions(name: string, key: string) {
         this.actions.set(name, key);
     }
-    getActions(name) {
+    getActions(name: string) {
         const keyCode = this.actions.get(name);
         return keyCode ? this.keys.get(keyCode) : false
     }
-    isKeyPressed(key) {
+    isKeyPressed(key: string) {
         return this.keys.get(key) || false
     }
 
 
-    getAxis(up, down, left, right) {
+    getAxis(up: string, down: string, left: string, right: string) {
         const horizontal = (this.getActions(right) ? 1 : 0) - (this.getActions(left) ? 1 : 0);
         const vertical = (this.getActions(down) ? 1 : 0) - (this.getActions(up) ? 1 : 0);
 

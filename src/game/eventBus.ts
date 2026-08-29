@@ -1,34 +1,40 @@
 
 
 
+export type Listeners = {
+    callback: (...args: any[]) => void;
+    once?: boolean;
+}
 export class EventBus {
+    private listeners = new Map<string, Array<Listeners>>();
     constructor() {
 
         this.listeners = new Map();
     };
 
 
-    on(event, callback) {
-        if (!this.listeners.has(event)) {
-            this.listeners.set(event, []);
+    on(eventName: string, callback: Listeners['callback']) {
+        if (!this.listeners.has(eventName)) {
+            this.listeners.set(eventName, []);
         }
-
-        this.listeners.get(event).push({ callback });
+        const events = this.listeners.get(eventName);
+        if (events) events.push({ callback });
     }
-    once(event, callback) {
-        if (!this.listeners.has(event)) {
-            this.listeners.set(event, []);
+    once(eventName: string, callback: Listeners['callback']) {
+        if (!this.listeners.has(eventName)) {
+            this.listeners.set(eventName, []);
         }
-        this.listeners.get(event).push({ callback, once: true });
+        const events = this.listeners.get(eventName);
+        if (events) events.push({ callback, once: true });
     }
-    emit(event, ...args) {
+    emit(event: string, ...args: any[]) {
         if (!this.listeners.has(event)) return;
         const listeners = this.listeners.get(event);
-
+        if (!listeners) return;
         listeners.forEach((listener, i) => {
             listener.callback(...args);
             if (listener.once) {
-                listener.splice(i, 1);
+                listeners.splice(i, 1);
             }
         });
 

@@ -1,6 +1,7 @@
-import { Vector } from "./vector.ts";
+import { ShapeComponent } from "../components/shape.component";
+import { Vector } from "./vector";
 
-export function distanceToShape(pos, shape, playerPos) {
+export function distanceToShape(pos: Vector, shape: ShapeComponent, playerPos: Vector) {
     if (shape.width !== undefined && shape.height !== undefined) {
         const minX = pos.x - shape.width / 2;
         const maxX = pos.x + shape.width / 2;

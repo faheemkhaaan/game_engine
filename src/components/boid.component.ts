@@ -1,8 +1,28 @@
 
 
-
+export type BoidCOmponentProps = {
+    maxForce: number;
+    separationRadius: number;
+    alignmentRadius: number;
+    cohesionRadius: number;
+    playerAvoidRadius: number;
+    seperationWeight: number;
+    alignmentWeight: number;
+    cohesionWeight: number;
+    playerAvoidWeight: number
+}
 
 export class BoidComponent {
+    public maxForce: number;
+    public separationRadius: number;
+    public alignmentRadius: number;
+    public cohesionRadius: number;
+    public playerAvoidRadius: number;
+    public seperationWeight: number;
+    public alignmentWeight: number;
+    public cohesionWeight: number;
+    public playerAvoidWeight: number
+
 
     constructor({
         maxForce = 0.4,
@@ -14,7 +34,7 @@ export class BoidComponent {
         alignmentWeight = 1200,
         cohesionWeight = 1300,
         playerAvoidWeight = 3500
-    } = {}) {
+    }: Partial<BoidCOmponentProps>) {
         this.maxForce = maxForce;
         this.separationRadius = separationRadius;
         this.alignmentRadius = alignmentRadius;

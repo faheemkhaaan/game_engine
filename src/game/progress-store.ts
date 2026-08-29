@@ -10,6 +10,14 @@
  * listens for that event and forwards it here (see main.mjs).
  */
 
+export type GameData = {
+
+    points: number;
+    unlockedAnimals: string[];
+    highestUnlockedLevel: number;
+    completedLevels: any[]
+}
+
 const STORAGE_KEY = 'snakeGame:progress';
 
 const DEFAULT_PROGRESS = {
@@ -19,11 +27,13 @@ const DEFAULT_PROGRESS = {
     completedLevels: [],
 };
 
-function clone(obj) {
+function clone(obj: GameData) {
     return JSON.parse(JSON.stringify(obj));
 }
 
+
 export class ProgressStore {
+    private data: GameData
     constructor() {
         this.data = this.load();
     }
@@ -52,17 +62,17 @@ export class ProgressStore {
         return this.data.points;
     }
 
-    addPoints(amount) {
+    addPoints(amount: number) {
         this.data.points = Math.max(0, this.data.points + amount);
         this.save();
         return this.data.points;
     }
 
-    isAnimalUnlocked(animalId) {
+    isAnimalUnlocked(animalId: string) {
         return this.data.unlockedAnimals.includes(animalId);
     }
 
-    unlockAnimal(animalId) {
+    unlockAnimal(animalId: string) {
         if (!this.data.unlockedAnimals.includes(animalId)) {
             this.data.unlockedAnimals.push(animalId);
             this.save();
@@ -71,15 +81,15 @@ export class ProgressStore {
         return false;
     }
 
-    isLevelUnlocked(levelIndex) {
+    isLevelUnlocked(levelIndex: number) {
         return levelIndex <= this.data.highestUnlockedLevel;
     }
 
-    isLevelCompleted(levelIndex) {
+    isLevelCompleted(levelIndex: number) {
         return this.data.completedLevels.includes(levelIndex);
     }
 
-    completeLevel(levelIndex) {
+    completeLevel(levelIndex: number) {
         if (!this.data.completedLevels.includes(levelIndex)) {
             this.data.completedLevels.push(levelIndex);
         }

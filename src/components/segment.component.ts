@@ -1,15 +1,16 @@
-import { Vector } from "../utils/vector.ts";
-import { Transform } from "./transform.ts";
 
 
 
 export class SegmentComponent {
+
+    public radius: number;
+    public parentId: string;
     /**
      * 
      * @param {Transform} pointA 
      * @param {Transform} pointB 
      */
-    constructor(radius, parentId) {
+    constructor(radius: number, parentId: string) {
 
         this.radius = radius;
         this.parentId = parentId;

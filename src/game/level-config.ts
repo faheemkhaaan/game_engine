@@ -12,7 +12,17 @@
  * rooms for the same minRooms target.
  */
 
-export const LEVELS = [
+export type Level = {
+    id: number;
+    name: string;
+    description: string;
+    minRooms: number;
+    minDimensions: number;
+    mouseCountPerRoom: number;
+    enemySnakeCount: number;
+}
+
+export const LEVELS: Level[] = [
     {
         id: 0,
         name: 'The Burrow',

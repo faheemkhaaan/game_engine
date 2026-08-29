@@ -59,6 +59,11 @@ export class LizardComponent {
     entity: any = null;
 
     initialized = false;
+    /**
+     * Allowed knee bend range, relative to the hip->foot line.
+     */
+    minKneeBend = (10 * Math.PI) / 180;
+    maxKneeBend = (150 * Math.PI) / 180;
 
     legs: LizardLeg[] = [];
 
@@ -66,6 +71,8 @@ export class LizardComponent {
      * Global animation timer.
      */
     gaitTime = 0;
+
+
 
     /**
      * Which snake/spine segments the hips attach to.
@@ -83,17 +90,17 @@ export class LizardComponent {
     /**
      * How far sideways from the spine the foot wants to stand.
      */
-    stanceWidth = 12;
+    stanceWidth = 20;
 
     /**
      * How far ahead of the hip the foot wants to plant.
      */
-    stepAhead = 14;
+    stepAhead = 20;
 
     /**
      * Foot starts a step when its planted position is this far from desired target.
      */
-    stepTriggerDistance = 22;
+    stepTriggerDistance = 20;
 
     /**
      * Step duration in seconds.
@@ -103,10 +110,10 @@ export class LizardComponent {
     /**
      * Visual lift height while stepping.
      *
-     * If your game is side view, keep this positive and liftDirection upward.
+     * If your game is side view, keep  this positive and liftDirection upward.
      * If your game is top-down, you may set this to 0 or fake lift visually.
      */
-    stepHeight = 10;
+    stepHeight = 120;
 
     /**
      * Direction used for foot lift.
@@ -128,14 +135,21 @@ export class LizardComponent {
     /**
      * Legs only step when the body is actually moving.
      */
-    minSpeedToStep = 8;
+    minSpeedToStep = 60;
 
+
+    /**
+* How much faster than minSpeedToStep the step animation is allowed
+* to speed up. Prevents steps from becoming instant/teleporting at
+* very high speeds.
+*/
+    maxStepSpeedFactor = 6;
     /**
      * Useful for debug rendering.
      */
     debugDraw = true;
 
     constructor() {
-        this.liftDirection = new Vector(0, -1);
+        this.liftDirection = new Vector(0, 1);
     }
 }

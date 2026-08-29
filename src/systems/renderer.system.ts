@@ -2,9 +2,8 @@ import { RenderComponent } from "../components/render.component";
 import { World } from "../core/world";
 import { Camera } from "../game/camera";
 import { distanceToShape } from "../utils/distance-to-shape";
-import { RenderStratagies } from "../utils/render.stratagies";
 
-
+import { RenderStrategies } from "../utils/render.stratagies"
 
 export class RendererSystem {
 
@@ -37,6 +36,7 @@ export class RendererSystem {
         const playerEntity = this.world.getEntity('player');
 
 
+        if (!playerEntity) return;
 
         const renderableEntities = this.world.query('RenderComponent').filter(a => {
             const pos = a.transform.pos;
@@ -88,9 +88,10 @@ export class RendererSystem {
      */
     renderEntity(render: RenderComponent) {
 
-        const strategy = RenderStratagies[render.type];
+        const strategy = RenderStrategies[render.type];
         if (!strategy) {
-            console.error(`[RendererSystem] no render strategy for ${render.type}`);
+            // console.error(`[RendererSystem] no render strategy for ${render.type}`);
+            return;
         }
         strategy.render(this.ctx, render);
 

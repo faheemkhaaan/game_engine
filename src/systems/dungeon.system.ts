@@ -3,6 +3,7 @@ import { DungeonComponent } from "../components/dungeon.component";
 
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
+import { LevelConfig } from "../game/level-config";
 import { Prefabs } from "../utils/prefabs";
 import { SpatialGrid } from "../utils/spatial-grid";
 import { Vector } from "../utils/vector";
@@ -12,7 +13,7 @@ import { Vector } from "../utils/vector";
 export class DungeonSystem {
 
     private dungenGenerated: boolean = false;
-    private enable: boolean = true;
+    // private enable: boolean = true;
     /**
      * @param {World} world
      * @param {EventBus} events
@@ -21,7 +22,7 @@ export class DungeonSystem {
         this.world = world;
         this.events = events;
 
-        this.events.on('enableDungeonGeneration', (levelConfig) => {
+        this.events.on('enableDungeonGeneration', (levelConfig: LevelConfig) => {
             const dungeonEntities = this.world.query('DungeonComponent');
             const entities = this.world.query('ShapeComponent').filter(s => s.id.startsWith('room_floor_') || s.id.startsWith('hall_floor_') || s.id.startsWith('hall_wall_') || s.id.startsWith('wall_'))
             for (const entity of dungeonEntities) {
@@ -70,7 +71,7 @@ export class DungeonSystem {
         const wallThickness = 20;
         const wallOpenings = new Map();
 
-        const registerOpening = (wallId: string, start, end, isVertical) => {
+        const registerOpening = (wallId: string, start: number, end: number, isVertical: boolean) => {
             if (!wallOpenings.has(wallId)) {
                 wallOpenings.set(wallId, { isVertical, intervals: [] });
             }
@@ -206,7 +207,7 @@ export class DungeonSystem {
       * @param {boolean} isVerticalWall True if splitting a Left/Right wall (Y-axis), False if Top/Bottom (X-axis).
       * @param {number} wallThickness Thickness of the room walls.
       */
-    splitWallMulti(oldWallId, intervals, isVerticalWall, wallThickness) {
+    splitWallMulti(oldWallId: string, intervals: Array<{ start: number, end: number }>, isVerticalWall: boolean, wallThickness: number) {
         const oldWall = this.world.getEntity(oldWallId);
         if (!oldWall) return;
 
@@ -267,7 +268,7 @@ export class DungeonSystem {
      * 
      * @param {DungeonComponent} dungenComponent 
      */
-    shrink(dungenComponent) {
+    shrink(dungenComponent: DungeonComponent) {
 
         for (const cell of dungenComponent.cells) {
             const topLeft = new Vector(
@@ -300,14 +301,14 @@ export class DungeonSystem {
      * 
      * @param {DungeonComponent} dungeonComponent 
      */
-    getNeighbours(dungeonComponent) {
+    getNeighbours(dungeonComponent: DungeonComponent) {
         const root = dungeonComponent.root;
         const spatialGrid = new SpatialGrid(root);
 
         for (const cellA of spatialGrid.cells) {
             // 1. Find Horizontal Neighbours (checking the RIGHT edge of cellA)
             // We sample the spatial grid just along the right edge of cellA
-            const potentialHNeighbours = new Set();
+            const potentialHNeighbours = new Set<CellComponent>();
             for (let y = cellA.topLeft.y; y < cellA.bottomRight.y; y += Math.min(50, spatialGrid.cellSize)) {
                 const cells = spatialGrid.getPotentialsCells(cellA.bottomRight.x, y);
                 for (const c of cells) potentialHNeighbours.add(c);
@@ -327,7 +328,7 @@ export class DungeonSystem {
 
             // 2. Find Vertical Neighbours (checking the BOTTOM edge of cellA)
             // We sample the spatial grid just along the bottom edge of cellA
-            const potentialVNeighbours = new Set();
+            const potentialVNeighbours = new Set<CellComponent>();
             for (let x = cellA.topLeft.x; x < cellA.bottomRight.x; x += Math.min(50, spatialGrid.cellSize)) {
                 const cells = spatialGrid.getPotentialsCells(x, cellA.bottomRight.y);
                 for (const c of cells) potentialVNeighbours.add(c);
@@ -352,7 +353,7 @@ export class DungeonSystem {
      * 
      * @param {DungeonComponent} dungenComponent 
      */
-    divide(dungenComponent) {
+    divide(dungenComponent: DungeonComponent) {
         const root = dungenComponent.root;
         let rooms = 0;
         while (rooms < dungenComponent.minRooms) {
@@ -367,7 +368,7 @@ export class DungeonSystem {
      * @param {CellComponent} cell 
      * @param {DungeonComponent} dungeonComponent
      */
-    divideCell(cell, dungeonComponent) {
+    divideCell(cell: CellComponent, dungeonComponent: DungeonComponent): boolean {
         if (cell.width < dungeonComponent.minDimensions || cell.height < dungeonComponent.minDimensions) return false;
 
         if (cell.left && cell.right) {

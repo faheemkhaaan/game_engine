@@ -1,9 +1,13 @@
-import { Clock } from "../core/clock.ts";
-import { World } from "../core/world.ts";
-import { Camera } from "./camera.ts";
-import { EventBus } from "./eventBus.ts";
-import { InputSystem } from "./input.system.ts";
+import { Clock } from "../core/clock";
+import { World } from "../core/world";
+import { Camera } from "./camera";
+import { EventBus } from "./eventBus";
+import { InputSystem } from "./input.system";
 
+
+export interface ISystem {
+    update: (dt: number) => void;
+}
 
 export class GameEngine {
     public camera: Camera;
@@ -13,7 +17,7 @@ export class GameEngine {
     public inputs: InputSystem;
     public world: World;
     public clock: Clock;
-    public systems = new Set();
+    public systems = new Set<ISystem>();
     constructor() {
 
         this.canvas = document.createElement('canvas');
@@ -66,7 +70,7 @@ export class GameEngine {
 
     gameLoopSteps() {
         const delta = this.clock.getDelta();
-
+        if (!delta) return;
         this.camera.update(delta)
         for (const system of this.systems) {
             if (system && system.update) {
@@ -76,8 +80,8 @@ export class GameEngine {
 
     }
     gameLoop() {
-        const delta = this.clock.getDelta();
 
+        const delta = this.clock.getDelta();
 
         this.camera.update(delta);
 
@@ -98,14 +102,14 @@ export class GameEngine {
         this.canvas.style.display = 'none';
     }
 
-    addSystem(system) {
+    addSystem(system: ISystem) {
         this.systems.add(system);
     }
 
-    getSystem(systemName) {
+    getSystem<T extends ISystem>(SystemClass: new (...args: any[]) => T): T | null {
         for (const system of this.systems) {
-            if (system.construtor.name === systemName) {
-                return system
+            if (system instanceof SystemClass) {
+                return system as T;
             }
         }
         return null;

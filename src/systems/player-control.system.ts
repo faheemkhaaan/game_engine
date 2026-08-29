@@ -1,4 +1,8 @@
-import { Vector } from "../utils/vector.ts";
+import { World } from "../core/world";
+import { EventBus } from "../game/eventBus";
+import { InputSystem } from "../game/input.system";
+import { Vector } from "../utils/vector";
+import { PhysicsSystem } from "./physics.system";
 
 /**
  * PlayerControlSystem
@@ -10,13 +14,20 @@ import { Vector } from "../utils/vector.ts";
  * the player is now destroyed and rebuilt every time a level starts.
  */
 export class PlayerControlSystem {
+
+
     /**
      * @param {import('../core/world.mjs').World} world
      * @param {import('../game/eventBus.mjs').EventBus} events
      * @param {import('../systems/physics.system.mjs').PhysicsSystem} physicsSystem
      * @param {import('./input.system.mjs').InputSystem} inputs
      */
-    constructor(world, events, physicsSystem, inputs) {
+    constructor(
+        private world: World,
+        private events: EventBus,
+        private physicsSystem: PhysicsSystem,
+        private inputs: InputSystem
+    ) {
         this.world = world;
         this.events = events;
         this.physicsSystem = physicsSystem;

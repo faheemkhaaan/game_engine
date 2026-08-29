@@ -42,7 +42,7 @@ export const Prefabs = {
             .asRect(w, h)
             .withRender({ color: WALL_COLOR })
             .withStaticPhysics({ restitution: 1 })
-            .withStaticCollision()
+            .withStaticCollision({ layers: ['walls'], mask: ['player', "snake_segment", 'boid'] })
             .build();
     },
 
@@ -62,7 +62,7 @@ export const Prefabs = {
             .asRect(w, h)
             .withRender({ color: randomColor(), zIndex: -2 })
             .withStaticPhysics({ restitution: 1 })
-            .withStaticCollision({ layers: ['walls'] })
+            .withStaticCollision({ layers: ['walls'], mask: ["player", "snake_segment", 'boid'], })
             .build();
     },
 
@@ -87,9 +87,9 @@ export const Prefabs = {
         return new EntityBuilder(world, 'player')
             .at(pos.x, pos.y)
             .asCircle(12)
-            .withRender({ color: randomColor() })
+            .withRender({ color: randomColor(), })
             .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
-            .withCollision()
+            .withCollision({ mask: ["walls"], layers: ['player'] })
             // .with(new SegmentComponent())
             // .with(new LizardComponent())
             .withSnake()
@@ -103,7 +103,7 @@ export const Prefabs = {
         return new EntityBuilder(world, id)
             .at(100, 100)
             .asCircle(12)
-            .withRender({ color: 'green', zIndex: 100 })
+            .withRender({ color: 'green', zIndex: 100, type: "enemy_snake", width: 60, height: 60, radius: 0, image: '' })
             .withPhysics({
                 maxSpeed: 800,
                 mass: 1,
@@ -114,7 +114,7 @@ export const Prefabs = {
                 ),
             })
             .withSnake()
-            .withCollision()
+            .withCollision({ mask: ['walls'], layers: ['boid'] })
             .withBoid()
             .build();
     },
@@ -157,18 +157,20 @@ export const Prefabs = {
         return new EntityBuilder(world, `boid-${Math.random()}`)
             .at(pos.x, pos.y)
             .asRect(30, 30)
-            .withRender({ color: 'lightblue', zIndex: 200 })
+            .withRender({ zIndex: 200, color: "lightblue", type: "rat", width: 50, height: 50, radius: 0, image: "" })
             .withPhysics({
                 velocity: new Vector(
-                    (Math.random() - 0.5) * 1300,
-                    (Math.random() - 0.5) * 1300,
+                    (Math.random() - 0.5) * 800,
+                    (Math.random() - 0.5) * 800
                 ),
+                aceleration: new Vector(1, 1),
                 mass: 2,
-                maxSpeed: 800,
+                maxSpeed: 400,
                 drag: 1,
-                restitution: 1,
+                restitution: 1
             })
-            .withCollision()
+            .withCollision({ mask: ['walls'], layers: ['boid'] })
+            .withShape({ type: 'rect', width: 30, height: 30 })
             .withBoid()
             .build();
     },
@@ -180,7 +182,7 @@ export const Prefabs = {
         return new EntityBuilder(world, id)
             .at(pos.x, pos.y)
             .asCircle(radius * 1.3)
-            .withRender({ color: 'rgba(0,0,0,0)', zIndex: 3000 })
+            .withRender({ color: 'rgba(0,0,0,0)', zIndex: 3000, height: 0, width: 0, radius, type: 'snake_segment', image: '' })
             .withPhysics({
                 mass: 1,
                 velocity: new Vector(
@@ -189,8 +191,8 @@ export const Prefabs = {
                 ),
                 restitution: 1
             })
-            .withCollision({ mask: [], layers: [] })
-            .with(new SegmentComponent())
+            .withCollision({ mask: ['walls'], layers: ['snake_segment'] })
+            .with(new SegmentComponent(10, id))
             .build();
     },
 };

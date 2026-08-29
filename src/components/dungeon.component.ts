@@ -2,6 +2,12 @@ import { CellComponent } from "./cell.component";
 
 
 
+type DungeonComponentType = {
+    root: CellComponent;
+    minRooms: number;
+    minDimensions: number;
+}
+
 export class DungeonComponent {
 
     static scaler = 20;
@@ -11,12 +17,11 @@ export class DungeonComponent {
     public minRooms: number;
 
     /**
-     * @param {{ root?: import('./cell.component.mjs').CellComponent, minRooms?: number, minDimensions?: number }} [options]
      * minDimensions is in the same "raw" units the rest of the dungeon math
      * uses pre-scale (historically hardcoded to 130); it gets multiplied by
      * DungeonComponent.scaler here, same as before.
      */
-    constructor({ root, minRooms = 20, minDimensions = 130 } = {}) {
+    constructor({ root, minRooms = 20, minDimensions = 130 }: DungeonComponentType) {
         this.minRooms = minRooms;
         this.minDimensions = minDimensions * DungeonComponent.scaler;
         this.root = root;

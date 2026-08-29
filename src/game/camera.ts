@@ -1,11 +1,14 @@
-import { Transform } from "../components/transform.ts";
-import { Entity } from "../core/entity.ts";
-import { Vector } from "../utils/vector.ts";
+import { Transform } from "../components/transform";
+import { Entity } from "../core/entity";
+import { Vector } from "../utils/vector";
 
 
 
 export class Camera {
-    constructor(width, height) {
+    private transform: Transform;
+    private target: null | Entity;
+    private smoothing = 0.1;
+    constructor(width: number, height: number) {
 
         this.transform = new Transform({ pos: new Vector(0, 0), size: new Vector(width, height), rotation: 0 });
 
@@ -17,7 +20,7 @@ export class Camera {
     }
 
 
-    update(deltaTime) {
+    update(deltaTime: number) {
         if (this.target) {
             const halfWidth = this.transform.size.x / 2;
             const halfHeight = this.transform.size.y / 2;
@@ -36,7 +39,7 @@ export class Camera {
      * @param {Entity} target 
      * @param {number} smoothing 
      */
-    follow(target, smoothing = 0.1) {
+    follow(target: Entity, smoothing = 0.1) {
         this.target = target;
         this.smoothing = smoothing;
     }
@@ -45,7 +48,7 @@ export class Camera {
      * 
      * @param {CanvasRenderingContext2D} ctx 
      */
-    apply(ctx) {
+    apply(ctx: CanvasRenderingContext2D) {
         ctx.save();
         const drawX = Math.round(this.transform.pos.x);
         const drawY = Math.round(this.transform.pos.y);
@@ -59,7 +62,7 @@ export class Camera {
          * @param {Vector} worldPos - The position in the game world.
          * @returns {Vector} The corresponding position on the canvas.
          */
-    worldToCanvas(worldPos) {
+    worldToCanvas(worldPos: Vector) {
         // Since this.transform.pos is the translation offset applied to the canvas context:
         // Canvas Position = World Position + Camera Offset
         return Vector.add(worldPos, this.transform.pos);
@@ -71,14 +74,14 @@ export class Camera {
      * @param {Vector} canvasPos - The position on the canvas.
      * @returns {Vector} The corresponding position in the game world.
      */
-    canvasToWorld(canvasPos) {
+    canvasToWorld(canvasPos: Vector) {
         // World Position = Canvas Position - Camera Offset
         return Vector.sub(canvasPos, this.transform.pos);
     }
     /**
      * @param {CanvasRenderingContext2D} ctx
      */
-    restore(ctx) {
+    restore(ctx: CanvasRenderingContext2D) {
         ctx.restore();
     }
 }

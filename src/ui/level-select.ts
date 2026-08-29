@@ -1,4 +1,13 @@
-import { LEVELS } from "../game/level-config";
+import { Level, LEVELS } from "../game/level-config";
+import { ProgressStore } from "../game/progress-store";
+
+
+
+export type CreateLevelSelectProp = {
+    progressStore: ProgressStore;
+    onSelectLevel: (id: number) => void;
+    onBack: () => void;
+}
 
 /**
  * createLevelSelect
@@ -15,11 +24,11 @@ import { LEVELS } from "../game/level-config";
  * }} options
  * @returns {{ element: HTMLElement, refresh: () => void }}
  */
-export function createLevelSelect({ progressStore, onSelectLevel, onBack }) {
+export function createLevelSelect({ progressStore, onSelectLevel, onBack }: CreateLevelSelectProp) {
     const screen = document.createElement('div');
     screen.className = 'ui-screen ui-hidden';
 
-    function renderNode(level, index) {
+    function renderNode(level: Level, index: number) {
         const unlocked = progressStore.isLevelUnlocked(index);
         const completed = progressStore.isLevelCompleted(index);
 

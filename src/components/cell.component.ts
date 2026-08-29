@@ -1,11 +1,24 @@
 
-// import crypto from 'node:crypto'
+
+import { Vector } from "../utils/vector";
+
+
+
 
 export class CellComponent {
 
     public id: string = crypto.randomUUID();
+    public topLeft: Vector;
+    public bottomRight: Vector;
+    public width: number;
+    public height: number;
+    public left: null | CellComponent;
+    public right: null | CellComponent;
+    public vNeighbours: CellComponent[];
+    public hNeighbours: CellComponent[];
 
-    constructor(topLeft, bottomRight) {
+
+    constructor(topLeft: Vector, bottomRight: Vector) {
 
 
         this.topLeft = topLeft;
@@ -20,7 +33,7 @@ export class CellComponent {
         this.vNeighbours = [];
         this.hNeighbours = [];
 
-        this.vHalls = [];
-        this.hHalls = [];
+        // this.vHalls = [];
+        // this.hHalls = [];
     }
 }

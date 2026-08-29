@@ -18,6 +18,7 @@ export class SnakeSkeletonSystem {
 
         this.events.on('snakeEatsMouse', () => {
             const player = this.world.getEntity('player');
+            if (!player) return;
             const snakeComponent = player.getComponent('SnakeComponent');
             snakeComponent.enemyEaten += 1;
             if (!snakeComponent.segmentsGenerated) return;
@@ -187,7 +188,7 @@ export class SnakeSkeletonSystem {
 
         const entity = snakeComponent.entity;
         if (!entity) return;
-        const physics = entity.getComponent('PhysicsComponent');
+        // const physics = entity.getComponent('PhysicsComponent');
 
         // Skip constraint propagation if snake is essentially still
         // if (physics && physics.velocity.mag() < 1) return;

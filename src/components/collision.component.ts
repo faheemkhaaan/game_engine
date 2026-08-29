@@ -1,6 +1,15 @@
 import { Entity } from "../core/entity";
 import { Vector } from "../utils/vector";
 
+export type CollisionComponentType = {
+    isStatic: boolean,
+    broadphaseRadius: number,
+    layers: string[],
+    enabled: boolean,
+    isTrigger: boolean,
+
+    mask: string[],
+}
 export class CollisionComponent {
 
 
@@ -26,7 +35,7 @@ export class CollisionComponent {
 
         mask = ["default"], // Which layers this entity is allowed to hit
 
-    } = {}) {
+    }: CollisionComponentType) {
         /** @type {Entity|null} */
         this.entity = null;
 

@@ -1,13 +1,13 @@
-import { PhysicsComponent } from "../components/physics.component.ts";
-import { RenderComponent } from "../components/render.component.ts";
-import { ShapeComponent } from "../components/shape.component.ts";
-import { CollisionComponent } from "../components/collision.component.ts";
-import { SnakeComponent } from "../components/snake.component.ts";
-import { BoidComponent } from "../components/boid.component.ts";
-import { Transform } from "../components/transform.ts";
-import { Vector } from "../utils/vector.ts";
-import { DungeonComponent } from "../components/dungeon.component.ts";
-import { CellComponent } from "../components/cell.component.ts";
+import { PhysicsComponent } from "../components/physics.component";
+import { RenderComponent, RenderComponentType } from "../components/render.component";
+import { ShapeComponent } from "../components/shape.component";
+import { CollisionComponent, CollisionComponentType } from "../components/collision.component";
+import { SnakeComponent } from "../components/snake.component";
+import { BoidComponent } from "../components/boid.component";
+import { Transform } from "../components/transform";
+import { Vector } from "../utils/vector";
+import { DungeonComponent } from "../components/dungeon.component";
+import { CellComponent } from "../components/cell.component";
 import { Entity } from "./entity.js";
 import { World } from "./world.js";
 
@@ -41,7 +41,7 @@ export class EntityBuilder {
     // ─── Transform ────────────────────────────────────────────────────────────
 
     /** Set position (and optionally rotation) */
-    at(x, y, rotation = 0) {
+    at(x: number, y: number, rotation = 0) {
         this.#entity.transform = new Transform({
             pos: new Vector(x, y),
             size: new Vector(1, 1),
@@ -52,12 +52,12 @@ export class EntityBuilder {
 
     // ─── Shape (single source of truth for geometry) ──────────────────────────
 
-    asCircle(radius) {
+    asCircle(radius: number) {
         this.#entity.addComponent(new ShapeComponent({ type: 'circle', radius }));
         return this;
     }
 
-    asRect(width, height) {
+    asRect(width: number, height: number) {
         this.#entity.addComponent(new ShapeComponent({ type: 'rect', width, height }));
         return this;
     }
@@ -69,12 +69,12 @@ export class EntityBuilder {
     /**
      * @param {{ color?: string, zIndex?: number }} [options]
      */
-    withRender(options = {}) {
+    withRender(options: Partial<RenderComponentType>) {
         // ShapeComponent is the geometry source; RenderComponent is purely visual.
         // We still accept legacy 'type' / 'radius' / 'width' / 'height' in options
         // so existing call-sites don't break immediately, but they are ignored for
         // geometry – use asCircle() / asRect() instead.
-        this.#entity.addComponent(new RenderComponent(options));
+        this.#entity.addComponent(new RenderComponent(options as RenderComponentType));
         return this;
     }
 
@@ -83,10 +83,11 @@ export class EntityBuilder {
      * @param {number} height
      * @param {{ minRooms?: number, minDimensions?: number }} [options] level-driven dungeon sizing
      */
-    withDungeon(width, height, options = {}) {
+    withDungeon(width: number, height: number, options = {}) {
         this.#entity.addComponent(new DungeonComponent({
             root: new CellComponent(new Vector(0, 0), new Vector(width * DungeonComponent.scaler, height * DungeonComponent.scaler)),
-            ...options,
+            minDimensions: 130,
+            minRooms: 20
         }))
         return this;
     }
@@ -110,14 +111,19 @@ export class EntityBuilder {
     // ─── Collision ────────────────────────────────────────────────────────────
 
     /** Dynamic collision (participates in resolution). */
-    withCollision(options = {}) {
-        this.#entity.addComponent(new CollisionComponent({ isStatic: false, enabled: true, ...options }));
+    withCollision(options: Pick<CollisionComponent, 'mask' | 'layers'>) {
+        this.#entity.addComponent(new CollisionComponent({ isStatic: false, enabled: true, mask: options.mask, layers: options.layers, broadphaseRadius: 5, isTrigger: false }));
+        return this;
+    }
+
+    withShape(shape: { type: string, width: number, height: number, radius?: number }) {
+        this.#entity.addComponent(new ShapeComponent({ type: shape.type, width: shape.width, radius: shape.radius }))
         return this;
     }
 
     /** Static collision (walls/terrain – only blocks, never moves). */
-    withStaticCollision(options = {}) {
-        this.#entity.addComponent(new CollisionComponent({ isStatic: true, enabled: true, ...options }));
+    withStaticCollision(options: Partial<CollisionComponentType>) {
+        this.#entity.addComponent(new CollisionComponent({ isStatic: true, enabled: true, broadphaseRadius: options.broadphaseRadius ?? 0, isTrigger: options.isTrigger ?? false, layers: options.layers ?? [], mask: options.mask ?? [] }));
         return this;
     }
 
@@ -129,13 +135,13 @@ export class EntityBuilder {
     }
 
     withBoid() {
-        this.#entity.addComponent(new BoidComponent());
+        this.#entity.addComponent(new BoidComponent({}));
         return this;
     }
 
     // ─── Escape hatch – add any arbitrary component ───────────────────────────
 
-    with(component) {
+    with<T>(component: T) {
         this.#entity.addComponent(component);
         return this;
     }

@@ -124,8 +124,11 @@ export class BoidSpawnSystem {
     spawnSingleBoid(floor: Entity, render: RenderComponent) {
 
         const boid = this.world.createEntity();
-
-
+        const pos = new Vector(
+            floor.transform.pos.x + (Math.random() - 0.5) * render.width * 0.8,
+            floor.transform.pos.y + (Math.random() - 0.5) * render.height * 0.8
+        );
+        // Prefabs.boid(this.world, pos)
         boid.transform = new Transform({
             pos: new Vector(
                 floor.transform.pos.x + (Math.random() - 0.5) * render.width * 0.8,
@@ -136,7 +139,8 @@ export class BoidSpawnSystem {
         });
 
 
-        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue", type: "rat" }));
+
+        boid.addComponent(new RenderComponent({ zIndex: 200, color: "lightblue", type: "rat", height: 0, width: 0, image: '', radius: 0 }));
 
         boid.addComponent(new PhysicsComponent({
             velocity: new Vector(
@@ -151,8 +155,8 @@ export class BoidSpawnSystem {
         }));
 
 
-        boid.addComponent(new BoidComponent());
-        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['wall', 'snake'], dungeonBound: true }));
+        boid.addComponent(new BoidComponent({}));
+        boid.addComponent(new CollisionComponent({ isStatic: false, mask: ['walls'], layers: ['boid'], broadphaseRadius: 0, isTrigger: true, enabled: false }));
         boid.addComponent(new ShapeComponent({ type: 'rect', width: 30, height: 30 }));
     }
 }

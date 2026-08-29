@@ -8,8 +8,8 @@ export type RenderComponentType = {
     type: string;
     height: number;
     width: number;
-    image: null;
-    radius: null;
+    image: null | string;
+    radius: null | number;
     zIndex: number;
 }
 const defaultOptions = { color: '#2f2341', type: 'rect', height: 50, width: 50, image: null, radius: null, zIndex: 0 }
