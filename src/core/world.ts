@@ -15,6 +15,10 @@ export class World {
         this.entities = new Map();
     }
 
+    entitiesLength(): number {
+        return this.entities.size
+    }
+
     /**
      * 
      * @param {string} name 

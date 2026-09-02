@@ -23,6 +23,7 @@ import { LizardLegSystem } from "./src/systems/lizard-leg.system.js";
 import { Vector } from "./src/utils/vector";
 
 
+
 // ─── Engine + systems ────────────────────────────────────────────────────
 // Built once at boot. No dungeon/player/mice exist yet — LevelManager
 // populates the world the first time a level is started from the UI.

@@ -19,5 +19,10 @@
     "include": [
         "src/**/*",
         "main.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "src/pkg"
     ]
 }

@@ -45,6 +45,11 @@ export class Entity {
     addComponent(component: any) {
         component.entity = this;
         this.components.set(component.constructor.name, component);
+        return this;
+    }
+
+    attachPhysics() {
+
     }
 
     /**
