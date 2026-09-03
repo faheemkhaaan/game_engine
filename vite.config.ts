@@ -13,5 +13,5 @@ export default defineConfig({
             'Cross-Origin-Opener-Policy': 'same-origin'
         }
     },
-    base: "game_engine"
+    base: "/game_engine"
 });
