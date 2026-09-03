@@ -2,6 +2,7 @@
 
 import { CollisionComponent } from "../components/collision.component";
 import { PhysicsComponent } from "../components/physics.component";
+import { ShapeComponent } from "../components/shape.component";
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
@@ -48,10 +49,10 @@ export class CollisionSystem {
     }
 
     initializeStaticGrid() {
-        const entities = this.world.query('PhysicsComponent', 'ShapeComponent');
+        const entities = this.world.query(PhysicsComponent, ShapeComponent);
 
         for (const entity of entities) {
-            const collision = entity.getComponent('CollisionComponent');
+            const collision = entity.getComponent(CollisionComponent);
             if (collision && collision.static) {
                 this.grid.addStaticEntity(entity);
             }
@@ -63,17 +64,17 @@ export class CollisionSystem {
     update(deltaTime: number) {
         if (!this.enable) return;
 
-        const entities = this.world.query('PhysicsComponent');
+        const entities = this.world.query(PhysicsComponent);
         const player = this.world.getEntity('player');
         if (!player) return;
 
         const dynamicEntities = entities.filter(e => {
-            const collision = e.getComponent('CollisionComponent');
+            const collision = e.getComponent(CollisionComponent);
 
             return collision && !collision.static;
         }).filter(entity => {
             const pos = entity.transform.pos;
-            const shape = entity.getComponent('ShapeComponent');
+            const shape = entity.getComponent(ShapeComponent);
             if (!shape) return true;
             return distanceToShape(pos, shape, player.transform.pos) < 2000;
         });
@@ -119,17 +120,17 @@ export class CollisionSystem {
      * @returns 
      */
     checkCollision(e1: Entity, e2: Entity) {
-        const p1 = e1.getComponent('PhysicsComponent');
-        const p2 = e2.getComponent("PhysicsComponent");
-        const c1 = e1.getComponent('CollisionComponent');
-        const c2 = e2.getComponent('CollisionComponent');
+        const p1 = e1.getComponent(PhysicsComponent);
+        const p2 = e2.getComponent(PhysicsComponent);
+        const c1 = e1.getComponent(CollisionComponent);
+        const c2 = e2.getComponent(CollisionComponent);
 
         if (!this.shouldCollide(c1, c2)) {
 
             return;
         };
-        const s1 = e1.getComponent('ShapeComponent');
-        const s2 = e2.getComponent('ShapeComponent');
+        const s1 = e1.getComponent(ShapeComponent);
+        const s2 = e2.getComponent(ShapeComponent);
         if (!p1 || !p2 || !c1 || !c2 || !s1 || !s2) return;
 
 

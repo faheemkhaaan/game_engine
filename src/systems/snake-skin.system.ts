@@ -1,3 +1,4 @@
+import { RenderComponent } from "../components/render.component";
 import { SnakeComponent } from "../components/snake.component";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
@@ -18,11 +19,11 @@ export class SnakeSkinSystem {
     update(dt: number) {
         // console.log(dt);
 
-        const entities = this.world.query('SnakeComponent');
+        const entities = this.world.query(SnakeComponent);
 
         for (let i = 0; i < entities.length; i++) {
             const entity = entities[i];
-            const snakeComponent = entity.getComponent('SnakeComponent');
+            const snakeComponent = entity.getComponent(SnakeComponent);
 
             this.generateSkinVerts(snakeComponent);
         }
@@ -46,10 +47,10 @@ export class SnakeSkinSystem {
             const secondBodyPart = segments[i];
 
 
-            const firstRadius = firstBodyPart.getComponent('RenderComponent').radius;
+            const firstRadius = firstBodyPart.getComponent(RenderComponent).radius;
             const firstPos = firstBodyPart.transform.pos;
 
-            const secondRadius = secondBodyPart.getComponent('RenderComponent').radius;
+            const secondRadius = secondBodyPart.getComponent(RenderComponent).radius;
             const secondPos = secondBodyPart.transform.pos;
 
 

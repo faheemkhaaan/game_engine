@@ -1,8 +1,10 @@
+import { Entity } from "../core/entity";
 
 
 
 export class SegmentComponent {
 
+    public entity: Entity | null = null;
     public radius: number;
     public parentId: string;
     /**

@@ -1,4 +1,6 @@
 
+import { PhysicsComponent } from "../components/physics.component";
+import { ShapeComponent } from "../components/shape.component";
 import { SnakeComponent } from "../components/snake.component";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
@@ -19,7 +21,7 @@ export class SnakeSkeletonSystem {
         this.events.on('snakeEatsMouse', () => {
             const player = this.world.getEntity('player');
             if (!player) return;
-            const snakeComponent = player.getComponent('SnakeComponent');
+            const snakeComponent = player.getComponent(SnakeComponent);
             snakeComponent.enemyEaten += 1;
             if (!snakeComponent.segmentsGenerated) return;
             if (snakeComponent.enemyEaten < snakeComponent.enemyEatenGrowThreshold) return;
@@ -48,12 +50,12 @@ export class SnakeSkeletonSystem {
 
     update(dt: number) {
         this.snakeTime += dt;
-        const entities = this.world.query('SnakeComponent');
+        const entities = this.world.query(SnakeComponent);
         for (const entity of entities) {
-            const snakeComponent = entity.getComponent('SnakeComponent');
+            const snakeComponent = entity.getComponent(SnakeComponent);
             if (!snakeComponent.segmentsGenerated) this.generateSegments(snakeComponent);
             // this.applySnakeMovement(snakeComponent, dt)
-            const physics = entity.getComponent('PhysicsComponent');
+            const physics = entity.getComponent(PhysicsComponent);
             if (!physics || physics.velocity.mag() < 1) continue; // skip if idle
 
             for (let iter = 0; iter < 5; iter++) {
@@ -75,7 +77,7 @@ export class SnakeSkeletonSystem {
         const headPos = entity.transform.pos;
 
         // Get head's movement direction for orientation
-        const physics = entity.getComponent('PhysicsComponent');
+        const physics = entity.getComponent(PhysicsComponent);
         const headVelocity = physics.velocity
         const headSpeed = headVelocity.mag();
 
@@ -161,7 +163,7 @@ export class SnakeSkeletonSystem {
         if (!entity) return;
         const headPos = entity.transform.pos;
 
-        const shapeComponent = entity.getComponent('ShapeComponent');
+        const shapeComponent = entity.getComponent(ShapeComponent);
 
         shapeComponent.radius = 12
 
@@ -188,7 +190,7 @@ export class SnakeSkeletonSystem {
 
         const entity = snakeComponent.entity;
         if (!entity) return;
-        // const physics = entity.getComponent('PhysicsComponent');
+        // const physics = entity.getComponent(PhysicsComponent);
 
         // Skip constraint propagation if snake is essentially still
         // if (physics && physics.velocity.mag() < 1) return;

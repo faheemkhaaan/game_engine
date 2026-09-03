@@ -141,7 +141,7 @@ export class EntityBuilder {
 
     // ─── Escape hatch – add any arbitrary component ───────────────────────────
 
-    with<T>(component: T) {
+    with<T extends { entity: Entity | null }>(component: T) {
         this.#entity.addComponent(component);
         return this;
     }

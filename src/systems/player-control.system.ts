@@ -1,3 +1,5 @@
+import { PhysicsComponent } from "../components/physics.component";
+import { SnakeComponent } from "../components/snake.component";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
 import { InputSystem } from "../game/input.system";
@@ -45,8 +47,8 @@ export class PlayerControlSystem {
         if (!player) return;
 
         const force = this.inputs.getAxis('move_up', 'move_down', 'move_left', 'move_right');
-        const snakeComponent = player.getComponent('SnakeComponent');
-        const physicsComponent = player.getComponent('PhysicsComponent');
+        const snakeComponent = player.getComponent(SnakeComponent);
+        const physicsComponent = player.getComponent(PhysicsComponent);
         if (!physicsComponent) return;
 
         const playerVelocity = physicsComponent.velocity;

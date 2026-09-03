@@ -1,7 +1,10 @@
 import { CellComponent } from "../components/cell.component";
 import { DungeonComponent } from "../components/dungeon.component";
+import { LizardComponent } from "../components/lizard.component";
+import { PhysicsComponent } from "../components/physics.component";
 import { RenderComponent } from "../components/render.component";
 import { ShapeComponent } from "../components/shape.component";
+import { SnakeComponent } from "../components/snake.component";
 import { Vector } from "./vector";
 
 // Optional: Uncomment these if you have them for stricter typing on getComponent()
@@ -146,11 +149,11 @@ export const RenderStrategies: Record<string, RenderStrategy> = {
         render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
             if (!component.entity) return;
             const pos = component.entity.transform.pos;
-            const shapeComponent = component.entity.getComponent("ShapeComponent") as ShapeComponent;
-            const snakeComponent = component.entity.getComponent('SnakeComponent');
+            const shapeComponent = component.entity.getComponent(ShapeComponent);
+            const snakeComponent = component.entity.getComponent(SnakeComponent);
 
             if (snakeComponent) {
-                const lizardComponent = component.entity.getComponent('LizardComponent');
+                const lizardComponent = component.entity.getComponent(LizardComponent);
 
                 // Draw BACK legs behind the body (Indices 2 and 3)
                 if (lizardComponent) {
@@ -205,10 +208,10 @@ export const RenderStrategies: Record<string, RenderStrategy> = {
     snake: {
         render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
             if (!component.entity) return;
-            const snakeComponent = component.entity.getComponent('SnakeComponent');
+            const snakeComponent = component.entity.getComponent(SnakeComponent);
             if (!snakeComponent) return;
 
-            const lizardComponent = component.entity.getComponent('LizardComponent');
+            const lizardComponent = component.entity.getComponent(LizardComponent);
 
             // Draw BACK legs behind the body
             if (lizardComponent) {
@@ -267,7 +270,7 @@ export const RenderStrategies: Record<string, RenderStrategy> = {
         render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
             if (!component.entity) return;
             const pos = component.entity.transform.pos;
-            const physics = component.entity.getComponent('PhysicsComponent');
+            const physics = component.entity.getComponent(PhysicsComponent);
 
             const ratColor = '#b68119';
             const pinkColor = '#e19898';

@@ -1,21 +1,8 @@
-import { BoidComponent } from "../components/boid.component";
-import { CellComponent } from "../components/cell.component";
-import { CollisionComponent } from "../components/collision.component";
-import { DungeonComponent } from "../components/dungeon.component";
-import { PhysicsComponent } from "../components/physics.component";
-import { RenderComponent } from "../components/render.component";
-import { ShapeComponent } from "../components/shape.component";
-import { SnakeComponent } from "../components/snake.component";
+
 import { Transform } from "../components/transform";
 import { Vector } from "../utils/vector.js";
 
-/**
- * @typedef TransformOptions
- * @property {Vector} [pos] - Position vector
- * @property {Vector} [size] - Size Vector
- * @property {number} [rotation] - Rotation number
- */
-
+export type ComponentClass<T = any> = new (...args: any[]) => T;
 
 type TransformOptions = {
     pos: Vector;
@@ -28,7 +15,7 @@ type TransformOptions = {
 export class Entity {
 
     public transform: Transform;
-    public components = new Map();
+    public components = new Map<ComponentClass, any>();
     public id: string = crypto.randomUUID();
     /**
      * 
@@ -42,9 +29,9 @@ export class Entity {
     }
 
 
-    addComponent(component: any) {
+    addComponent<T extends { entity: Entity | null }>(component: T): this {
         component.entity = this;
-        this.components.set(component.constructor.name, component);
+        this.components.set(component.constructor as ComponentClass, component);
         return this;
     }
 
@@ -65,14 +52,11 @@ export class Entity {
      * T extends 'ShapeComponent' ? ShapeComponent
       * }
      */
-    getComponent(type: string) {
-        if (this.components.has(type)) {
-            return this.components.get(type);
-        }
-        return null;
+    getComponent(componentClass: ComponentClass) {
+        return this.components.get(componentClass);
     }
 
-    deleteComponent(type: string) {
+    deleteComponent(type: ComponentClass) {
         if (this.components.has(type)) {
             return this.components.delete(type);
         }

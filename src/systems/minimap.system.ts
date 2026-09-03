@@ -1,3 +1,5 @@
+import { DungeonComponent } from "../components/dungeon.component";
+import { RenderComponent } from "../components/render.component";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
 
@@ -25,10 +27,10 @@ export class MinimapSystem {
 
     update(dt: number) {
         if (!this.enableMinMap) return;
-        const dungeons = this.world.query('DungeonComponent');
+        const dungeons = this.world.query(DungeonComponent);
         if (dungeons.length === 0) return;
 
-        const dungeonComponent = dungeons[0].getComponent('DungeonComponent');
+        const dungeonComponent = dungeons[0].getComponent(DungeonComponent);
         if (!dungeonComponent || !dungeonComponent.root) return;
 
         // Get total dungeon dimensions
@@ -57,12 +59,12 @@ export class MinimapSystem {
         this.ctx.strokeRect(mapX, mapY, actualWidth, actualHeight);
 
         // Render dungeon elements
-        const renderables = this.world.query('RenderComponent');
+        const renderables = this.world.query(RenderComponent);
 
         for (const entity of renderables) {
             // We only care about room floors and halls
             if (entity.id.startsWith('room_floor_') || entity.id.startsWith('hall_floor_')) {
-                const render = entity.getComponent('RenderComponent');
+                const render = entity.getComponent(RenderComponent);
                 const pos = entity.transform?.pos;
 
                 if (!render || !pos) continue;

@@ -1,5 +1,6 @@
 import { BoidComponent } from "../components/boid.component";
 import { CollisionComponent } from "../components/collision.component";
+import { DungeonComponent } from "../components/dungeon.component";
 import { PhysicsComponent } from "../components/physics.component";
 import { RenderComponent } from "../components/render.component";
 import { ShapeComponent } from "../components/shape.component";
@@ -42,11 +43,11 @@ export class BoidSpawnSystem {
 
 
         this.events.on('respawnBoids', () => {
-            const dungeons = this.world.query('DungeonComponent');
+            const dungeons = this.world.query(DungeonComponent);
             const firstDungeon = dungeons[0]
-            const boids = this.world.query('BoidComponent');
+            const boids = this.world.query(BoidComponent);
 
-            const dungeonComponent = firstDungeon.getComponent('DungeonComponent')
+            const dungeonComponent = firstDungeon.getComponent(DungeonComponent)
 
             const firstCell = dungeonComponent.cells[0];
 
@@ -77,7 +78,7 @@ export class BoidSpawnSystem {
 
     update(dt: number) {
         if (!this.shouldSpawnBoids) return;
-        const dungeon = this.world.query('DungeonComponent');
+        const dungeon = this.world.query(DungeonComponent);
 
         if (!this.spawned && dungeon.length > 0) {
             this.spawnBoidsInRooms(dungeon[0]);
@@ -93,7 +94,7 @@ export class BoidSpawnSystem {
     spawnBoidsInRooms(dungeon: Entity) {
 
 
-        const dungeonComponent = dungeon.getComponent('DungeonComponent')
+        const dungeonComponent = dungeon.getComponent(DungeonComponent)
 
         for (const cell of dungeonComponent.cells) {
 
@@ -104,7 +105,7 @@ export class BoidSpawnSystem {
             if (!floor) continue;
 
 
-            const render = floor.getComponent('ShapeComponent');
+            const render = floor.getComponent(ShapeComponent);
 
             // const count = Math.floor(Math.random() * 20) + 10;
 

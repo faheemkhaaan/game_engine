@@ -9,6 +9,8 @@ import { GameEngine } from "./game.js";
 import { World } from "../core/world.js";
 import { BoidSpawnSystem } from "../systems/boid.spawn.system.js";
 import { Entity } from "../core/entity.js";
+import { DungeonComponent } from "../components/dungeon.component";
+import { BoidComponent } from "../components/boid.component";
 
 /**
  * LevelManager
@@ -79,7 +81,7 @@ export class LevelManager {
     }
 
     clearLevelEntities() {
-        const boids = this.world.query('BoidComponent');
+        const boids = this.world.query(BoidComponent);
         for (const boid of boids) {
             this.world.destory(boid.id);
         }
@@ -92,9 +94,9 @@ export class LevelManager {
         // Ignore regenerations not triggered by us (e.g. the debug KeyG binding).
         if (this.currentLevelConfig === null) return;
 
-        const dungeonEntity = this.world.query('DungeonComponent')[0];
+        const dungeonEntity = this.world.query(DungeonComponent)[0];
         if (!dungeonEntity) return;
-        const dungeonComponent = dungeonEntity.getComponent('DungeonComponent');
+        const dungeonComponent = dungeonEntity.getComponent(DungeonComponent);
         const firstCell = dungeonComponent.cells[0];
         if (!firstCell) return;
 

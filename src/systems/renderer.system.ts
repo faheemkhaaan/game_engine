@@ -1,4 +1,5 @@
 import { RenderComponent } from "../components/render.component";
+import { ShapeComponent } from "../components/shape.component";
 import { World } from "../core/world";
 import { Camera } from "../game/camera";
 import { distanceToShape } from "../utils/distance-to-shape";
@@ -38,26 +39,26 @@ export class RendererSystem {
 
         if (!playerEntity) return;
 
-        const renderableEntities = this.world.query('RenderComponent').filter(a => {
+        const renderableEntities = this.world.query(RenderComponent).filter(a => {
             const pos = a.transform.pos;
-            const shape = a.getComponent('ShapeComponent');
+            const shape = a.getComponent(ShapeComponent);
             if (!shape) return true; // no shape info, don't cull it blindly
             return distanceToShape(pos, shape, playerEntity.transform.pos) < this.renderDistance
         });
 
         // Sort entities by their zIndex (lowest to highest)
         renderableEntities.sort((a, b) => {
-            const renderA = a.getComponent('RenderComponent');
-            const renderB = b.getComponent('RenderComponent');
+            const renderA = a.getComponent(RenderComponent);
+            const renderB = b.getComponent(RenderComponent);
             return (renderA?.zIndex || 0) - (renderB?.zIndex || 0);
         })
 
         this.camera.apply(this.ctx);
 
         for (const entity of renderableEntities) {
-            const render = entity.getComponent('RenderComponent');
+            const render = entity.getComponent(RenderComponent);
             if (render.dead) continue;
-            const shape = entity.getComponent('ShapeComponent')
+            const shape = entity.getComponent(ShapeComponent)
 
             if (!shape || !shape.type) continue;
 

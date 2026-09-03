@@ -1,6 +1,6 @@
 
 import { Vector } from '../utils/vector';
-import { Entity } from './entity'
+import { ComponentClass, Entity } from './entity'
 
 /**
  * @typedef {'BoidComponent' | 'CellComponent' | 'CollisionComponent'| 'DungeonComponent' | 'HallComponent' |"PhysicsComponent" |"RenderComponent" |"SegmentComponent" |"SnakeComponent"|'ShapeComponent'|'SegmentComponent'} ComponentsTypes
@@ -64,10 +64,10 @@ export class World {
      * @param  {...ComponentsTypes} componentsType 
      * @returns {Entity[]}
      */
-    query(...componentsType: string[]) {
+    query(...componentsType: ComponentClass[]) {
         const result: Entity[] = [];
         this.entities.forEach(e => {
-            if (componentsType.some(type => e.components.has(type))) {
+            if (componentsType.some(componentClass => e.components.has(componentClass))) {
                 result.push(e)
             }
         })

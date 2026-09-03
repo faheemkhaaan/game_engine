@@ -1,3 +1,4 @@
+import { Entity } from "../core/entity";
 import { CellComponent } from "./cell.component";
 
 
@@ -10,6 +11,7 @@ type DungeonComponentType = {
 
 export class DungeonComponent {
 
+    public entity: Entity | null = null;
     static scaler = 20;
     public root: CellComponent;
     public minDimensions: number;

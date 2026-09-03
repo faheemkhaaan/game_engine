@@ -1,4 +1,8 @@
 
+import { BoidComponent } from "../components/boid.component";
+import { PhysicsComponent } from "../components/physics.component";
+import { RenderComponent } from "../components/render.component";
+import { ShapeComponent } from "../components/shape.component";
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
@@ -33,11 +37,11 @@ export class BoidSystem {
     }
 
     initializeStaticGrid() {
-        const entities = this.world.query('PhysicsComponent', 'ShapeComponent');
+        const entities = this.world.query(PhysicsComponent, ShapeComponent);
         console.log('Collision Grid initialzed ')
 
         for (const entity of entities) {
-            const physics = entity.getComponent('PhysicsComponent');
+            const physics = entity.getComponent(PhysicsComponent);
             if (physics && physics.static) {
                 this.grid.addStaticEntity(entity);
             }
@@ -51,9 +55,9 @@ export class BoidSystem {
     update() {
         const player = this.world.getEntity('player')
         if (!player) return;
-        const entites = this.world.query('BoidComponent').filter(entity => {
+        const entites = this.world.query(BoidComponent).filter(entity => {
             const pos = entity.transform.pos;
-            const shape = entity.getComponent('ShapeComponent');
+            const shape = entity.getComponent(ShapeComponent);
             if (!shape) return true;
             return distanceToShape(pos, shape, player.transform.pos) < this.cullingDistance
         });
@@ -63,18 +67,18 @@ export class BoidSystem {
 
         for (const entity of entites) {
 
-            if (entity.getComponent('RenderComponent').dead) continue;
+            if (entity.getComponent(RenderComponent).dead) continue;
             this.grid.updateDynamicEntity(entity);
         }
         for (const entity of entites) {
-            if (entity.getComponent('RenderComponent').dead) return;
+            if (entity.getComponent(RenderComponent).dead) return;
             /**
              * @type {BoidComponent}
              */
-            const boidComponent = entity.getComponent("BoidComponent");
+            const boidComponent = entity.getComponent(BoidComponent);
 
             /**@type {PhysicsComponent} */
-            const physicsComponent = entity.getComponent("PhysicsComponent");
+            const physicsComponent = entity.getComponent(PhysicsComponent);
             const entites = this.grid.getPotentialBoidsOnly(entity);
 
             const seperation = this.seperation(entity, entites);
@@ -109,11 +113,11 @@ export class BoidSystem {
         /**
          * @type {PhysicsComponent}
          */
-        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const physicsComponent = entity.getComponent(PhysicsComponent);
         /**
          * @type {BoidComponent}
          */
-        const boidComponent = entity.getComponent('BoidComponent');
+        const boidComponent = entity.getComponent(BoidComponent);
         const pos = entity.transform.pos;
         const steering = new Vector(0, 0);
         let count = 0;
@@ -158,8 +162,8 @@ export class BoidSystem {
      */
     alignment(entity: Entity, entities: Entity[]) {
         /**@type {BoidComponent} */
-        const boidComponent = entity.getComponent('BoidComponent');
-        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const boidComponent = entity.getComponent(BoidComponent);
+        const physicsComponent = entity.getComponent(PhysicsComponent);
         // console.log(physicsComponent)
         const steering = new Vector(0, 0);
         let count = 0;
@@ -169,7 +173,7 @@ export class BoidSystem {
 
             if (entity === entityB) return;
 
-            const physicsComponent = entityB.getComponent('PhysicsComponent');
+            const physicsComponent = entityB.getComponent(PhysicsComponent);
             // console.log(physicsComponent)
             const dist = Vector.dist(entity.transform.pos, entityB.transform.pos);
 
@@ -200,8 +204,8 @@ export class BoidSystem {
     cohision(entity: Entity, entities: Entity[]) {
 
         /**@type {BoidComponent} */
-        const boidComponent = entity.getComponent('BoidComponent');
-        const physicsComponent = entity.getComponent("PhysicsComponent");
+        const boidComponent = entity.getComponent(BoidComponent);
+        const physicsComponent = entity.getComponent(PhysicsComponent);
         const steering = new Vector(0, 0);
         let count = 0;
 
@@ -241,10 +245,10 @@ export class BoidSystem {
         const player = this.world.getEntity('player');
         if (!player || !player.transform) return new Vector(0, 0);
 
-        const physicsComponent = entity.getComponent('PhysicsComponent');
-        const boidComponent = entity.getComponent('BoidComponent');
-        const shapeComponent = entity.getComponent('ShapeComponent');
-        const playerShapeComponent = player.getComponent('ShapeComponent');
+        const physicsComponent = entity.getComponent(PhysicsComponent);
+        const boidComponent = entity.getComponent(BoidComponent);
+        const shapeComponent = entity.getComponent(ShapeComponent);
+        const playerShapeComponent = player.getComponent(ShapeComponent);
         const collision = SAT.checkCollision(entity, shapeComponent, player, playerShapeComponent);
 
         if (collision) {
@@ -281,8 +285,8 @@ export class BoidSystem {
   * @returns {Vector}
   */
     wallAvoidance(entity: Entity) {
-        const physicsComponent = entity.getComponent("PhysicsComponent");
-        const boidComponent = entity.getComponent('BoidComponent');
+        const physicsComponent = entity.getComponent(PhysicsComponent);
+        const boidComponent = entity.getComponent(BoidComponent);
 
         const currentSpeed = physicsComponent.velocity.mag();
         if (currentSpeed === 0) return new Vector(0, 0);
@@ -302,7 +306,7 @@ export class BoidSystem {
         // 2. Find the closest static wall blocking our future position
 
         for (const other of nearByEntities) {
-            const otherPhysics = other.getComponent('PhysicsComponent');
+            const otherPhysics = other.getComponent(PhysicsComponent);
             if (!otherPhysics || !otherPhysics.static) return;
 
             const wallPos = other.transform.pos;

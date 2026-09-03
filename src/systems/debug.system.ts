@@ -1,5 +1,7 @@
 
 import { PhysicsComponent } from "../components/physics.component";
+import { RenderComponent } from "../components/render.component";
+import { ShapeComponent } from "../components/shape.component";
 import { Clock } from "../core/clock";
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
@@ -64,7 +66,7 @@ export class CollisionDebugSystem {
         this.camera.apply(ctx);
         this.drawPlayPhysicsComponentInfo(player)
         // 1. Draw all collision shapes (vertices/radii)
-        const entities = this.world.query('PhysicsComponent');
+        const entities = this.world.query(PhysicsComponent);
         entities.forEach(entity => {
             this.drawShape(ctx, entity);
         });
@@ -83,8 +85,8 @@ export class CollisionDebugSystem {
     }
 
     drawShape(ctx: CanvasRenderingContext2D, entity: Entity) {
-        const render = entity.getComponent('RenderComponent');
-        const shape = entity.getComponent("ShapeComponent");
+        const render = entity.getComponent(RenderComponent);
+        const shape = entity.getComponent(ShapeComponent);
         if (!render || !shape) return;
 
         ctx.lineWidth = 2;
@@ -181,10 +183,10 @@ export class CollisionDebugSystem {
     }
 
     drawSATVisuals(ctx: CanvasRenderingContext2D, e1: Entity, e2: Entity) {
-        const r1 = e1.getComponent('RenderComponent');
-        const r2 = e2.getComponent('RenderComponent');
-        const s1 = e1.getComponent('ShapeComponent');
-        const s2 = e1.getComponent('ShapeComponent');
+        const r1 = e1.getComponent(RenderComponent);
+        const r2 = e2.getComponent(RenderComponent);
+        const s1 = e1.getComponent(ShapeComponent);
+        const s2 = e1.getComponent(ShapeComponent);
         // Get all axes being tested
         const verts1 = s1.type === 'rect' ? SAT.rectToVertices(e1, s1) : null;
         const verts2 = s2.type === 'rect' ? SAT.rectToVertices(e2, s2) : null;
@@ -252,7 +254,7 @@ export class CollisionDebugSystem {
      */
     drawPlayerInfo(entity: Entity) {
 
-        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const physicsComponent = entity.getComponent(PhysicsComponent);
         const vel = {
             x: Math.round(physicsComponent.velocity.x),
             y: Math.round(physicsComponent.velocity.y),
@@ -278,7 +280,7 @@ export class CollisionDebugSystem {
 
     drawPlayPhysicsComponentInfo(entity: Entity) {
 
-        const physicsComponent = entity.getComponent('PhysicsComponent');
+        const physicsComponent = entity.getComponent(PhysicsComponent);
         const vel = {
             x: Math.round(physicsComponent.velocity.x),
             y: Math.round(physicsComponent.velocity.y),

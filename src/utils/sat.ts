@@ -1,4 +1,5 @@
 import { CollisionComponent } from "../components/collision.component";
+import { PhysicsComponent } from "../components/physics.component";
 import { ShapeComponent } from "../components/shape.component";
 import { Entity } from "../core/entity";
 import { Vector } from "./vector";
@@ -21,8 +22,8 @@ export class SAT {
     static checkCollision(e1: Entity, s1: ShapeComponent, e2: Entity, s2: ShapeComponent) {
         const typeKey = s1.type + s2.type;
 
-        const col1 = e1.getComponent('CollisionComponent');
-        const col2 = e2.getComponent('CollisionComponent')
+        const col1 = e1.getComponent(CollisionComponent);
+        const col2 = e2.getComponent(CollisionComponent)
         if (typeKey === 'circlecircle') return SAT.circleCircle(e1, s1, e2, s2);
 
         if (typeKey === 'circlerect') {
@@ -46,8 +47,8 @@ export class SAT {
     }
 
     static getCachedVerticies(entity: Entity, collisionComp: CollisionComponent) {
-        const physics = entity.getComponent('PhysicsComponent');
-        const shapeComp = entity.getComponent('ShapeComponent')
+        const physics = entity.getComponent(PhysicsComponent);
+        const shapeComp = entity.getComponent(ShapeComponent)
         const isStatic = physics.static;
 
         if (isStatic) {

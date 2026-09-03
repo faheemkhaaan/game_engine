@@ -1,3 +1,5 @@
+import { PhysicsComponent } from "../components/physics.component";
+import { ShapeComponent } from "../components/shape.component";
 import { Entity } from "../core/entity";
 import { Vector } from "./vector";
 
@@ -34,7 +36,7 @@ export class CollisionGrid {
      * @param {Entity} entity 
      */
     addStaticEntity(entity: Entity) {
-        const shape = entity.getComponent('ShapeComponent');
+        const shape = entity.getComponent(ShapeComponent);
         if (!shape) return;
         const pos = entity.transform.pos;
         const hw = shape.width / 2;
@@ -61,10 +63,10 @@ export class CollisionGrid {
     * @param {Entity} entity
     */
     updateDynamicEntity(entity: Entity) {
-        const physics = entity.getComponent('PhysicsComponent');
+        const physics = entity.getComponent(PhysicsComponent);
         if (!physics || physics.static) return;
 
-        const render = entity.getComponent('ShapeComponent');
+        const render = entity.getComponent(ShapeComponent);
         if (!render) return;
 
         const pos = entity.transform.pos;
@@ -101,8 +103,8 @@ export class CollisionGrid {
      */
     getPotentialCollisions(dynamicEntity: Entity): Entity[] {
         const pos = dynamicEntity.transform.pos;
-        const render = dynamicEntity.getComponent('ShapeComponent');
-        const physics = dynamicEntity.getComponent('PhysicsComponent');
+        const render = dynamicEntity.getComponent(ShapeComponent);
+        const physics = dynamicEntity.getComponent(PhysicsComponent);
 
         if (!render || !physics) return [];
 
@@ -144,8 +146,8 @@ export class CollisionGrid {
 
     getPotentialBoids(dynamicEntity: Entity) {
         const pos = dynamicEntity.transform.pos;
-        const render = dynamicEntity.getComponent('ShapeComponent');
-        const physics = dynamicEntity.getComponent('PhysicsComponent');
+        const render = dynamicEntity.getComponent(ShapeComponent);
+        const physics = dynamicEntity.getComponent(PhysicsComponent);
 
         if (!render || !physics) return [];
 

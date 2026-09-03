@@ -1,5 +1,6 @@
 import { CellComponent } from "../components/cell.component";
 import { DungeonComponent } from "../components/dungeon.component";
+import { ShapeComponent } from "../components/shape.component";
 
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
@@ -23,8 +24,8 @@ export class DungeonSystem {
         this.events = events;
 
         this.events.on('enableDungeonGeneration', (levelConfig: LevelConfig) => {
-            const dungeonEntities = this.world.query('DungeonComponent');
-            const entities = this.world.query('ShapeComponent').filter(s => s.id.startsWith('room_floor_') || s.id.startsWith('hall_floor_') || s.id.startsWith('hall_wall_') || s.id.startsWith('wall_'))
+            const dungeonEntities = this.world.query(DungeonComponent);
+            const entities = this.world.query(ShapeComponent).filter(s => s.id.startsWith('room_floor_') || s.id.startsWith('hall_floor_') || s.id.startsWith('hall_wall_') || s.id.startsWith('wall_'))
             for (const entity of dungeonEntities) {
                 const success = this.world.destory(entity.id);
                 if (success) {
@@ -47,11 +48,11 @@ export class DungeonSystem {
     update(dt: number) {
 
 
-        const dungeonEntities = this.world.query('DungeonComponent');
+        const dungeonEntities = this.world.query(DungeonComponent);
 
         if (!this.dungenGenerated && dungeonEntities) {
             for (const entity of dungeonEntities) {
-                const dungenComponent = entity.getComponent('DungeonComponent');
+                const dungenComponent = entity.getComponent(DungeonComponent);
                 if (dungenComponent) {
                     this.divide(dungenComponent);
                     this.getNeighbours(dungenComponent);
@@ -81,7 +82,7 @@ export class DungeonSystem {
         for (const c1 of dungenComponent.cells) {
             const floor1 = this.world.getEntity('room_floor_' + c1.id);
             if (!floor1) continue;
-            const r1 = floor1.getComponent('ShapeComponent');
+            const r1 = floor1.getComponent(ShapeComponent);
 
             // Visual bounds of Room 1
             const r1MinX = floor1.transform.pos.x - r1.width / 2;
@@ -95,7 +96,7 @@ export class DungeonSystem {
 
                 const floor2 = this.world.getEntity('room_floor_' + c2.id);
                 if (!floor2) continue;
-                const r2 = floor2.getComponent('ShapeComponent');
+                const r2 = floor2.getComponent(ShapeComponent);
 
                 // Visual bounds of Room 2
                 const r2MinX = floor2.transform.pos.x - r2.width / 2;
@@ -146,7 +147,7 @@ export class DungeonSystem {
 
                 const floor2 = this.world.getEntity('room_floor_' + c2.id);
                 if (!floor2) continue;
-                const r2 = floor2.getComponent('ShapeComponent');
+                const r2 = floor2.getComponent(ShapeComponent);
 
                 // Visual bounds of Room 2
                 const r2MinY = floor2.transform.pos.y - r2.height / 2;
@@ -211,7 +212,7 @@ export class DungeonSystem {
         const oldWall = this.world.getEntity(oldWallId);
         if (!oldWall) return;
 
-        const shape = oldWall.getComponent('ShapeComponent');
+        const shape = oldWall.getComponent(ShapeComponent);
         const pos = oldWall.transform.pos;
 
         // Sort intervals from lowest coordinate to highest to slice sequentially

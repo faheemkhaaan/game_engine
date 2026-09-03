@@ -1,3 +1,4 @@
+import { Entity } from "../core/entity";
 
 
 export type BoidCOmponentProps = {
@@ -13,6 +14,7 @@ export type BoidCOmponentProps = {
 }
 
 export class BoidComponent {
+    public entity: Entity | null = null;
     public maxForce: number;
     public separationRadius: number;
     public alignmentRadius: number;

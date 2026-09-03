@@ -1,12 +1,15 @@
 import { Vector } from "../utils/vector";
 import { solveFABRIK } from "../utils/fabrik";
-import type { LizardComponent, LizardLeg } from "../components/lizard.component";
+import { LizardComponent, LizardLeg } from "../components/lizard.component";
 import { SnakeComponent } from "../components/snake.component";
 import { Entity } from "../core/entity";
+import { PhysicsComponent } from "../components/physics.component";
+import { World } from "../core/world";
+import { EventBus } from "../game/eventBus";
 
 export class LizardLegSystem {
-    world: any;
-    events: any;
+    world: World;
+    events: EventBus;
 
     constructor(world: any, events: any) {
         this.world = world;
@@ -14,13 +17,13 @@ export class LizardLegSystem {
     }
 
     update(dt: number): void {
-        const entities = this.world.query("LizardComponent");
+        const entities = this.world.query(LizardComponent);
 
         // console.log(entities)
         for (const entity of entities) {
 
-            const lizard = entity.getComponent("LizardComponent") as LizardComponent;
-            const snake = entity.getComponent("SnakeComponent") as SnakeComponent;
+            const lizard = entity.getComponent(LizardComponent);
+            const snake = entity.getComponent(SnakeComponent);
 
             if (!lizard) continue;
             if (!snake) continue;
@@ -99,7 +102,7 @@ export class LizardLegSystem {
         snake: SnakeComponent,
         dt: number
     ): void {
-        const physics = entity.getComponent("PhysicsComponent");
+        const physics = entity.getComponent(PhysicsComponent);
         const speed =
             physics && physics.velocity
                 ? physics.velocity.mag()

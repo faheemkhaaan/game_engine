@@ -1,4 +1,6 @@
 import { PhysicsComponent } from "../components/physics.component";
+import { RenderComponent } from "../components/render.component";
+import { ShapeComponent } from "../components/shape.component";
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { distanceToShape } from "../utils/distance-to-shape";
@@ -27,22 +29,22 @@ export class PhysicsSystem {
     update(deltaTime: number) {
 
 
-        const entities = this.world.query('PhysicsComponent');
+        const entities = this.world.query(PhysicsComponent);
         const player = entities.find(e => e.id === 'player');
         if (!player) return;
         const filteredDeadEntities = entities.filter(entity => {
-            const renderComponent = entity.getComponent('RenderComponent');
+            const renderComponent = entity.getComponent(RenderComponent);
             return renderComponent && !renderComponent.dead;
         })
             .filter(entity => {
                 const pos = entity.transform.pos;
-                const shape = entity.getComponent('ShapeComponent');
+                const shape = entity.getComponent(ShapeComponent);
                 if (!shape) return true;
                 return distanceToShape(pos, shape, player.transform.pos) < 2000;
             });
 
         for (const entity of filteredDeadEntities) {
-            const physicsComponent = entity.getComponent("PhysicsComponent")
+            const physicsComponent = entity.getComponent(PhysicsComponent)
             this.updatePhysics(physicsComponent, deltaTime);
         }
 
@@ -83,7 +85,7 @@ export class PhysicsSystem {
      * @param {Vector} force 
      */
     applyForce(entity: Entity, force: Vector) {
-        const physics = entity.getComponent("PhysicsComponent");
+        const physics = entity.getComponent(PhysicsComponent);
         if (physics) {
             physics.forces.push(force.clone())
         }
@@ -95,7 +97,7 @@ export class PhysicsSystem {
      * @param {Vector} impulse 
      */
     applyImpulse(entity: Entity, impulse: Vector) {
-        const physics = entity.getComponent("PhysicsComponent");
+        const physics = entity.getComponent(PhysicsComponent);
         if (physics) {
             physics.velocity.add(impulse);
         }

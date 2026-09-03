@@ -6,9 +6,11 @@
  * @property {number} [radius] - radius
  */
 
+import { Entity } from "../core/entity";
+
 export class ShapeComponent {
 
-
+    public entity: Entity | null = null;
     public type: string;
     public width: number;
     public height: number;
