@@ -22,6 +22,7 @@ import { RendererSystem } from "../systems/renderer.system";
 import { LizardSystem } from "../systems/lizard.system";
 import { MinimapSystem } from "../systems/minimap.system";
 import { CollisionDebugSystem } from "../systems/debug.system";
+import { CentipedeSystem } from "../systems/centipede.system";
 
 /**
  * LevelManager
@@ -98,6 +99,7 @@ export class LevelManager {
         this.engine.addSystem(new SnakeSkeletonSystem(this.world, this.events));
         this.engine.addSystem(new SnakeSkinSystem(this.world, this.events));
         this.engine.addSystem(new LizardSystem(this.world, this.events));
+        this.engine.addSystem(new CentipedeSystem(this.world, this.events));
         this.engine.addSystem(new RendererSystem(this.world, this.engine.ctx!, this.engine.camera));
         this.engine.addSystem(new MinimapSystem(this.world, this.events, this.engine.ctx as CanvasRenderingContext2D));
         this.engine.addSystem(new CollisionDebugSystem(this.world, this.events, this.engine.ctx as CanvasRenderingContext2D, this.engine.camera, this.engine.clock));

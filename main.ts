@@ -50,10 +50,14 @@ const mainMenu = createMainMenu({
         selectedCharacterId = characterId;
         levelManager.onPlayerSelected = (world: World, pos: Vector) => {
 
-            if (selectedCharacterId === 'snake') {
-                return Prefabs.playerSnake(world, pos)
-            } else {
-                return Prefabs.playerLizard(world, pos)
+            console.log(selectedCharacterId)
+            switch (selectedCharacterId) {
+                case 'centipede':
+                    return Prefabs.playerCentipede(world, pos);
+                case "lizard":
+                    return Prefabs.playerLizard(world, pos);
+                default:
+                    return Prefabs.playerSnake(world, pos);
             }
         }
         mainMenu.hide();

@@ -12,6 +12,7 @@
  *  rather than rebuilding that knowledge from scratch every time.
  */
 
+import { CentipedeComponent } from '../components/centipede.component';
 import { LizardComponent } from '../components/lizard.component';
 import { SegmentComponent } from '../components/segment.component';
 import { EntityBuilder } from '../core/entity-builder';
@@ -126,6 +127,22 @@ export const Prefabs = {
             .withCollision({ mask: ["walls"], layers: ['player'] })
             // .with(new SegmentComponent())
             .with(new LizardComponent())
+            .build();
+    },
+    /**
+       * Player snake head.
+       * Physics + collision + snake logic.  Renderer uses transparent circle so
+       * SnakeSkinSystem draws the actual visuals.
+       */
+    playerCentipede(world: World, pos = new Vector(100, 100)) {
+        return new EntityBuilder(world, 'player')
+            .at(pos.x, pos.y)
+            .asCircle(12)
+            .withRender({ color: randomColor(), type: 'centipede' })
+            .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withCollision({ mask: ["walls"], layers: ['player'] })
+            // .with(new SegmentComponent())
+            .with(new CentipedeComponent())
             .build();
     },
     /**

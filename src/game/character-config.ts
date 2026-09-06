@@ -46,7 +46,7 @@ export const CHARACTERS: Character[] = [
         name: 'Centipede',
         tagline: 'Many segments, many ways to corner you.',
         pointsRequired: 150,
-        implemented: false,
+        implemented: true,
         color: '#c96b2e',
     },
     {

@@ -1,9 +1,8 @@
 import { Vector } from "../utils/vector";
-import { LegSegment, LizardBodySegment, LizardComponent, LizardLeg } from "../components/lizard.component";
+import { CentipedeComponent, CentipedeBodySegment, CentipedeLeg, CentipedeLegSegment } from "../components/centipede.component";
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
-
 
 export class CentipedeSystem {
     world: World;
@@ -15,48 +14,52 @@ export class CentipedeSystem {
         this.world = world;
         this.events = events;
 
-        this.events.on('levelReady', (player: Entity) => this.initialSetup(player))
+        this.events.on('levelReady', (player: Entity) => this.initialSetup(player));
     }
 
     initialSetup(player: Entity) {
-        const entities = this.world.query(LizardComponent);
-        // console.log(entities)
-        for (const entity of entities) {
-            const component = entity.getComponent(LizardComponent) as LizardComponent;
-            const segments: LizardBodySegment[] = [];
+        this.player = player;
+        const entities = this.world.query(CentipedeComponent);
 
-            for (let i = 0; i < LizardComponent.bodyShape1.length; i++) {
+        for (const entity of entities) {
+            const component = entity.getComponent(CentipedeComponent) as CentipedeComponent;
+            const segments: CentipedeBodySegment[] = [];
+
+            // Create segments based on the centipede body shape
+            for (let i = 0; i < CentipedeComponent.bodyShape.length; i++) {
                 segments.push({
                     pos: new Vector(0, 0),
-                    rad: LizardComponent.bodyShape1[i] / 10,
-                    dist: LizardComponent.segmentDist,
-                    color: LizardComponent.color,
-                    legColor: LizardComponent.legColor,
+                    rad: CentipedeComponent.bodyShape[i] / 5, // Scale down for rendering
+                    dist: CentipedeComponent.segmentDist,
+                    color: CentipedeComponent.color,
+                    legColor: CentipedeComponent.legColor,
                     angle: 0,
                     legs: [],
                 });
             }
 
-            this.addLegsToSegment(segments[4]);   // front legs
-            this.addLegsToSegment(segments[10]);   // front legs
-            this.addLegsToSegment(segments[16]);  // back legs
+            // Centipedes have legs on almost every body segment!
+            // We skip the very first (head) and the last two (tail) segments.
+            for (let i = 1; i < segments.length - 2; i++) {
+                this.addLegsToSegment(segments[i]);
+            }
+
             component.segments = segments;
         }
     }
 
     update(dt: number): void {
-        const entities = this.world.query(LizardComponent);
+        const entities = this.world.query(CentipedeComponent);
         for (const entity of entities) {
-            const lizard = entity.getComponent(LizardComponent) as LizardComponent;
+            const centipede = entity.getComponent(CentipedeComponent) as CentipedeComponent;
 
-            for (let i = 0; i < lizard.segments.length; i++) {
-                const segment = lizard.segments[i];
+            for (let i = 0; i < centipede.segments.length; i++) {
+                const segment = centipede.segments[i];
                 if (i === 0) {
                     this.moveBodySegment(segment, entity.transform.pos);
                 } else {
-                    this.followBodySegment(segment, lizard.segments[i - 1].pos);
+                    this.followBodySegment(segment, centipede.segments[i - 1].pos);
                 }
-                // if (this.player) this.player.transform.pos = lizard.segments[0].pos;
 
                 for (const leg of segment.legs) {
                     this.moveLeg(leg);
@@ -66,11 +69,11 @@ export class CentipedeSystem {
     }
 
     // ─── Body segment ops ───────────────────────────────────────────────
-    moveBodySegment(segment: LizardBodySegment, target: Vector) {
+    moveBodySegment(segment: CentipedeBodySegment, target: Vector) {
         segment.pos = target;
     }
 
-    followBodySegment(segment: LizardBodySegment, target: Vector) {
+    followBodySegment(segment: CentipedeBodySegment, target: Vector) {
         const d = Vector.sub(target, segment.pos);
         segment.angle = d.angle();
         segment.pos = new Vector(
@@ -80,8 +83,8 @@ export class CentipedeSystem {
     }
 
     // ─── Leg construction ───────────────────────────────────────────────
-    addLegsToSegment(segment: LizardBodySegment) {
-        const bendRad = LizardComponent.legBendAngle * Math.PI / 180;
+    addLegsToSegment(segment: CentipedeBodySegment) {
+        const bendRad = CentipedeComponent.legBendAngle * Math.PI / 180;
         segment.legs.push(this.createLeg(segment, +bendRad));
         segment.legs.push(this.createLeg(segment, -bendRad));
 
@@ -93,8 +96,8 @@ export class CentipedeSystem {
         }
     }
 
-    private createLeg(parent: LizardBodySegment, angle: number): LizardLeg {
-        const L = LizardComponent.legLength;
+    private createLeg(parent: CentipedeBodySegment, angle: number): CentipedeLeg {
+        const L = CentipedeComponent.legLength;
         return {
             parentSegment: parent,
             angle,
@@ -109,7 +112,7 @@ export class CentipedeSystem {
         };
     }
 
-    calculateNextLegStep(leg: LizardLeg): Vector {
+    calculateNextLegStep(leg: CentipedeLeg): Vector {
         const a = leg.parentSegment.angle + leg.angle;
         return new Vector(
             leg.parentSegment.pos.x + leg.length * Math.cos(a),
@@ -118,34 +121,33 @@ export class CentipedeSystem {
     }
 
     // ─── Leg update ─────────────────────────────────────────────────────
-    moveLeg(leg: LizardLeg) {
+    moveLeg(leg: CentipedeLeg) {
         const distance = Vector.dist(leg.footPos, leg.parentSegment.pos);
 
         // Step trigger — pick a new planting spot when stretched too far
-        if (distance > LizardComponent.legLength * 1.2) {
-            // (Optional) spawn FootStep here at leg.footPos
+        if (distance > CentipedeComponent.legLength * 1.2) {
             leg.nextFootPos = this.calculateNextLegStep(leg);
         }
 
         // IK: reach from foot upward, then pin from hip downward
         this.legSegmentFollowTo(leg.footPos, leg.segments[0]);          // shin → foot
-        this.legSegmentFollowTo(leg.segments[0].a, leg.segments[1]);    // thigh → shin tail (FIXED)
+        this.legSegmentFollowTo(leg.segments[0].a, leg.segments[1]);    // thigh → shin tail
         this.moveLegSegment(leg.segments[1], leg.parentSegment.pos);    // pin thigh base to hip
         this.moveLegSegment(leg.segments[0], leg.segments[1].b);        // pin shin base to knee
 
         // Interpolate foot toward next step (mutates in place)
-        leg.footPos.lerp(leg.nextFootPos, LizardComponent.stepSpeed);
+        leg.footPos.lerp(leg.nextFootPos, CentipedeComponent.stepSpeed);
 
         this.groundCheck(leg);
     }
 
-    groundCheck(leg: LizardLeg) {
+    groundCheck(leg: CentipedeLeg) {
         const d = Vector.dist(leg.footPos, leg.nextFootPos);
         leg.grounded = d <= 0.2;
     }
 
     // ─── Leg segment ops ────────────────────────────────────────────────
-    legSegmentFollowTo(target: Vector, legSegment: LegSegment) {
+    legSegmentFollowTo(target: Vector, legSegment: CentipedeLegSegment) {
         const direction = Vector.sub(target, legSegment.a);
         legSegment.angle = direction.angle();
         direction.setMag(legSegment.length);
@@ -153,7 +155,7 @@ export class CentipedeSystem {
         legSegment.a = Vector.add(target, direction);
     }
 
-    moveLegSegment(legSegment: LegSegment, target: Vector) {
+    moveLegSegment(legSegment: CentipedeLegSegment, target: Vector) {
         legSegment.a.set(target.x, target.y);
         const dx = legSegment.length * Math.cos(legSegment.angle);
         const dy = legSegment.length * Math.sin(legSegment.angle);

@@ -1,11 +1,15 @@
 import { CellComponent } from "../components/cell.component";
+import { CentipedeComponent } from "../components/centipede.component";
 import { DungeonComponent } from "../components/dungeon.component";
 import { LizardComponent } from "../components/lizard.component";
 import { PhysicsComponent } from "../components/physics.component";
 import { RenderComponent } from "../components/render.component";
 import { ShapeComponent } from "../components/shape.component";
 import { SnakeComponent } from "../components/snake.component";
+import { SpiderComponent } from "../components/spider.component";
+import { drawCentipedeBody, drawCentipedeLegs } from "./centipede.helper";
 import { drawLizardBody, drawLizardLegsFromSegments } from "./lizard.helper";
+import { drawSpiderBody, drawSpiderLegs } from "./spider.helper";
 import { Vector } from "./vector";
 
 // Optional: Uncomment these if you have them for stricter typing on getComponent()
@@ -360,7 +364,7 @@ export const RenderStrategies: Record<string, RenderStrategy> = {
             if (!lizard) return;
 
 
-            // Body
+
 
             // Back legs  (behind body)
             drawLizardLegsFromSegments(ctx, lizard, [16]);
@@ -370,7 +374,33 @@ export const RenderStrategies: Record<string, RenderStrategy> = {
             drawLizardLegsFromSegments(ctx, lizard, [4]);
             drawLizardBody(ctx, lizard);
         }
-    }
+    },
+    centipede: {
+        render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
+            if (!component.entity) return;
+            const centipede = component.entity.getComponent(CentipedeComponent) as CentipedeComponent;
+            if (!centipede) return;
+
+            // Draw legs first so they appear slightly behind/under the body segments
+            drawCentipedeLegs(ctx, centipede);
+
+            // Draw body on top
+            drawCentipedeBody(ctx, centipede);
+        }
+    },
+    spider: {
+        render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
+            if (!component.entity) return;
+            const spider = component.entity.getComponent(SpiderComponent) as SpiderComponent;
+            if (!spider) return;
+
+            // Draw legs first so they appear naturally under the body segments
+            drawSpiderLegs(ctx, spider);
+
+            // Draw body on top
+            drawSpiderBody(ctx, spider);
+        }
+    },
 };
 
 /**
