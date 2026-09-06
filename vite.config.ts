@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite';
-import wasm from 'vite-plugin-wasm';
-import topLevelAwait from 'vite-plugin-top-level-await';
-
+import path from 'path';
 export default defineConfig({
-    plugins: [
-
-    ],
+    plugins: [],
+    resolve: {
+        alias: {
+            '@assets': path.resolve(__dirname, './assets'),
+            '@': path.resolve(__dirname, './src'),
+        },
+    },
     // Optional: Ensures the dev server serves .wasm files with the correct MIME type
     server: {
         headers: {

@@ -1,5 +1,6 @@
 import { Character, CHARACTERS, isCharacterPlayable } from "../game/character-config";
 import { ProgressStore } from "../game/progress-store";
+import { sounds } from "../game/sound-manager";
 
 /**
  * createMainMenu
@@ -63,6 +64,7 @@ export function createMainMenu({ progressStore, onPlay }: CreateMainMenuProps) {
         if (playable) {
             card.addEventListener('click', () => {
                 selectedId = character.id;
+                sounds.selectionSound()
                 render();
             });
         }

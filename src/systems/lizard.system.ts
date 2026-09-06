@@ -3,6 +3,7 @@ import { LegSegment, LizardBodySegment, LizardComponent, LizardLeg } from "../co
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
+import { PhysicsComponent } from "../components/physics.component";
 
 
 export class LizardSystem {
@@ -52,7 +53,7 @@ export class LizardSystem {
             for (let i = 0; i < lizard.segments.length; i++) {
                 const segment = lizard.segments[i];
                 if (i === 0) {
-                    this.moveBodySegment(segment, entity.transform.pos);
+                    this.moveBodySegment(segment, entity.transform.pos, entity);
                 } else {
                     this.followBodySegment(segment, lizard.segments[i - 1].pos);
                 }
@@ -66,8 +67,11 @@ export class LizardSystem {
     }
 
     // ─── Body segment ops ───────────────────────────────────────────────
-    moveBodySegment(segment: LizardBodySegment, target: Vector) {
+    moveBodySegment(segment: LizardBodySegment, target: Vector, entity: Entity) {
         segment.pos = target;
+        const physicsComponent = entity.getComponent(PhysicsComponent) as PhysicsComponent;
+
+        segment.angle = physicsComponent.velocity.angle()
     }
 
     followBodySegment(segment: LizardBodySegment, target: Vector) {

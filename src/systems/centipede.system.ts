@@ -3,6 +3,7 @@ import { CentipedeComponent, CentipedeBodySegment, CentipedeLeg, CentipedeLegSeg
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
+import { PhysicsComponent } from "@/components/physics.component";
 
 export class CentipedeSystem {
     world: World;
@@ -40,7 +41,7 @@ export class CentipedeSystem {
 
             // Centipedes have legs on almost every body segment!
             // We skip the very first (head) and the last two (tail) segments.
-            for (let i = 1; i < segments.length - 2; i++) {
+            for (let i = 1; i < segments.length - 2; i += 2) {
                 this.addLegsToSegment(segments[i]);
             }
 
@@ -56,7 +57,7 @@ export class CentipedeSystem {
             for (let i = 0; i < centipede.segments.length; i++) {
                 const segment = centipede.segments[i];
                 if (i === 0) {
-                    this.moveBodySegment(segment, entity.transform.pos);
+                    this.moveBodySegment(segment, entity.transform.pos, entity);
                 } else {
                     this.followBodySegment(segment, centipede.segments[i - 1].pos);
                 }
@@ -69,8 +70,11 @@ export class CentipedeSystem {
     }
 
     // ─── Body segment ops ───────────────────────────────────────────────
-    moveBodySegment(segment: CentipedeBodySegment, target: Vector) {
+    moveBodySegment(segment: CentipedeBodySegment, target: Vector, entity: Entity) {
         segment.pos = target;
+        const physicsComponent = entity.getComponent(PhysicsComponent) as PhysicsComponent;
+
+        segment.angle = physicsComponent.velocity.angle()
     }
 
     followBodySegment(segment: CentipedeBodySegment, target: Vector) {

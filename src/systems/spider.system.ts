@@ -3,6 +3,7 @@ import { SpiderComponent, SpiderBodySegment, SpiderLeg, SpiderLegSegment } from 
 import { Entity } from "../core/entity";
 import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
+import { PhysicsComponent } from "../components/physics.component";
 
 export class SpiderSystem {
     world: World;
@@ -37,7 +38,7 @@ export class SpiderSystem {
             const legAngles = [-50, -90, -130, -160, 50, 90, 130, 160];
 
             for (const angle of legAngles) {
-                const rad = angle * Math.PI / 180;
+                const rad = (angle / 1.3) * Math.PI / 180;
                 segments[0].legs.push(this.createLeg(segments[0], rad));
             }
 
@@ -54,13 +55,13 @@ export class SpiderSystem {
 
     update(dt: number): void {
         const entities = this.world.query(SpiderComponent);
+
         for (const entity of entities) {
             const spider = entity.getComponent(SpiderComponent) as SpiderComponent;
-
             for (let i = 0; i < spider.segments.length; i++) {
                 const segment = spider.segments[i];
                 if (i === 0) {
-                    this.moveBodySegment(segment, entity.transform.pos);
+                    this.moveBodySegment(segment, entity.transform.pos, entity);
                 } else {
                     this.followBodySegment(segment, spider.segments[i - 1].pos);
                 }
@@ -72,8 +73,11 @@ export class SpiderSystem {
         }
     }
 
-    moveBodySegment(segment: SpiderBodySegment, target: Vector) {
+    moveBodySegment(segment: SpiderBodySegment, target: Vector, entity: Entity) {
         segment.pos = target;
+
+        const physics = entity.getComponent(PhysicsComponent) as PhysicsComponent;
+        segment.angle = physics.velocity.angle()
     }
 
     followBodySegment(segment: SpiderBodySegment, target: Vector) {

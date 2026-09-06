@@ -1,16 +1,12 @@
-import { EntityBuilder } from "../core/entity-builder";
 import { Transform } from "../components/transform";
 import { Vector } from "../utils/vector";
 import { Prefabs } from "../utils/prefabs";
-import { randomColor } from "../utils/random-color-generator";
 import { getLevel, LevelConfig } from "./level-config";
-import { LizardComponent } from "../components/lizard.component.js";
 import { GameEngine } from "./game.js";
 import { World } from "../core/world.js";
 import { BoidSpawnSystem } from "../systems/boid.spawn.system.js";
 import { Entity } from "../core/entity.js";
 import { DungeonComponent } from "../components/dungeon.component";
-import { BoidComponent } from "../components/boid.component";
 import { PhysicsSystem } from "../systems/physics.system";
 import { PlayerControlSystem } from "../systems/player-control.system";
 import { DungeonSystem } from "../systems/dungeon.system";
@@ -23,6 +19,7 @@ import { LizardSystem } from "../systems/lizard.system";
 import { MinimapSystem } from "../systems/minimap.system";
 import { CollisionDebugSystem } from "../systems/debug.system";
 import { CentipedeSystem } from "../systems/centipede.system";
+import { SpiderSystem } from "../systems/spider.system";
 
 /**
  * LevelManager
@@ -49,6 +46,11 @@ export class LevelManager {
 
     public onLevelReady: ((player: Entity, currentIndex: number | null, config: LevelConfig) => void) | null;
     public onPlayerSelected: ((world: World, pos: Vector) => Entity) | null = null;
+
+    public actionPlaySound() {
+        const audio = new Audio('./assets/ui_sound.mp3')
+        audio.play()
+    }
     constructor(engine: GameEngine) {
         this.engine = engine;
         this.world = engine.world;
@@ -100,6 +102,7 @@ export class LevelManager {
         this.engine.addSystem(new SnakeSkinSystem(this.world, this.events));
         this.engine.addSystem(new LizardSystem(this.world, this.events));
         this.engine.addSystem(new CentipedeSystem(this.world, this.events));
+        this.engine.addSystem(new SpiderSystem(this.world, this.events));
         this.engine.addSystem(new RendererSystem(this.world, this.engine.ctx!, this.engine.camera));
         this.engine.addSystem(new MinimapSystem(this.world, this.events, this.engine.ctx as CanvasRenderingContext2D));
         this.engine.addSystem(new CollisionDebugSystem(this.world, this.events, this.engine.ctx as CanvasRenderingContext2D, this.engine.camera, this.engine.clock));

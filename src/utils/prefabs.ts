@@ -15,6 +15,7 @@
 import { CentipedeComponent } from '../components/centipede.component';
 import { LizardComponent } from '../components/lizard.component';
 import { SegmentComponent } from '../components/segment.component';
+import { SpiderComponent } from '../components/spider.component';
 import { EntityBuilder } from '../core/entity-builder';
 import { World } from '../core/world';
 import { randomColor } from './random-color-generator';
@@ -107,7 +108,7 @@ export const Prefabs = {
             .at(pos.x, pos.y)
             .asCircle(12)
             .withRender({ color: randomColor(), type: 'snake' })
-            .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withPhysics({ maxSpeed: 500, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
             .withCollision({ mask: ["walls"], layers: ['player'] })
             // .with(new SegmentComponent())
             .withSnake()
@@ -123,7 +124,7 @@ export const Prefabs = {
             .at(pos.x, pos.y)
             .asCircle(12)
             .withRender({ color: randomColor(), type: 'lizard' })
-            .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withPhysics({ maxSpeed: 500, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
             .withCollision({ mask: ["walls"], layers: ['player'] })
             // .with(new SegmentComponent())
             .with(new LizardComponent())
@@ -139,10 +140,27 @@ export const Prefabs = {
             .at(pos.x, pos.y)
             .asCircle(12)
             .withRender({ color: randomColor(), type: 'centipede' })
-            .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withPhysics({ maxSpeed: 500, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
             .withCollision({ mask: ["walls"], layers: ['player'] })
             // .with(new SegmentComponent())
             .with(new CentipedeComponent())
+            .build();
+    },
+
+    /**
+     * Player snake head.
+     * Physics + collision + snake logic.  Renderer uses transparent circle so
+     * SnakeSkinSystem draws the actual visuals.
+     */
+    playerSpider(world: World, pos = new Vector(100, 100)) {
+        return new EntityBuilder(world, 'player')
+            .at(pos.x, pos.y)
+            .asCircle(12)
+            .withRender({ color: randomColor(), type: 'spider' })
+            .withPhysics({ maxSpeed: 500, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withCollision({ mask: ["walls"], layers: ['player'] })
+            // .with(new SegmentComponent())
+            .with(new SpiderComponent())
             .build();
     },
     /**
@@ -154,7 +172,7 @@ export const Prefabs = {
             .asCircle(12)
             .withRender({ color: 'green', zIndex: 100, type: "enemy_snake", width: 60, height: 60, radius: 0, image: '' })
             .withPhysics({
-                maxSpeed: 800,
+                maxSpeed: 500,
                 mass: 1,
                 drag: 1,
                 velocity: new Vector(
@@ -214,7 +232,7 @@ export const Prefabs = {
                 ),
                 aceleration: new Vector(1, 1),
                 mass: 2,
-                maxSpeed: 400,
+                maxSpeed: 300,
                 drag: 1,
                 restitution: 1
             })

@@ -1,4 +1,5 @@
 import { LizardComponent, LizardLeg } from "../components/lizard.component";
+import { PhysicsComponent } from "../components/physics.component";
 
 function drawSingleLeg(ctx: CanvasRenderingContext2D, leg: LizardLeg) {
     if (!leg.segments || leg.segments.length < 2) return;
@@ -82,30 +83,37 @@ function drawLizardBody(ctx: CanvasRenderingContext2D, lizard: LizardComponent) 
     // Head highlight on the first segment
     const head = lizard.segments[0];
     if (head) {
+        // Head highlight
         ctx.fillStyle = '#0a9959';
         ctx.beginPath();
         ctx.arc(head.pos.x, head.pos.y, head.rad * 1.1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Eyes
+        // Eyes calculation based purely on head.angle (No ctx.rotate needed!)
         const eyeOffset = head.rad * 0.5;
-        const perpX = -Math.sin(head.angle);
-        const perpY = Math.cos(head.angle);
         const fwdX = Math.cos(head.angle);
         const fwdY = Math.sin(head.angle);
+        const perpX = -Math.sin(head.angle);
+        const perpY = Math.cos(head.angle);
 
         ctx.fillStyle = 'white';
         for (const side of [-1, 1]) {
+            // Calculate absolute position for each eye
             const ex = head.pos.x + fwdX * eyeOffset + perpX * side * eyeOffset;
             const ey = head.pos.y + fwdY * eyeOffset + perpY * side * eyeOffset;
+
+            // White of the eye
             ctx.beginPath();
             ctx.arc(ex, ey, 2.5, 0, Math.PI * 2);
             ctx.fill();
+
+            // Pupil (slightly offset forward in the direction the head is facing)
             ctx.fillStyle = 'black';
             ctx.beginPath();
             ctx.arc(ex + fwdX * 1, ey + fwdY * 1, 1.2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = 'white';
+
+            ctx.fillStyle = 'white'; // Reset for next iteration
         }
     }
 }

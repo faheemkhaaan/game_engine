@@ -10,6 +10,7 @@ import { createHud } from "./src/ui/hud";
 import { Prefabs } from "./src/utils/prefabs";
 import { World } from "./src/core/world";
 import { Vector } from "./src/utils/vector";
+import { sounds } from "./src/game/sound-manager";
 
 
 // ─── Engine + systems ────────────────────────────────────────────────────
@@ -35,6 +36,7 @@ engine.eventBus.on('mouseEaten', (points = 10) => {
     refreshAnimalUnlocks(progressStore);
     hud.setPoints(sessionPoints);
     mainMenu.refresh();
+    sounds.playerAttack()
 });
 
 
@@ -49,19 +51,23 @@ const mainMenu = createMainMenu({
     onPlay(characterId: string) {
         selectedCharacterId = characterId;
         levelManager.onPlayerSelected = (world: World, pos: Vector) => {
-
             console.log(selectedCharacterId)
             switch (selectedCharacterId) {
                 case 'centipede':
                     return Prefabs.playerCentipede(world, pos);
                 case "lizard":
                     return Prefabs.playerLizard(world, pos);
+                case "spider":
+                    return Prefabs.playerSpider(world, pos)
                 default:
                     return Prefabs.playerSnake(world, pos);
             }
         }
         mainMenu.hide();
         levelSelect.show();
+
+        sounds.selectionSound()
+
     },
 });
 
@@ -69,10 +75,12 @@ const levelSelect = createLevelSelect({
     progressStore,
     onSelectLevel(levelIndex: number) {
         startLevel(levelIndex);
+        sounds.selectionSound()
     },
     onBack() {
         levelSelect.hide();
         mainMenu.show();
+        sounds.selectionSound()
     },
 });
 

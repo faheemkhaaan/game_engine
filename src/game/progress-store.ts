@@ -1,14 +1,14 @@
 /**
- * progress-store.mjs
- *
- * Persists player progress (points earned, unlocked animals, unlocked/completed
- * levels) to localStorage so it survives page reloads.
- *
- * This is intentionally decoupled from any gameplay system. Nothing currently
- * calls `addPoints()` automatically — once mouse-eating scoring exists, have
- * that system `engine.eventBus.emit('mouseEaten', points)`; main.mjs already
- * listens for that event and forwards it here (see main.mjs).
- */
+* progress-store.mjs
+*
+* Persists player progress (points earned, unlocked animals, unlocked/completed
+* levels) to localStorage so it survives page reloads.
+*
+* This is intentionally decoupled from any gameplay system. Nothing currently
+* calls `addPoints()` automatically — once mouse-eating scoring exists, have
+* that system `engine.eventBus.emit('mouseEaten', points)`; main.mjs already
+* listens for that event and forwards it here (see main.mjs).
+*/
 
 export type GameData = {
 
@@ -22,7 +22,7 @@ const STORAGE_KEY = 'snakeGame:progress';
 
 const DEFAULT_PROGRESS = {
     points: 0,
-    unlockedAnimals: ['snake', 'lizard', 'centipede'],
+    unlockedAnimals: ['snake', 'spider', 'centipede'],
     highestUnlockedLevel: 0,
     completedLevels: [],
 };

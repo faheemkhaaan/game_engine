@@ -40,8 +40,8 @@ export interface CentipedeBody {
 }
 
 export class CentipedeComponent {
-    public static stepSpeed = 0.4; // Slightly slower step for many legs to look natural
-    public static legLength = 35;  // Adjusted for centipede proportions
+    public static stepSpeed = 0.5; // Slightly slower step for many legs to look natural
+    public static legLength = 45;  // Adjusted for centipede proportions
 
     // Centipede shape: slightly wider head, uniform body, tapering tail
     // Divided by 10 in the system, so these represent radii from 3.0 down to 0.4

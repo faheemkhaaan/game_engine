@@ -29,13 +29,14 @@ export interface SpiderBodySegment {
 }
 
 export class SpiderComponent {
-    public static stepSpeed = 0.35; // Deliberate, creepy crawl speed
-    public static legLength = 65;   // Long legs
-    public static bodyShape = [35, 50]; // Cephalothorax (small), Abdomen (slightly larger)
+    public static stepSpeed = 0.65; // Deliberate, creepy crawl speed
+    public static legLength = 85;   // Long legs
+    public static bodyShape = [65, 80]; // Cephalothorax (small), Abdomen (slightly larger)
     public static segmentDist = 15;
-    public static legColor = [40, 40, 40, 255]; // Dark grey/black legs
-    public static color = [60, 20, 20, 255];    // Dark reddish brown / black body
-    public static legBendAngle = 75; // Legs stick out wide and bend down
+    public static legColor = [210, 210, 210, 255]; // Bright light gray legs
+    public static color = [230, 90, 90, 255];      // Bright red/orange body
+
+    public static legBendAngle = 45; // Legs stick out wide and bend down
 
     public entity: Entity | null = null;
     public footRad = 2;

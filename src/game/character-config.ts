@@ -50,6 +50,14 @@ export const CHARACTERS: Character[] = [
         color: '#c96b2e',
     },
     {
+        id: 'spider',
+        name: 'Spider',
+        tagline: 'Many segments, many ways to corner you.',
+        pointsRequired: 250,
+        implemented: true,
+        color: '#c96b2e',
+    },
+    {
         id: 'fish',
         name: 'Fish',
         tagline: 'Rules the flooded rooms. Everywhere else, it struggles.',
