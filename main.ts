@@ -1,16 +1,4 @@
 import { GameEngine } from "./src/game/game";
-import { CollisionSystem } from "./src/systems/collision.system";
-import { PhysicsSystem } from "./src/systems/physics.system";
-import { RendererSystem } from "./src/systems/renderer.system";
-import { CollisionDebugSystem } from "./src/systems/debug.system";
-import { DungeonSystem } from "./src/systems/dungeon.system";
-import { BoidSpawnSystem } from "./src/systems/boid.spawn.system";
-import { MinimapSystem } from "./src/systems/minimap.system";
-import { BoidSystem } from "./src/systems/boid.system";
-import { SnakeSkeletonSystem } from "./src/systems/snake-skeleton.system";
-import { SnakeSkinSystem } from "./src/systems/snake-skin.system";
-import { PlayerControlSystem } from "./src/systems/player-control.system";
-
 import { LevelManager } from "./src/game/level-manager";
 import { ProgressStore } from "./src/game/progress-store";
 import { refreshAnimalUnlocks } from "./src/game/character-config";
@@ -19,9 +7,9 @@ import { LEVELS } from "./src/game/level-config";
 import { createMainMenu } from "./src/ui/main-menu";
 import { createLevelSelect } from "./src/ui/level-select";
 import { createHud } from "./src/ui/hud";
-import { LizardLegSystem } from "./src/systems/lizard-leg.system.js";
+import { Prefabs } from "./src/utils/prefabs";
+import { World } from "./src/core/world";
 import { Vector } from "./src/utils/vector";
-
 
 
 // ─── Engine + systems ────────────────────────────────────────────────────
@@ -29,42 +17,7 @@ import { Vector } from "./src/utils/vector";
 // populates the world the first time a level is started from the UI.
 
 const engine = new GameEngine();
-const physicsSystem = new PhysicsSystem(engine.world);
-const boidSpawnSystem = new BoidSpawnSystem(engine.world, engine.eventBus, { mouseCountPerRoom: 10 });
-const playerControlSystem = new PlayerControlSystem(engine.world, engine.eventBus, physicsSystem, engine.inputs);
-
-engine.inputs.mapActions('attack', 'Space');
-engine.inputs.mapActions('jump', 'Space');
-engine.inputs.mapActions('move_up', 'KeyW');
-engine.inputs.mapActions('move_right', 'KeyD');
-engine.inputs.mapActions('move_left', 'KeyA');
-engine.inputs.mapActions('move_down', 'KeyS');
-engine.inputs.mapActions('enableDebug', 'KeyP');
-engine.inputs.mapActions('enableMinMap', 'KeyM');
-engine.inputs.mapActions('enableDungeonGeneration', 'KeyG');
-engine.inputs.mapActions('enableCollision', 'KeyC');
-engine.inputs.mapActions('respawnBoids', 'KeyR');
-
-engine.eventBus.on('mousedown', (loc: Vector) => {
-    const worldPos = engine.camera.canvasToWorld(loc);
-});
-
-engine.addSystem(new DungeonSystem(engine.world, engine.eventBus, engine.canvas.width, engine.canvas.height));
-engine.addSystem(physicsSystem);
-engine.addSystem(new CollisionSystem(engine.world, engine.eventBus));
-engine.addSystem(boidSpawnSystem);
-engine.addSystem(new BoidSystem(engine.world, engine.eventBus));
-engine.addSystem(playerControlSystem);
-engine.addSystem(new SnakeSkeletonSystem(engine.world, engine.eventBus));
-engine.addSystem(new SnakeSkinSystem(engine.world, engine.eventBus));
-engine.addSystem(new RendererSystem(engine.world, engine.ctx!, engine.camera));
-engine.addSystem(new LizardLegSystem(engine.world, engine.eventBus));
-engine.addSystem(new MinimapSystem(engine.world, engine.eventBus, engine.ctx as CanvasRenderingContext2D));
-engine.addSystem(new CollisionDebugSystem(engine.world, engine.eventBus, engine.ctx as CanvasRenderingContext2D, engine.camera, engine.clock));
-
-engine.start();
-
-const levelManager = new LevelManager(engine, { boidSpawnSystem });
+const levelManager = new LevelManager(engine);
 
 
 // ─── Progression ─────────────────────────────────────────────────────────
@@ -95,6 +48,14 @@ const mainMenu = createMainMenu({
     progressStore,
     onPlay(characterId: string) {
         selectedCharacterId = characterId;
+        levelManager.onPlayerSelected = (world: World, pos: Vector) => {
+
+            if (selectedCharacterId === 'snake') {
+                return Prefabs.playerSnake(world, pos)
+            } else {
+                return Prefabs.playerLizard(world, pos)
+            }
+        }
         mainMenu.hide();
         levelSelect.show();
     },

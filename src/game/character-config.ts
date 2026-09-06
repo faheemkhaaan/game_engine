@@ -38,7 +38,7 @@ export const CHARACTERS: Character[] = [
         name: 'Lizard',
         tagline: 'Quick bursts of speed, short attention span.',
         pointsRequired: 50,
-        implemented: false,
+        implemented: true,
         color: '#d9b23f',
     },
     {

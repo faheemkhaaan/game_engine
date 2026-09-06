@@ -87,15 +87,47 @@ export const Prefabs = {
         return new EntityBuilder(world, 'player')
             .at(pos.x, pos.y)
             .asCircle(12)
-            .withRender({ color: randomColor(), })
+            .withRender({ color: randomColor(), type: 'lizard' })
             .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
             .withCollision({ mask: ["walls"], layers: ['player'] })
             // .with(new SegmentComponent())
-            // .with(new LizardComponent())
-            .withSnake()
+            .with(new LizardComponent())
+            // .withSnake()
             .build();
     },
 
+    /**
+    * Player snake head.
+    * Physics + collision + snake logic.  Renderer uses transparent circle so
+    * SnakeSkinSystem draws the actual visuals.
+    */
+    playerSnake(world: World, pos = new Vector(100, 100)) {
+        return new EntityBuilder(world, 'player')
+            .at(pos.x, pos.y)
+            .asCircle(12)
+            .withRender({ color: randomColor(), type: 'snake' })
+            .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withCollision({ mask: ["walls"], layers: ['player'] })
+            // .with(new SegmentComponent())
+            .withSnake()
+            .build();
+    },
+    /**
+        * Player snake head.
+        * Physics + collision + snake logic.  Renderer uses transparent circle so
+        * SnakeSkinSystem draws the actual visuals.
+        */
+    playerLizard(world: World, pos = new Vector(100, 100)) {
+        return new EntityBuilder(world, 'player')
+            .at(pos.x, pos.y)
+            .asCircle(12)
+            .withRender({ color: randomColor(), type: 'lizard' })
+            .withPhysics({ maxSpeed: 700, mass: 1, restitution: 0.1, gravity: new Vector(0, 0) })
+            .withCollision({ mask: ["walls"], layers: ['player'] })
+            // .with(new SegmentComponent())
+            .with(new LizardComponent())
+            .build();
+    },
     /**
      * Enemy snake (boid-driven).
      */

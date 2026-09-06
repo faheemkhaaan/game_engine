@@ -22,7 +22,7 @@ const STORAGE_KEY = 'snakeGame:progress';
 
 const DEFAULT_PROGRESS = {
     points: 0,
-    unlockedAnimals: ['snake'],
+    unlockedAnimals: ['snake', 'lizard'],
     highestUnlockedLevel: 0,
     completedLevels: [],
 };

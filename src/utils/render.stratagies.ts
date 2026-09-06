@@ -5,6 +5,7 @@ import { PhysicsComponent } from "../components/physics.component";
 import { RenderComponent } from "../components/render.component";
 import { ShapeComponent } from "../components/shape.component";
 import { SnakeComponent } from "../components/snake.component";
+import { drawLizardBody, drawLizardLegsFromSegments } from "./lizard.helper";
 import { Vector } from "./vector";
 
 // Optional: Uncomment these if you have them for stricter typing on getComponent()
@@ -340,6 +341,34 @@ export const RenderStrategies: Record<string, RenderStrategy> = {
                 2, 0, Math.PI * 2
             );
             ctx.fill();
+        },
+    },
+
+    dot: {
+        render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
+            const lizardComponent = component.entity?.getComponent(LizardComponent) as LizardComponent;
+            if (!lizardComponent) return;
+            ctx.beginPath();
+
+        }
+    },
+
+    lizard: {
+        render(ctx: CanvasRenderingContext2D, component: RenderComponent) {
+            if (!component.entity) return;
+            const lizard = component.entity.getComponent(LizardComponent) as LizardComponent;
+            if (!lizard) return;
+
+
+            // Body
+
+            // Back legs  (behind body)
+            drawLizardLegsFromSegments(ctx, lizard, [16]);
+            // drawLizardLegsFromSegments(ctx, lizard, [10]);
+
+            // Front legs on top
+            drawLizardLegsFromSegments(ctx, lizard, [4]);
+            drawLizardBody(ctx, lizard);
         }
     }
 };
@@ -377,3 +406,5 @@ function createSnakePattern() {
 
     return canvas;
 }
+
+

@@ -1,155 +1,76 @@
+import { Entity } from "../core/entity";
 import { Vector } from "../utils/vector";
 
+
+
+export interface LegSegment {
+    a: Vector;
+    b: Vector;
+    length: number;
+    angle: number;
+}
 export interface LizardLeg {
-    name: string;
-    hipIndex: number;
 
-    /**
-     * -1 = right side
-     *  1 = left side
-     */
-    side: number;
+    parentSegment: LizardBodySegment;
+    angle: number;
+    length: number;
+    footPos: Vector;
+    nextFootPos: Vector;
+    grounded: boolean;
+    segments: LegSegment[]
+}
 
-    /**
-     * Diagonal gait group.
-     *
-     * group 0: front-left + back-right
-     * group 1: front-right + back-left
-     */
-    group: number;
 
-    /**
-     * Foot position currently planted on the ground.
-     */
-    planted: any;
 
-    /**
-     * Current foot target used by FABRIK.
-     */
-    target: any;
 
-    /**
-     * Where the current step started.
-     */
-    stepFrom: any;
+export interface LizardBodySegment {
+    pos: Vector;
+    rad: number;
+    dist: number;
+    angle: number;
+    legs: LizardLeg[];
+    color: number[];
+    legColor: number[]
 
-    /**
-     * Where the current step wants to land.
-     */
-    stepTo: any;
 
-    stepping: boolean;
+}
 
-    /**
-     * Step progress from 0 to 1.
-     */
-    t: number;
+export interface LizardBody {
 
-    /**
-     * Solved FABRIK joints:
-     * [hip, knee, foot]
-     */
-    points: any[];
+    pos: Vector;
+    vel: Vector;
+    acc: Vector;
+    dir: Vector;
+    maxSpeed: number;
+    turnSpeed: number;
+    color: string;
+    legColor: string;
+
 }
 
 export class LizardComponent {
-    /**
-     * The entity this lizard component belongs to.
-     */
-    entity: any = null;
-
-    initialized = false;
-    /**
-     * Allowed knee bend range, relative to the hip->foot line.
-     */
-    minKneeBend = (10 * Math.PI) / 180;
-    maxKneeBend = (150 * Math.PI) / 180;
-
-    legs: LizardLeg[] = [];
-
-    /**
-     * Global animation timer.
-     */
-    gaitTime = 0;
 
 
 
-    /**
-     * Which snake/spine segments the hips attach to.
-     *
-     * Segment 0 is the head in your current SnakeComponent setup.
-     */
-    frontHipIndex = 4;
-    backHipIndex = 12;
-
-    /**
-     * How far sideways from the spine the hip socket sits.
-     */
-    hipWidth = 7;
-
-    /**
-     * How far sideways from the spine the foot wants to stand.
-     */
-    stanceWidth = 20;
-
-    /**
-     * How far ahead of the hip the foot wants to plant.
-     */
-    stepAhead = 20;
-
-    /**
-     * Foot starts a step when its planted position is this far from desired target.
-     */
-    stepTriggerDistance = 20;
-
-    /**
-     * Step duration in seconds.
-     */
-    stepDuration = 0.22;
-
-    /**
-     * Visual lift height while stepping.
-     *
-     * If your game is side view, keep  this positive and liftDirection upward.
-     * If your game is top-down, you may set this to 0 or fake lift visually.
-     */
-    stepHeight = 120;
-
-    /**
-     * Direction used for foot lift.
-     *
-     * Side view:
-     * new Vector(0, -1)
-     *
-     * Top-down:
-     * new Vector(0, 0)
-     */
-    liftDirection: any;
-
-    /**
-     * Leg bone lengths.
-     */
-    upperLegLength = 18;
-    lowerLegLength = 20;
-
-    /**
-     * Legs only step when the body is actually moving.
-     */
-    minSpeedToStep = 60;
+    public static stepSpeed = 0.5;
+    public static legLength = 50;
+    public static bodyShape1 = [140, 160, 70, 75, 85, 95, 105, 110, 115, 120, 120, 120, 115, 110, 105, 100, 90, 80, 70, 60, 50, 45, 40, 35, 35, 30, 28, 25, 25, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15]
+    public static segmentDist = 5;
+    public static legColor = [10, 100, 80, 200];
+    public static color = [10, 153, 89, 255];
+    public static legBendAngle = 35;
 
 
-    /**
-* How much faster than minSpeedToStep the step animation is allowed
-* to speed up. Prevents steps from becoming instant/teleporting at
-* very high speeds.
-*/
-    maxStepSpeedFactor = 6;
-    /**
-     * Useful for debug rendering.
-     */
-    debugDraw = true;
+    public entity: Entity | null = null
 
-    constructor() {
-        this.liftDirection = new Vector(0, 1);
-    }
+    public footRad = 5;
+
+    public target: Vector = new Vector(0, 0);
+    public segments: LizardBodySegment[] = [];
+
+
+
+    public headIndex = 0;
+
+
 }

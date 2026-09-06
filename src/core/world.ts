@@ -74,4 +74,8 @@ export class World {
         return result;
     }
 
+
+    clearEntities() {
+        this.entities.clear()
+    }
 }

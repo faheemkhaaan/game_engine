@@ -17,11 +17,8 @@ export class SnakeComponent {
     public isSnakeMoving: boolean = false;
     public enemyEaten: number = 0;
     public enemyEatenGrowThreshold: number = 10;
-    constructor(
 
-
-
-    ) {
+    constructor() {
         /**@type {Entity} */
         this.entity = null;
         /**@type {Vector|null} */
