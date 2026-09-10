@@ -29,15 +29,7 @@ export const Prefabs = {
 
     // ─── Dungeon ──────────────────────────────────────────────────────────────
 
-    /**
-     * Solid wall segment (static physics + collision, rendered rect).
-     * @param {import('../core/world.mjs').World} world
-     * @param {string} id
-     * @param {number} cx  Centre X
-     * @param {number} cy  Centre Y
-     * @param {number} w   Width
-     * @param {number} h   Height
-     */
+
     wall(world: World, id: string, cx: number, cy: number, w: number, h: number) {
         return new EntityBuilder(world, id)
             .at(cx, cy)
@@ -68,9 +60,7 @@ export const Prefabs = {
             .build();
     },
 
-    /**
-     * @param {{ minRooms?: number, minDimensions?: number }} [options] level-driven dungeon sizing
-     */
+
     dungeon(world: World, w: number, h: number, id = 'dungeon' + Math.random().toString(36), options = {}) {
         return new EntityBuilder(world, id)
             .at(0, 0, 0)
@@ -168,9 +158,9 @@ export const Prefabs = {
      */
     enemySnake(world: World, id: string, pos = new Vector(0, 0)) {
         return new EntityBuilder(world, id)
-            .at(100, 100)
+            .at(pos.x, pos.y)
             .asCircle(12)
-            .withRender({ color: 'green', zIndex: 100, type: "enemy_snake", width: 60, height: 60, radius: 0, image: '' })
+            .withRender({ color: 'green', zIndex: 100, type: "snake", width: 60, height: 60, radius: 0, image: '' })
             .withPhysics({
                 maxSpeed: 500,
                 mass: 1,
@@ -194,7 +184,7 @@ export const Prefabs = {
             snakes.push(
                 // new EntityBuilder(world, `${id}-${i}`)
                 //     .at(100, 100)
-                //     .asCircle(12)
+                //     .asCircle(12)    
                 //     .withRender({ color, zIndex: 100 })
                 //     .withPhysics({
                 //         maxSpeed: 800,
@@ -207,10 +197,10 @@ export const Prefabs = {
                 //     })
                 //     .withSnake()
                 //     .withCollision()
-                //     .withBoid()
+                //     .withBoid()  
                 //     .build()
 
-                Prefabs.enemySnake(world, id, pos)
+                Prefabs.enemySnake(world, `${id}+${Math.random()}`, pos)
             )
         }
         return snakes;

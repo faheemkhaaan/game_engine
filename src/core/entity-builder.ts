@@ -134,7 +134,7 @@ export class EntityBuilder {
         return this;
     }
 
-    withBoid() {
+        withBoid() {
         this.#entity.addComponent(new BoidComponent({}));
         return this;
     }

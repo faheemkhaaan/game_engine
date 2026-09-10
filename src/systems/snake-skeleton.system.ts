@@ -1,4 +1,5 @@
 
+import { BoidComponent } from "@/components/boid.component";
 import { PhysicsComponent } from "../components/physics.component";
 import { ShapeComponent } from "../components/shape.component";
 import { SnakeComponent } from "../components/snake.component";
@@ -6,6 +7,7 @@ import { World } from "../core/world";
 import { EventBus } from "../game/eventBus";
 import { Prefabs } from "../utils/prefabs";
 import { Vector } from "../utils/vector";
+import { Entity } from "@/core/entity";
 
 
 
@@ -51,25 +53,31 @@ export class SnakeSkeletonSystem {
     update(dt: number) {
         this.snakeTime += dt;
         const entities = this.world.query(SnakeComponent);
+
+        // OPTIMIZATION: Query boids once per frame instead of inside the entity loop
+        const boidEntities = this.world.query(BoidComponent);
+
         for (const entity of entities) {
             const snakeComponent = entity.getComponent(SnakeComponent);
             if (!snakeComponent.segmentsGenerated) this.generateSegments(snakeComponent);
-            // this.applySnakeMovement(snakeComponent, dt)
+
             const physics = entity.getComponent(PhysicsComponent);
             if (!physics || physics.velocity.mag() < 1) continue; // skip if idle
 
+            if (entity.id !== 'player') {
+                this.attackBoidAiEnemies(boidEntities, entity);
+            }
             for (let iter = 0; iter < 5; iter++) {
                 this.applyDistanceConstraint(snakeComponent);
                 this.applyAngleConstraint(snakeComponent);
                 this.applyDistanceConstraint(snakeComponent);
             }
+
+            // AI Logic for non-player snakes
         }
 
     }
-    /**
-         * Apply sinusoidal lateral movement to create snake-like motion
-         * @param {SnakeComponent} snakeComponent
-         */
+
     applySnakeMovement(snakeComponent: SnakeComponent, dt: number) {
         if (!snakeComponent.isSnakeMoving) return;
         const entity = snakeComponent.entity;
@@ -280,6 +288,42 @@ export class SnakeSkeletonSystem {
             }
         }
     }
+    attackBoidAiEnemies(preys: Entity[], attacker: Entity) {
+        const attackerPos = attacker.transform.pos;
+        const MAX_DISTANCE = 120; // Detection radius (increased slightly for better AI)
+        let closestPrey: Entity | null = null;
+        let minDistance = MAX_DISTANCE;
 
+        // 1. Find the closest prey within range
+        for (const prey of preys) {
+            const preyPos = prey.transform.pos;
+            const distance = Vector.sub(preyPos, attackerPos).mag();
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPrey = prey;
+            }
+        }
+
+        // 2. If a prey is found, initiate attack/chase behavior
+        if (closestPrey) {
+            // console.log('Snake is targeting the closest prey!');
+
+            // --- OPTION A: Make the snake chase the prey ---
+            const physics = attacker.getComponent(PhysicsComponent);
+            if (physics) {
+                const direction = Vector.sub(closestPrey.transform.pos, attackerPos).normalize();
+                const chaseSpeed = 850; // Adjust this value based on your game's speed scale
+                physics.velocity = Vector.scale(direction, chaseSpeed);
+            }
+
+            // --- OPTION B: Trigger an attack event (Uncomment if you handle damage via events) ---
+            // if (minDistance < 20) { // Only "eat" or "damage" when very close
+            //     this.events.emit('snakeAttacksPrey', { attacker, prey: closestPrey });
+            // }
+        } else {
+            // Optional: If no prey is nearby, you could revert the snake to a wandering state here
+        }
+    }
 }
 

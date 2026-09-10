@@ -48,11 +48,13 @@ export interface LizardBody {
 
 }
 
+
+
 export class LizardComponent {
 
 
 
-    public static stepSpeed = 0.55
+    public static stepSpeed = 0.7
     public static legLength = 60;
     public static bodyShape1 = [140, 160, 70, 75, 85, 95, 105, 110, 115, 120, 120, 120, 115, 110, 105, 100, 90, 80, 70, 60, 50, 45, 40, 35, 35, 30, 28, 25, 25, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15]
     public static segmentDist = 5;

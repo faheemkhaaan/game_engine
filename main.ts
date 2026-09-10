@@ -3,7 +3,6 @@ import { LevelManager } from "./src/game/level-manager";
 import { ProgressStore } from "./src/game/progress-store";
 import { refreshAnimalUnlocks } from "./src/game/character-config";
 import { LEVELS } from "./src/game/level-config";
-
 import { createMainMenu } from "./src/ui/main-menu";
 import { createLevelSelect } from "./src/ui/level-select";
 import { createHud } from "./src/ui/hud";

@@ -30,7 +30,7 @@ export const LEVELS: Level[] = [
         minRooms: 8,
         minDimensions: 130,
         mouseCountPerRoom: 15,
-        enemySnakeCount: 2,
+        enemySnakeCount: 5,
     },
     {
         id: 1,
@@ -39,7 +39,7 @@ export const LEVELS: Level[] = [
         minRooms: 14,
         minDimensions: 120,
         mouseCountPerRoom: 25,
-        enemySnakeCount: 3,
+        enemySnakeCount: 6,
     },
     {
         id: 2,
@@ -48,7 +48,7 @@ export const LEVELS: Level[] = [
         minRooms: 20,
         minDimensions: 110,
         mouseCountPerRoom: 40,
-        enemySnakeCount: 5,
+        enemySnakeCount: 7,
     },
     {
         id: 3,

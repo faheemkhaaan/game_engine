@@ -38,10 +38,11 @@ export interface CentipedeBody {
     color: string;
     legColor: string;
 }
-
+const SCALER = 1;
 export class CentipedeComponent {
+
     public static stepSpeed = 0.5; // Slightly slower step for many legs to look natural
-    public static legLength = 45;  // Adjusted for centipede proportions
+    public static legLength = 125 * SCALER;  // Adjusted for centipede proportions
 
     // Centipede shape: slightly wider head, uniform body, tapering tail
     // Divided by 10 in the system, so these represent radii from 3.0 down to 0.4
@@ -50,14 +51,15 @@ export class CentipedeComponent {
         50, 50, 48, 48, 48, 45, 45, 45, 42, 42,
         40, 40, 38, 38, 35, 35, 32, 32, 30, 28,
         25, 22, 20, 18, 15, 12, 10, 8, 6, 4
-    ];
+    ].map(n => n * SCALER);
 
-    public static segmentDist = 8; // Distance between segments
-    public static legColor = [10, 100, 80, 200];
-    public static color = [10, 153, 89, 255];
+    public static segmentDist = 8 * SCALER; // Distance between segments
+    // Vivid Orange legs with Dark Violet/Black body
+    public static legColor = [255, 140, 0, 255];
+    public static color = [30, 20, 35, 255];
 
     // Centipede legs stick out more to the sides (60 degrees) rather than pointing backward
-    public static legBendAngle = 45;
+    public static legBendAngle = 35;
 
     public entity: Entity | null = null;
     public footRad = 3;

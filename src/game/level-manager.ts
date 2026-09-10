@@ -174,7 +174,9 @@ export class LevelManager {
         if (this.onPlayerSelected) {
             player = this.onPlayerSelected(this.world, pos);
         }
-        const enemySnakes = Prefabs.enemySnakes(this.world, 'snakeEnemy', new Vector(0, 0), this.currentLevelConfig.enemySnakeCount);
+        const enemySnakes = Prefabs.enemySnakes(this.world, `snakeEnemy`, pos, this.currentLevelConfig.enemySnakeCount);
+
+        console.log(enemySnakes)
         enemySnakes.forEach((snake, index) => {
             snake.transform = new Transform({
                 pos: new Vector(pos.x + (index * 30), pos.y + (index * 30)),
